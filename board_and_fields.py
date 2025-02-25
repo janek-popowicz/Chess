@@ -5,9 +5,8 @@ class Board:
     board = []
 
 
-
 class Field:
-    def __init__(self, x, y):
+    def __init__(self, x, y, figure=None):
         self.x = x
         self.y = y
         self.figure = None
