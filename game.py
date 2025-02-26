@@ -2,6 +2,7 @@
 Tu będzie handlowany user input poprzez notację szachową
 '''
 
+
 import figures, board_and_fields
 
 running = True
