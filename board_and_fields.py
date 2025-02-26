@@ -1,8 +1,13 @@
 """
 This is gonna be chess game. Here are gonna be classes for figures and board."""
-
+import figures
 class Board:
-    board = []
+    board = [
+        []
+    ]
+
+    def checkIfMoveIsPossible(self, figure, x, y):
+        return figure.checkIfMoveIsPossible(x, y)
 
 
 class Field:
