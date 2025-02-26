@@ -14,3 +14,5 @@ while running:
         running = False
         break
     
+
+cokolwiek
