@@ -1,36 +1,36 @@
-class Figure:
-    def __init__(self, x, y, color, type):
-        self.x = x
-        self.y = y
-        self.type = type
-        self.color = color
-        self.isAlive = True
-    #types: 
-    def checkIfMoveIsPossible(self, x, y):
-    
 
-    def moveForPawn(self, x, y):
-        pass
-    def moveForRook(self, x, y):
-        pass
-    def moveForKnight(self, x, y):
-        pass
-    def moveForBishop(self, x, y):
-        pass
-    def moveForQueen(self, x, y):
-        moveForRook(x, y)
-        moveForBishop(x, y)
-    def moveForKing(self, x, y):
-        pass
-class Pawn(Figure):
-    pass
-class Rook(Figure):
-    pass
-class Knight(Figure):
-    pass
-class Bishop(Figure):
-    pass
-class Queen(Figure):
-    pass
-class King(Figure):
-    pass
+'''
+color: 'w' or 'b'
+'''
+class Pawn():
+    def __init__(self, color):
+        self.color = color
+        self.first_move = True
+    def print_figure(self):
+        print(color + 'p')
+class Rook():
+    def __init__(self, color):
+        self.color = color
+        self
+    def print_figure(self):
+        print(color + 'R')
+class Knight():
+    def __init__(self, color):
+        self.color = color
+    def print_figure(self):
+        print(color + 'N')
+class Bishop():
+    def __init__(self, color):
+        self.color = color
+    def print_figure(self):
+        print(color + 'B')
+class Queen():
+    def __init__(self, color):
+        self.color = color
+    def print_figure(self):
+        print(color + 'Q')
+class King():
+    def __init__(self, color):
+        self.color = color
+    def print_figure(self):
+        print(color + 'K')
