@@ -13,16 +13,15 @@ class Board:
     ]
 
     def makeMove(self, x1, y1, x2, y2):
-        self.board[y2][x2] = self.board[y1][x1]
-        self.board[y1][x1] = Field(x1, y1, None)
+        self.board[y2][x2].figure = self.board[y1][x1].figure
+        self.board[y1][x1].figure = None
 class Field:
     def __init__(self, x, y, figure=None):
         self.x = x
         self.y = y
         self.figure = None
 
-    def set_figure(self, figure):
-        self.figure = figure
+    
 
     def what_figure(self):
         return self.figure
