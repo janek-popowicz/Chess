@@ -22,3 +22,15 @@ class Figure:
         moveForBishop(x, y)
     def moveForKing(self, x, y):
         pass
+class Pawn(Figure):
+    pass
+class Rook(Figure):
+    pass
+class Knight(Figure):
+    pass
+class Bishop(Figure):
+    pass
+class Queen(Figure):
+    pass
+class King(Figure):
+    pass
