@@ -14,6 +14,7 @@ class Pawn():
         print(self.color + self.type,end="")
 class Rook():
     def __init__(self, color):
+        self.has_moved = False  
         self.type = 'R'
         self.color = color
         self.move_scheme = [(0, 1 ,8), (0, -1 ,8), (1, 0 ,8), (-1, 0 ,8)]
@@ -42,6 +43,7 @@ class Queen():
         print(self.color + self.type,end="")
 class King():
     def __init__(self, color):
+        self.has_moved = False
         self.type = 'K'
         self.color = color
         self.move_scheme = [(1,1,1),(1,-1,1),(-1,1,1),(-1,-1,1),(0, 1 ,1), (0, -1 ,1), (1, 0 ,1), (-1, 0 ,1)]

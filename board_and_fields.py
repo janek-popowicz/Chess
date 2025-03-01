@@ -25,7 +25,7 @@ class Board:
         ]
         self.incheck = False
     def print_board(self):
-        print("\n" + "     7    6    5    4    3    2    1    0")
+        
         print("  +" + "----+" *8 )
         for x in range(7,-1,-1):
             print(x, "| ",end="")
@@ -36,61 +36,8 @@ class Board:
                     self.board[x][y].figure.print_figure()
                 print(" | ",end="")
             print("\n" "  +" + "----+" *8 )
-    def get_valid_moves(self,field):
-        valid_cords = []
-        if field.figure == None:
-            print("Na tym polu nie ma figury")
-        #Pionek to jedyna figura, której kierunek ruchu zależy od koloru
-        elif field.figure.type == 'p':
-            #Dla białego pionka
-            if field.figure.color == 'w':
-                #Ruchy bicia 
-                if self.board[field.y+1][field.x + 1].figure != None:
-                    valid_cords.append((field.x + 1,field.y+1))
-                if self.board[field.y+1][field.x - 1].figure != None:
-                    valid_cords.append((field.x - 1,field.y+1))
-                #Zwykły ruch
-                if self.board[field.y+1][field.x].figure == None:
-                    valid_cords.append((field.x,field.y+1))
-                #Pierwszy ruch
-                if self.board[field.y+2][field.x].figure == None and field.figure.first_move == True:
-                    valid_cords.append((field.x,field.y+2))
-            else:
-                #Ruchy bicia 
-                if self.board[field.y-1][field.x + 1].figure != None:
-                    valid_cords.append((field.x + 1,field.y-1))
-                if self.board[field.y-1][field.x - 1].figure != None:
-                    valid_cords.append((field.x - 1,field.y-1))
-                #Zwykły ruch
-                if self.board[field.y-1][field.x].figure == None:
-                    valid_cords.append((field.x,field.y-1))
-                #Pierwszy ruch
-                if self.board[field.y-2][field.x].figure == None and field.figure.first_move == True:
-                    valid_cords.append((field.x,field.y-2))
-        #Ruchy dla innych figur
-        else:
-            movescheme = field.figure.move_scheme 
-            for direction in movescheme:
-                for distance in range(1,direction[2]+1):
-                    try:
-                        field_to_check = self.board[field.y + direction[1]*distance][field.x + direction[0]*distance]
-                    #Sprawdzanie, czy koordynaty pola nie wyszły poza szachownicę
-                    except IndexError:
-                        break
-                    #Sprawdzanie, czy na danym polu jest jakaś figura, i czy jest to król
-                    if field_to_check.figure == None:
-                        valid_cords.append((field_to_check.x,field_to_check.y))
-                    else:
-                        if field_to_check.figure.color == field.figure.color:
-                            break
-                        else:
-                            if field_to_check.figure.type == 'K':
-                                self.incheck = True
-                                break
-                            else:
-                                valid_cords.append((field_to_check.x,field_to_check.y))
-                        
-        return valid_cords   
+        print("     7    6    5    4    3    2    1    0")
+    
     def make_move(self, x1, y1, x2, y2):
         self.board[y2][x2].figure = self.board[y1][x1].figure
         self.board[y1][x1].figure = None
