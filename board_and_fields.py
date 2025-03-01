@@ -22,14 +22,16 @@ class Board:
                 [Field(0, 7, figures.Rook('w')), Field(1, 7, figures.Knight('w')), Field(2, 7, figures.Bishop('w')), Field(3, 7, figures.Queen('w')), Field(4, 7, figures.King('w')), Field(5, 7, figures.Bishop('w')), Field(6, 7, figures.Knight('w')), Field(7, 7, figures.Rook('w'))]
         ]
     def print_board(self):
+        print("\n" + "-" *(4*8+9) )
         for i in range(0,8):
+            print("| ",end="")
             for j in range(0,8):
                 if self.board[i][j].figure == None:
                     print("  ",end="")
                 else:
                     self.board[i][j].figure.print_figure()
-                print("\t",end="")
-            print("\n",end="")
+                print(" | ",end="")
+            print("\n" + "-" *(4*8+9) )
     def make_move(self, x1, y1, x2, y2):
-        self.board[y2][x2] = self.board[y1][x1]
-        self.board[y1][x1] = None
+        self.board[y2][x2].figure = self.board[y1][x1].figure
+        self.board[y1][x1].figure = None

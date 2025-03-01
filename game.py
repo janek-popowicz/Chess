@@ -14,3 +14,5 @@ while running:
     if ruch == "exit":
         running = False
         break
+    else:
+        board.make_move(0,0,4,4)
