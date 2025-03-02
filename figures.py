@@ -27,7 +27,7 @@ class Knight():
     def __init__(self, color):
         self.type = 'N'
         self.color = color
-        self.move_scheme = [(2,3,1),(-2,3,1),(2,-3,1),(-2,-3,1),(3,2,1),(3,-2,1),(-3,2,1),(-3,-2,1)]
+        self.move_scheme = [(2,1,1),(-2,1,1),(2,-1,1),(-2,-1,1),(1,2,1),(1,-2,1),(-1,2,1),(-1,-2,1)]
     def print_figure(self):
         print(self.color + self.type,end="")
 class Bishop():

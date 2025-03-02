@@ -22,70 +22,90 @@ class Board:
                 [Field(0, 7, figures.Rook('b')), Field(1, 7, figures.Knight('b')), Field(2, 7, figures.Bishop('b')), Field(3, 7, figures.King('b')), Field(4, 7, figures.Queen('b')), Field(5, 7, figures.Bishop('b')), Field(6, 7, figures.Knight('b')), Field(7, 7, figures.Rook('b'))]
         ]
         self.incheck = False
-    def make_move(self, x1, y1, x2, y2):
+    def make_move(self, y1, x1, y2, x2):
         self.board_state[y2][x2].figure = self.board_state[y1][x1].figure
         self.board_state[y1][x1].figure = None
-    def get_possible_moves(self,field):
-        valid_cords = []
+    def get_regular_moves(self,field):
+        possible_cords = [] 
         if field.figure == None:
-            print("Na tym polu nie ma figury! ",end="")
+            print("Na tym polu nie ma figury!",end=" ")
             return []
         movescheme = field.figure.move_scheme 
         for direction in movescheme:
             for distance in range(1,direction[2]+1):
-                try:
-                    field_to_check = self.board_state[field.y + direction[1]*distance][field.x + direction[0]*distance]
+                field_to_check_x = field.x + direction[0] * distance
+                field_to_check_y= field.y + direction[1] * distance
                 #Sprawdzanie, czy koordynaty pola nie wyszły poza szachownicę
-                except IndexError:
-                    break
-                #Sprawdzanie, czy na danym polu jest jakaś figura, i czy jest to król
-                if field_to_check.figure == None:
-                    valid_cords.append((field_to_check.x,field_to_check.y))
-                else:
-                    if field_to_check.figure.color == field.figure.color:
-                        break
-                    else:
-                        if field_to_check.figure.type == 'K':
-                            self.incheck = True
-                            break
-                        elif field.figure.type != 'p':
-                            valid_cords.append((field_to_check.x,field_to_check.y))           
-        if field.figure.type == 'p':
-            attackscheme = field.figure.attack_scheme 
-            for direction in attackscheme:
-                field_to_check = self.board_state[field.y + direction[1]][field.x + direction[0]]
+                if field_to_check_y > 7 or field_to_check_y < 0 or field_to_check_x > 7 or field_to_check_x < 0:
+                    break 
+                field_to_check = self.board_state[field_to_check_y][field_to_check_x]
+                #Sprawdzanie, czy na danym polu jest jakaś figura
                 if field_to_check.figure != None:
-                    if field_to_check.figure.color == field.figure.color:
-                        break
-                    else:
+                    break    
+                possible_cords.append((field_to_check.y,field_to_check.x))
+
+        return possible_cords   
+    def get_attack_moves(self,field):
+        possible_cords = [] 
+        try:
+            attackscheme = field.figure.attack_scheme 
+        except AttributeError:
+            attackscheme = field.figure.move_scheme
+        for direction in attackscheme:
+            for distance in range(1,direction[2]+1):
+                field_to_check_x = field.x + direction[0] * distance
+                field_to_check_y= field.y + direction[1] * distance
+                #Sprawdzanie, czy koordynaty pola nie wyszły poza szachownicę
+                if field_to_check_y > 7 or field_to_check_y < 0 or field_to_check_x > 7 or field_to_check_x < 0:
+                    break 
+                field_to_check = self.board_state[field_to_check_y][field_to_check_x]
+                if field_to_check.figure != None:
+                    if field_to_check.figure.color != field.figure.color:
                         if field_to_check.figure.type == 'K':
                             self.incheck = True
-                            break
-                        valid_cords.append((field_to_check.x,field_to_check.y))
-        return valid_cords              
+                        possible_cords.append((field_to_check.y,field_to_check.x)) 
+                    break
+        return possible_cords
     def is_in_check(self,color):
         enemy_attacks = []
-        for y in range(0,7):
-            for x in range(0,7):
+        for y in range(0,8):
+            for x in range(0,8):
                 tile = self.board_state[y][x]
                 if tile.figure !=None:
                     if tile.figure.type == 'K' and tile.figure.color == color:
-                        king_position = (x,y)
+                        king_position = (y,x)
                     if tile.figure.color !=color:
-                        enemy_attacks += self.get_possible_moves(tile)
+                        enemy_attacks = enemy_attacks + self.get_attack_moves(tile)
+        enemy_attacks = set(enemy_attacks)
         if king_position in enemy_attacks:
-            self.incheck = True
+            if self.incheck == False:
+                self.incheck = True
+                print("Szach!",end=" ")
         else:
             self.incheck = False   
-    def get_legal_moves(self,field,color):
-        possible_moves = self.get_possible_moves(field)
-        legal_moves = []
-        for move in possible_moves:
-            self.make_move(field.x,field.y,move[0],move[1])
-            self.is_in_check(color)
-            if not self.incheck:
-                legal_moves.append(move)
-        return legal_moves
+    def get_legal_moves(self,field,turn):
+        if field.figure == None:
+            print("Na tym polu nie ma figury!",end=" ")
+            return []
+        elif field.figure.color != turn:
+            print("To nie twój ruch!", end=" ")
+            return []
+        else:
+            possible_moves = self.get_regular_moves(field) + self.get_attack_moves(field)
+            legal_cords = []
+            for move in possible_moves:
+                if self.board_state[move[0]][move[1]].figure != None:
+                    if self.board_state[move[0]][move[1]].figure.type == 'K' and self.board_state[move[0]][move[1]].figure.color != turn:
+                        self.incheck = True
+                        print("Szach!",end=" ")
+                else:            
+                    self.make_move(field.y,field.x,move[0],move[1])
+                    self.is_in_check(turn)
+                    if not self.incheck:
+                        legal_cords.append(move)
+                    self.make_move(move[0],move[1],field.y,field.x)
+            return legal_cords
+        
     def print_board(self):
         print("+" + "----+" *8 )
         for x in range(7,-1,-1):
