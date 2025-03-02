@@ -6,13 +6,13 @@ class Pawn():
     def __init__(self, color):
         self.type = 'p'
         self.color = color
-        self.first_move = True
+        self.has_moved = False
         if color == 'w': 
-            self.move_scheme = [(0, 1, 2), (0, 1, 1)]
+            self.move_scheme = [ (0, 1, 1)]
             self.attack_scheme = [(1, 1, 1), (-1, 1, 1)]
         if color == 'b':
-            self.move_scheme = [(0, -1, 2),(0, -1, 1)]
-            self.attack_scheme=[(1, -1, 1),(-1,-1, 1)]
+            self.move_scheme = [(0, -1, 1)]
+            self.attack_scheme = [(1, -1, 1), (-1, -1, 1)]
     def print_figure(self):
         print(self.color + self.type,end="")
 class Rook():

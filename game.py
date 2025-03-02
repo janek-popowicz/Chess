@@ -19,6 +19,8 @@ while running:
         x2 = int(input("Podaj kolumnę celu: "))
         if(y2,x2) in main_board.get_legal_moves(main_board.board_state[y1][x1],turn):
             main_board.make_move(y1, x1, y2,x2)
+            if main_board.board_state[y2][x2].figure.type in ['p','R','K']:
+                main_board.board_state[y2][x2].figure.has_moved = True
             break
         else: 
             print("Nielegalny ruch!")

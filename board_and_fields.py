@@ -30,7 +30,15 @@ class Board:
         if field.figure == None:
             print("Na tym polu nie ma figury!",end=" ")
             return []
-        movescheme = field.figure.move_scheme 
+        movescheme = []
+        for direction in field.figure.move_scheme:
+            movescheme.append(direction)
+        if field.figure.type == 'p':
+            if field.figure.has_moved == False:                
+                if field.figure.color == 'w':
+                    movescheme.append((0,1,2))
+                else:
+                    movescheme.append((0,-1,2))            
         for direction in movescheme:
             for distance in range(1,direction[2]+1):
                 field_to_check_x = field.x + direction[0] * distance
@@ -59,6 +67,7 @@ class Board:
                 if field_to_check_y > 7 or field_to_check_y < 0 or field_to_check_x > 7 or field_to_check_x < 0:
                     break 
                 field_to_check = self.board_state[field_to_check_y][field_to_check_x]
+                #Sprawdzanie, czy na polu do zbicia jest król
                 if field_to_check.figure != None:
                     if field_to_check.figure.color != field.figure.color:
                         if field_to_check.figure.type == 'K':
