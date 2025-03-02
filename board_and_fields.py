@@ -34,7 +34,7 @@ class Board:
         for direction in field.figure.move_scheme:
             movescheme.append(direction)
         if field.figure.type == 'p':
-            if field.figure.has_moved == False:                
+            if field.figure.has_moved == False:
                 if field.figure.color == 'w':
                     movescheme.append((0,1,2))
                 else:
@@ -107,6 +107,8 @@ class Board:
                     if self.board_state[move[0]][move[1]].figure.type == 'K' and self.board_state[move[0]][move[1]].figure.color != turn:
                         self.incheck = True
                         print("Szach!",end=" ")
+                    else:
+                        legal_cords.append(move)
                 else:            
                     self.make_move(field.y,field.x,move[0],move[1])
                     self.is_in_check(turn)
