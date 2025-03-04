@@ -106,6 +106,8 @@ def afterMove(turn, main_board, y1, x1, y2, x2):
         else:
             main_board.print_board()
             return("stalemate", 0, 0)
+    return(1,1,1)
+    
 def promotion(turn, y,x,main_board,choice):
     if choice == "1":
         main_board.board_state[y][x].figure = figures.Knight(turn)
