@@ -1,7 +1,7 @@
 """
 Tu będzie handlowany user input poprzez notację szachową
 """
-import  board_and_fields
+import  figures,board_and_fields
 
 running = True
 main_board = board_and_fields.Board()
@@ -67,6 +67,49 @@ while running:
                 color_to_check = 'w' if turn == 'b' else 'b'
                 if main_board.board_state[y][x].figure.color == color_to_check:
                     available_moves+=main_board.get_legal_moves(main_board.board_state[y][x],main_board.board_state[y][x].figure.color)
+                if main_board.board_state[y][x].figure.type == 'p':
+                    #Sprawdzanie flag enpassant
+                    if main_board.board_state[y][x].figure.can_enpassant_l == True:
+                        main_board.board_state[y][x].figure.can_enpassant_l = False
+                    if main_board.board_state[y][x].figure.can_enpassant_r == True:
+                        main_board.board_state[y][x].figure.can_enpassant_r = False
+                    #Sprawdzanie enpassant
+                    if destination_tile.figure != None:
+                        if destination_tile.figure.type == 'p' :
+                            direction = 1 if destination_tile.figure.color == 'w' else -1
+                            try:
+                                if main_board.board_state[destination_tile.y][destination_tile.x +direction].figure != None:
+                                    if (main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.type == 'p' 
+                                    and main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.color != destination_tile.figure.color):
+                                        main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.can_enpassant_l = True
+                                if main_board.board_state[destination_tile.y][destination_tile.x -direction].figure != None:
+                                    if (main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.type == 'p' 
+                                    and main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.color != destination_tile.figure.color):
+                                        main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.can_enpassant_r = True
+                                if (destination_tile.x - start_tile.x) * direction and destination_tile.figure.can_enpassant_l:
+                                    destination_tile.figure.can_enpassant_l = False
+                                    main_board.board_state[start_tile.y][destination_tile.x].figure = None
+                                if (start_tile.x - destination_tile.x) * direction and destination_tile.figure.can_enpassant_r:
+                                    destination_tile.figure.can_enpassant_r = False
+                                    main_board.board_state[start_tile.y][destination_tile.x].figure = None
+                            except IndexError:
+                                continue
+                    if y in [0,7]:
+                        main_board.print_board()
+                        choice = input(f"""Pionek w kolumnie {x} dotarł do końca planszy. Wpisz:
+1 - Aby zmienić go w Skoczka
+2 - Aby zmienić go w Gońca
+3 - Aby zmienić go w Wieżę
+4 - Aby zmienić go w Królową
+                               """)
+                        if choice == "1":
+                            main_board.board_state[y][x].figure = figures.Knight(turn)
+                        if choice == "2":
+                            main_board.board_state[y][x].figure = figures.Bishop(turn)
+                        if choice == "3":
+                            main_board.board_state[y][x].figure = figures.Rook(turn)
+                        if choice == "4":
+                            main_board.board_state[y][x].figure = figures.Queen(turn)
     if available_moves == []:
         if main_board.incheck == True:
             main_board.print_board()

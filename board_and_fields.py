@@ -68,6 +68,11 @@ class Board:
                     break 
                 field_to_check = self.board_state[field_to_check_y][field_to_check_x]
                 #Sprawdzanie, czy na polu do zbicia jest król
+                if field.figure.type == 'p':
+                        if field.figure.can_enpassant_l == True:
+                            possible_cords.append(((field.y + field.figure.attack_scheme[0][1],field.x + field.figure.attack_scheme[0][0])))
+                        if field.figure.can_enpassant_r == True:
+                            possible_cords.append((field.y + field.figure.attack_scheme[1][1],field.x + field.figure.attack_scheme[1][0]))
                 if field_to_check.figure != None:
                     if field_to_check.figure.color != field.figure.color:
                         if field_to_check.figure.type == 'K':
@@ -100,7 +105,7 @@ class Board:
             print("To nie twój ruch!", end=" ")
             return []
         else:
-            possible_moves = self.get_regular_moves(field) + self.get_attack_moves(field)
+            possible_moves = set(self.get_regular_moves(field) + self.get_attack_moves(field))
             legal_cords = []
             for move in possible_moves:
                 if self.board_state[move[0]][move[1]].figure != None:
