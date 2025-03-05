@@ -19,9 +19,9 @@ font = pygame.font.Font(None, 74)
 
 # Opcje menu
 menu_options = [
-    "Normal Game",
-    "Random AI Game",
-    "Settings",
+    "Normal Game Terminal Mode",
+    "Random AI Game (not done)",
+    "Settings (not done)",
     "Exit"
 ]
 
