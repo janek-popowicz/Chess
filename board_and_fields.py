@@ -175,4 +175,9 @@ class Board:
             print(x)
             print("+" + "----+" *8 )
         print("  7    6    5    4    3    2    1    0")
+    def get_piece(self,r,c):
+        if self.board_state[r][c].figure == None:
+            return "--"
+        else:
+            return self.board_state[r][c].figure.return_figure()
     
