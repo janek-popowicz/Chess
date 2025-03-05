@@ -14,7 +14,20 @@ Dzięki copilot za pomoc w pisaniu tego komentarza.
 
 import figures,board_and_fields
 
-def tryMove(turn,main_board,y1, x1, y2, x2):
+def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
+    """ Próbuje zrobić ruch
+
+    Args:
+        turn (str): 'w' lub 'b'
+        main_board (_type_): board object
+        y1 (int): coordinate
+        x1 (int): coordinate
+        y2 (int): coordinate
+        x2 (int): coordinate
+
+    Returns:
+        bool: True when move was done, False when not
+    """
     start_tile = main_board.board_state[y1][x1] 
     destination_tile = main_board.board_state[y2][x2]
     #Mechanizm roszady
@@ -59,7 +72,20 @@ def tryMove(turn,main_board,y1, x1, y2, x2):
         print("Nielegalny ruch!")
         return False
 
-def afterMove(turn, main_board, y1, x1, y2, x2):
+def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
+    """To jest potrzebne, aby sprawdzać szachmata, enpassant
+
+    Args:
+        turn (str): 'w' or 'b'
+        main_board (_type_): board object
+        y1 (int): coordinate
+        x1 (int): coordinate
+        y2 (int): coordinate
+        x2 (int): coordinate
+
+    Returns:
+        str: returns action to do
+    """
     start_tile = main_board.board_state[y1][x1]
     destination_tile = main_board.board_state[y2][x2]
     available_moves = []
@@ -108,7 +134,16 @@ def afterMove(turn, main_board, y1, x1, y2, x2):
             return("stalemate", 0, 0)
     return(1,1,1)
     
-def promotion(turn, y,x,main_board,choice):
+def promotion(turn:str, y:int,x:int,main_board,choice:str)->None:
+    """ Robi promocję na podstawie wybranego wyboru
+
+    Args:
+        turn (str): 'w' or 'b'
+        y (int): earlier y from afterMove
+        x (int): earlier x from afterMove
+        main_board (): board object
+        choice (str): '1', '2', '3', '4'; knight, bishop, rook,queen
+    """
     if choice == "1":
         main_board.board_state[y][x].figure = figures.Knight(turn)
     if choice == "2":

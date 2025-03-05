@@ -22,10 +22,26 @@ class Board:
                 [Field(0, 7, figures.Rook('b')), Field(1, 7, figures.Knight('b')), Field(2, 7, figures.Bishop('b')), Field(3, 7, figures.King('b')), Field(4, 7, figures.Queen('b')), Field(5, 7, figures.Bishop('b')), Field(6, 7, figures.Knight('b')), Field(7, 7, figures.Rook('b'))]
         ]
         self.incheck = False
-    def make_move(self, y1, x1, y2, x2):
+    def make_move(self, y1:int, x1:int, y2:int, x2:int)->None:
+        """robienie ruchu
+
+        Args:
+            y1 (int): cord
+            x1 (int): cord
+            y2 (int): cord
+            x2 (int): cord
+        """
         self.board_state[y2][x2].figure = self.board_state[y1][x1].figure
         self.board_state[y1][x1].figure = None
     def get_regular_moves(self,field):
+        """_summary_
+
+        Args:
+            field (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         possible_cords = [] 
         if field.figure == None:
             print("Na tym polu nie ma figury!",end=" ")
@@ -54,6 +70,14 @@ class Board:
 
         return possible_cords   
     def get_attack_moves(self,field):
+        """_summary_
+
+        Args:
+            field (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         possible_cords = [] 
         try:
             attackscheme = field.figure.attack_scheme 
@@ -81,6 +105,11 @@ class Board:
                     break
         return possible_cords
     def is_in_check(self,color):
+        """ sprawdza czy jest szach
+
+        Args:
+            color (_type_): _description_
+        """
         enemy_attacks = []
         for y in range(0,8):
             for x in range(0,8):
@@ -98,6 +127,15 @@ class Board:
         else:
             self.incheck = False   
     def get_legal_moves(self,field,turn):
+        """Generuje legalne ruchy
+
+        Args:
+            field (_type_): _description_
+            turn (_type_): _description_
+
+        Returns:
+            list: Benedykt dodaj description
+        """
         if field.figure == None:
             print("Na tym polu nie ma figury!",end=" ")
             return []
@@ -123,6 +161,8 @@ class Board:
             return legal_cords
         
     def print_board(self):
+        """printuje siebie w łanym formacie terminalowym
+        """
         print("+" + "----+" *8 )
         for x in range(7,-1,-1):
             print( "| ",end="")
