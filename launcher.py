@@ -34,7 +34,12 @@ for option in menu_options:
     menu_texts.append((text_white, text_gray))
 
 # Funkcja do rysowania menu
-def draw_menu(selected_option):
+def draw_menu(selected_option:int)->None:
+    """rysuje menu i renderuje tekst
+
+    Args:
+        selected_option (int): numer wybranej opcji z listy menu_options
+    """
     screen.fill(BLACK)
     for i, (text_white, text_gray) in enumerate(menu_texts):
         text = text_white if i == selected_option else text_gray
