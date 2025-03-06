@@ -26,12 +26,18 @@ menu_options = [
     "Exit"
 ]
 
+# Renderowanie tekstu tylko raz
+menu_texts = []
+for option in menu_options:
+    text_white = font.render(option, True, WHITE)
+    text_gray = font.render(option, True, GRAY)
+    menu_texts.append((text_white, text_gray))
+
 # Funkcja do rysowania menu
 def draw_menu(selected_option):
     screen.fill(BLACK)
-    for i, option in enumerate(menu_options):
-        color = WHITE if i == selected_option else GRAY
-        text = font.render(option, True, color)
+    for i, (text_white, text_gray) in enumerate(menu_texts):
+        text = text_white if i == selected_option else text_gray
         text_rect = text.get_rect(center=(800, 150 + i * 100))
         screen.blit(text, text_rect)
     pygame.display.flip()
@@ -44,7 +50,8 @@ def main():
     # Dodanie muzyki
     pygame.mixer.music.load("menu_background_music.mp3")
     pygame.mixer.music.play(start=5)
-    pygame.mixer.music.set_volume(10)
+    pygame.mixer.music.set_volume(1)
+
     while running:
         mouse_pos = pygame.mouse.get_pos()
         for event in pygame.event.get():
@@ -80,8 +87,8 @@ def main():
                     elif selected_option == 4:
                         running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                for i, option in enumerate(menu_options):
-                    text_rect = font.render(option, True, WHITE).get_rect(center=(800, 150 + i * 100))
+                for i, (text_white, text_gray) in enumerate(menu_texts):
+                    text_rect = text_white.get_rect(center=(800, 150 + i * 100))
                     if text_rect.collidepoint(mouse_pos):
                         selected_option = i
                         if selected_option == 0:
@@ -109,8 +116,8 @@ def main():
                             running = False
 
         # Sprawdzenie kolizji myszy z opcjami menu
-        for i, option in enumerate(menu_options):
-            text_rect = font.render(option, True, WHITE).get_rect(center=(800, 150 + i * 100))
+        for i, (text_white, text_gray) in enumerate(menu_texts):
+            text_rect = text_white.get_rect(center=(800, 150 + i * 100))
             if text_rect.collidepoint(mouse_pos):
                 selected_option = i
 
