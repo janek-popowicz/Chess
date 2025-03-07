@@ -2,8 +2,16 @@ import pygame
 import sys
 import engine
 import board_and_fields
+import json
 
+CONFIG_FILE = "config.json"
 
+def load_config():
+    try:
+        with open(CONFIG_FILE, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {"volume": 50, "resolution": "800x600"}
 
 # Funkcja do rysowania szachownicy
 def draw_board(screen, board, SQUARE_SIZE, pieces):
@@ -30,11 +38,14 @@ def draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts):
 def main():
     pygame.init()
 
+    # Ładowanie konfiguracji
+    config = load_config()
+    resolution = config["resolution"]
+    width, height = map(int, resolution.split('x'))
+    SQUARE_SIZE = height // 8
+    print(width, height, SQUARE_SIZE)
     # Ustawienia ekranu
-    SQUARE_SIZE = 120
-    width, height = SQUARE_SIZE*8+300, SQUARE_SIZE*8
     screen = pygame.display.set_mode((width, height))
-
     pygame.display.set_caption("Chess Game")
 
     # Kolory
@@ -68,7 +79,7 @@ def main():
     selected_piece = None
     clock = pygame.time.Clock()
 
-    # Teksty interdejsu
+    # Teksty interfejsu
     texts = ((font.render(f"Kolejka: Białas", True, WHITE),(8*SQUARE_SIZE+10, 10)),
             (font.render(f"Kolejka: Czarnuch", True, WHITE), (8*SQUARE_SIZE+10, 10)),
             (font.render(f"Wyjście", True, WHITE), (8*SQUARE_SIZE+10, height-50)))
@@ -79,6 +90,7 @@ def main():
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
+                print(pos)
                 col = 7 - (pos[0] // SQUARE_SIZE)
                 row = 7 - (pos[1] // SQUARE_SIZE)
                 if col < 8 and row < 8:
@@ -107,7 +119,7 @@ def main():
                             selected_piece = (row, col)
                     else:
                         selected_piece = (row, col)
-                elif pos[0]>= SQUARE_SIZE*8 and pos[0]<= width and pos[1] >= height-50 and pos[1]<= height:
+                if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
                     running = False
                     pygame.quit()
                     import launcher

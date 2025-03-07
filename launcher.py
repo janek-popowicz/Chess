@@ -39,7 +39,7 @@ def main():
         "Normal Game w terminalu)",
         "Normal Game (do dopracowania)",
         "Random AI Game (do zrobienia)",
-        "Settings (do zrobienia)",
+        "Ustawienia",
         "Exit"
     ]
 
@@ -88,8 +88,11 @@ def main():
                         import test_mode_random_ai_game
                         test_mode_random_ai_game.main()
                     elif selected_option == 3:
-                        # Tutaj można dodać kod do ustawień
-                        pass
+                        running=False
+                        pygame.mixer.music.stop()
+                        pygame.quit()
+                        import settings
+                        settings.main()
                     elif selected_option == 4:
                         running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -103,7 +106,7 @@ def main():
                             pygame.quit()
                             import test_mode_normal_game
                             test_mode_normal_game.main()
-                        if selected_option == 1:
+                        elif selected_option == 1:
                             running = False
                             pygame.mixer.music.stop()
                             pygame.quit()
@@ -116,8 +119,11 @@ def main():
                             import test_mode_random_ai_game
                             test_mode_random_ai_game.main()
                         elif selected_option == 3:
-                            # Tutaj można dodać kod do ustawień
-                            pass
+                            running=False
+                            pygame.mixer.music.stop()
+                            pygame.quit()
+                            import settings
+                            settings.main()
                         elif selected_option == 4:
                             running = False
 
