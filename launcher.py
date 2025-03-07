@@ -36,9 +36,9 @@ def main():
 
     # Opcje menu
     menu_options = [
-        "Normal Game w terminalu)",
-        "Normal Game (do dopracowania)",
-        "Random AI Game (do zrobienia)",
+        "Zwykła gra w terminalu",
+        "Zwykła gra",
+        "Random AI Game (nie ma)",
         "Ustawienia",
         "Exit"
     ]
