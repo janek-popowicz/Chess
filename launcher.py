@@ -1,5 +1,6 @@
 import pygame
 import sys
+import json
 # Funkcja do rysowania menu
 def draw_menu(selected_option:int, screen, menu_texts, text_white, text_gray,BLACK)->None:
     """rysuje menu i renderuje tekst
@@ -14,6 +15,13 @@ def draw_menu(selected_option:int, screen, menu_texts, text_white, text_gray,BLA
         screen.blit(text, text_rect)
     pygame.display.flip()
 
+def load_config():
+    try:
+        with open("config.json", "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {"volume": 0.5, "resolution": "1260x960"}
+
 # Funkcja główna
 def main():
 
@@ -24,7 +32,9 @@ def main():
     # Ustawienia ekranu
     screen = pygame.display.set_mode((1600, 1000))
     pygame.display.set_caption("Chess Game Launcher")
-
+    config = load_config()
+    volume = config["volume"]
+    volume = volume/100
     # Kolory
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
@@ -40,7 +50,7 @@ def main():
         "Zwykła gra",
         "Random AI Game (nie ma)",
         "Ustawienia",
-        "Exit"
+        "Wyjście"
     ]
 
     selected_option = 0
@@ -56,7 +66,7 @@ def main():
     # Dodanie muzyki
     pygame.mixer.music.load("menu_background_music.mp3")
     pygame.mixer.music.play(start=5)
-    pygame.mixer.music.set_volume(1)
+    pygame.mixer.music.set_volume(volume)
 
     while running:
         mouse_pos = pygame.mouse.get_pos()

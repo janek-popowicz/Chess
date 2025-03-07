@@ -4,14 +4,12 @@ import engine
 import board_and_fields
 import json
 
-CONFIG_FILE = "config.json"
-
 def load_config():
     try:
-        with open(CONFIG_FILE, "r") as file:
+        with open("config.json", "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return {"volume": 50, "resolution": "800x600"}
+        return {"volume": 0.5, "resolution": "1260x960"}
 
 # Funkcja do rysowania szachownicy
 def draw_board(screen, board, SQUARE_SIZE, pieces):
