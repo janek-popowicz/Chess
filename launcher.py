@@ -1,40 +1,7 @@
 import pygame
 import sys
-
-# Inicjalizacja Pygame
-pygame.init()
-
-# Ustawienia ekranu
-screen = pygame.display.set_mode((1600, 1000))
-pygame.display.set_caption("Chess Game Launcher")
-
-# Kolory
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GRAY = (100, 100, 100)
-HIGHLIGHT = (200, 200, 200)
-
-# Czcionka
-font = pygame.font.Font(None, 74)
-
-# Opcje menu
-menu_options = [
-    "Normal Game w terminalu)",
-    "Normal Game (do dopracowania)",
-    "Random AI Game (do zrobienia)",
-    "Settings (do zrobienia)",
-    "Exit"
-]
-
-# Renderowanie tekstu tylko raz
-menu_texts = []
-for option in menu_options:
-    text_white = font.render(option, True, WHITE)
-    text_gray = font.render(option, True, GRAY)
-    menu_texts.append((text_white, text_gray))
-
 # Funkcja do rysowania menu
-def draw_menu(selected_option:int)->None:
+def draw_menu(selected_option:int, screen, menu_texts, text_white, text_gray,BLACK)->None:
     """rysuje menu i renderuje tekst
 
     Args:
@@ -49,8 +16,42 @@ def draw_menu(selected_option:int)->None:
 
 # Funkcja główna
 def main():
+
+
+    # Inicjalizacja Pygame
+    pygame.init()
+
+    # Ustawienia ekranu
+    screen = pygame.display.set_mode((1600, 1000))
+    pygame.display.set_caption("Chess Game Launcher")
+
+    # Kolory
+    WHITE = (255, 255, 255)
+    BLACK = (0, 0, 0)
+    GRAY = (100, 100, 100)
+    HIGHLIGHT = (200, 200, 200)
+
+    # Czcionka
+    font = pygame.font.Font(None, 74)
+
+    # Opcje menu
+    menu_options = [
+        "Normal Game w terminalu)",
+        "Normal Game (do dopracowania)",
+        "Random AI Game (do zrobienia)",
+        "Settings (do zrobienia)",
+        "Exit"
+    ]
+
     selected_option = 0
     running = True
+
+    # Renderowanie tekstu tylko raz
+    menu_texts = []
+    for option in menu_options:
+        text_white = font.render(option, True, WHITE)
+        text_gray = font.render(option, True, GRAY)
+        menu_texts.append((text_white, text_gray))
 
     # Dodanie muzyki
     pygame.mixer.music.load("menu_background_music.mp3")
@@ -126,11 +127,10 @@ def main():
             if text_rect.collidepoint(mouse_pos):
                 selected_option = i
 
-        draw_menu(selected_option)
+        draw_menu(selected_option, screen, menu_texts, text_white, text_gray,BLACK)
 
     pygame.mixer.music.stop()
     pygame.quit()
-
-if __name__ == "__main__":
-    main()
     sys.exit()
+
+main()

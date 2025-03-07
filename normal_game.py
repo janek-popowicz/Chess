@@ -3,63 +3,75 @@ import sys
 import engine
 import board_and_fields
 
-# Inicjalizacja Pygame
-pygame.init()
 
-# Ustawienia ekranu
-width, height = 1000, 800
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Chess Game")
-
-# Kolory
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GRAY = (100, 100, 100)
-HIGHLIGHT = (200, 200, 200)
-
-# Czcionka
-font = pygame.font.Font(None, 36)
-
-# Ładowanie ikon figur
-pieces = {
-    "wp": pygame.image.load("pieces/wp.png"),
-    "wR": pygame.image.load("pieces/wR.png"),
-    "wN": pygame.image.load("pieces/wN.png"),
-    "wB": pygame.image.load("pieces/wB.png"),
-    "wQ": pygame.image.load("pieces/wQ.png"),
-    "wK": pygame.image.load("pieces/wK.png"),
-    "bp": pygame.image.load("pieces/bp.png"),
-    "bR": pygame.image.load("pieces/bR.png"),
-    "bN": pygame.image.load("pieces/bN.png"),
-    "bB": pygame.image.load("pieces/bB.png"),
-    "bQ": pygame.image.load("pieces/bQ.png"),
-    "bK": pygame.image.load("pieces/bK.png")
-}
 
 # Funkcja do rysowania szachownicy
-def draw_board(screen, board):
+def draw_board(screen, board, SQUARE_SIZE, pieces):
     colors = [pygame.Color("white"), pygame.Color("gray")]
     for r in range(8):
         for c in range(8):
             color = colors[(r + c) % 2]
-            pygame.draw.rect(screen, color, pygame.Rect(c*100, (7-r)*100, 100, 100))
+            pygame.draw.rect(screen, color, pygame.Rect(c*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
             piece = board.get_piece(r, c)
             if piece != "--":
-                screen.blit(pieces[piece], pygame.Rect(c*100, (7-r)*100, 100, 100))
+                screen.blit(pieces[piece], pygame.Rect(c*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+
 
 # Funkcja do rysowania interfejsu
-def draw_interface(screen, turn):
-    pygame.draw.rect(screen, BLACK, pygame.Rect(800, 0, 200, 800))
-    turn_text = font.render(f"Turn: {'White' if turn == 'w' else 'Black'}", True, WHITE)
-    screen.blit(turn_text, (810, 10))
+def draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts):
+    pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
+    if turn =='w':
+        screen.blit(texts[0][0], texts[0][1])
+    else:
+        screen.blit(texts[1][0], texts[1][1])
+    screen.blit(texts[2][0], texts[2][1])
 
 # Funkcja główna
 def main():
+    pygame.init()
+
+    # Ustawienia ekranu
+    SQUARE_SIZE = 120
+    width, height = SQUARE_SIZE*8+300, SQUARE_SIZE*8
+    screen = pygame.display.set_mode((width, height))
+
+    pygame.display.set_caption("Chess Game")
+
+    # Kolory
+    WHITE = (255, 255, 255)
+    BLACK = (0, 0, 0)
+    GRAY = (100, 100, 100)
+    HIGHLIGHT = (200, 200, 200)
+
+    # Czcionka
+    font = pygame.font.Font(None, 36)
+
+    # Ładowanie ikon figur
+    pieces = {
+        "wp": pygame.image.load("pieces/wp.png"),
+        "wR": pygame.image.load("pieces/wR.png"),
+        "wN": pygame.image.load("pieces/wN.png"),
+        "wB": pygame.image.load("pieces/wB.png"),
+        "wQ": pygame.image.load("pieces/wQ.png"),
+        "wK": pygame.image.load("pieces/wK.png"),
+        "bp": pygame.image.load("pieces/bp.png"),
+        "bR": pygame.image.load("pieces/bR.png"),
+        "bN": pygame.image.load("pieces/bN.png"),
+        "bB": pygame.image.load("pieces/bB.png"),
+        "bQ": pygame.image.load("pieces/bQ.png"),
+        "bK": pygame.image.load("pieces/bK.png")
+    }
+    
     running = True
     main_board = board_and_fields.Board()
-    turn = 'b'
+    turn = 'w'
     selected_piece = None
     clock = pygame.time.Clock()
+
+    # Teksty interdejsu
+    texts = ((font.render(f"Kolejka: Białas", True, WHITE),(8*SQUARE_SIZE+10, 10)),
+            (font.render(f"Kolejka: Czarnuch", True, WHITE), (8*SQUARE_SIZE+10, 10)),
+            (font.render(f"Wyjście", True, WHITE), (8*SQUARE_SIZE+10, height-50)))
 
     while running:
         for event in pygame.event.get():
@@ -67,8 +79,8 @@ def main():
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                col = pos[0] // 100
-                row = 7 - (pos[1] // 100)
+                col = pos[0] // SQUARE_SIZE
+                row = 7 - (pos[1] // SQUARE_SIZE)
                 if col < 8 and row < 8:
                     if selected_piece:
                         if engine.tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
@@ -95,13 +107,18 @@ def main():
                             selected_piece = (row, col)
                     else:
                         selected_piece = (row, col)
+                elif pos[0]>= SQUARE_SIZE*8 and pos[0]<= width and pos[1] >= height-50 and pos[1]<= height:
+                    running = False
+                    pygame.quit()
+                    import launcher
+                    launcher.main()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
 
         screen.fill(BLACK)
-        draw_board(screen, main_board)
-        draw_interface(screen, turn)
+        draw_board(screen, main_board, SQUARE_SIZE, pieces)
+        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts)
         pygame.display.flip()
         clock.tick(60)
 
