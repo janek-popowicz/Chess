@@ -11,10 +11,10 @@ def draw_board(screen, board, SQUARE_SIZE, pieces):
     for r in range(8):
         for c in range(8):
             color = colors[(r + c) % 2]
-            pygame.draw.rect(screen, color, pygame.Rect(c*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+            pygame.draw.rect(screen, color, pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
             piece = board.get_piece(r, c)
             if piece != "--":
-                screen.blit(pieces[piece], pygame.Rect(c*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
 
 # Funkcja do rysowania interfejsu
@@ -79,7 +79,7 @@ def main():
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                col = pos[0] // SQUARE_SIZE
+                col = 7 - (pos[0] // SQUARE_SIZE)
                 row = 7 - (pos[1] // SQUARE_SIZE)
                 if col < 8 and row < 8:
                     if selected_piece:

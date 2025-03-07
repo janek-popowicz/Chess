@@ -39,17 +39,18 @@ def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
                 and start_tile.figure.color == turn):
                     if (start_tile.figure.has_moved == False 
                         and destination_tile.figure.has_moved == False):
-                        space_free = True
+                        space_free = False
                         tile_to_check_y = start_tile.y
                         if start_tile.x < destination_tile.x:
                             j = 1
                         else:
                             j = -1
-                            for i in range (1,start_tile.x - destination_tile.x):
-                                tile_to_check_x = start_tile.x + i * j
-                                if main_board.board_state[tile_to_check_y][tile_to_check_x].figure != None:
-                                    space_free = False
-                                    break
+                        for i in range (1,(start_tile.x - destination_tile.x)*(-j)):
+                            tile_to_check_x = start_tile.x + i * j
+                            space_free = True
+                            if main_board.board_state[tile_to_check_y][tile_to_check_x].figure != None:
+                                space_free = False
+                                break
                         if space_free:
                             #Zmiana flag roszady
                             start_tile.figure.has_moved = True
