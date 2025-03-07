@@ -56,20 +56,10 @@ def main():
     font = pygame.font.Font(None, 36)
 
     # Ładowanie ikon figur
-    pieces = {
-        "wp": pygame.image.load("pieces/wp.png"),
-        "wR": pygame.image.load("pieces/wR.png"),
-        "wN": pygame.image.load("pieces/wN.png"),
-        "wB": pygame.image.load("pieces/wB.png"),
-        "wQ": pygame.image.load("pieces/wQ.png"),
-        "wK": pygame.image.load("pieces/wK.png"),
-        "bp": pygame.image.load("pieces/bp.png"),
-        "bR": pygame.image.load("pieces/bR.png"),
-        "bN": pygame.image.load("pieces/bN.png"),
-        "bB": pygame.image.load("pieces/bB.png"),
-        "bQ": pygame.image.load("pieces/bQ.png"),
-        "bK": pygame.image.load("pieces/bK.png")
-    }
+    pieces_short = ["wp", "wR", "wN", "wB", "wQ", "wK", "bp", "bR", "bN", "bB", "bQ", "bK"]
+    pieces = {}
+    for piece in pieces_short:
+        pieces[piece] = pygame.transform.scale(pygame.image.load("pieces/" + piece + ".png"), (SQUARE_SIZE-10, SQUARE_SIZE-10))
     
     running = True
     main_board = board_and_fields.Board()
