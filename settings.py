@@ -10,7 +10,7 @@ def load_config():
         with open(CONFIG_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return {"volume": 0.5, "resolution": "800x600"}
+        return {"volume": 0.5, "resolution": "1260x960"}
 
 def save_config(config):
     with open(CONFIG_FILE, "w") as file:
