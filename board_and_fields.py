@@ -91,6 +91,7 @@ class Board:
                 if field_to_check_y > 7 or field_to_check_y < 0 or field_to_check_x > 7 or field_to_check_x < 0:
                     break 
                 field_to_check = self.board_state[field_to_check_y][field_to_check_x]
+                #Uwzględnienie enpassant
                 if field.figure.type == 'p':
                         if field.figure.can_enpassant_l == True:
                             possible_cords.append(((field.y + field.figure.attack_scheme[0][1],field.x + field.figure.attack_scheme[0][0])))
@@ -99,9 +100,11 @@ class Board:
                 #Sprawdzanie, czy na polu do zbicia jest król
                 if field_to_check.figure != None: 
                     if field_to_check.figure.color != field.figure.color:
-                        if field_to_check.figure.type == 'K':
-                            self.incheck = True
-                        possible_cords.append((field_to_check.y,field_to_check.x)) 
+                        # if field_to_check.figure.type == 'K':
+                        #     self.incheck = True
+                        #     print("Szach!", end=" ")
+                        # else:
+                            possible_cords.append((field_to_check.y,field_to_check.x)) 
                     break
         return possible_cords
     def is_in_check(self,color):
@@ -114,7 +117,7 @@ class Board:
         for y in range(0,8):
             for x in range(0,8):
                 tile = self.board_state[y][x]
-                if tile.figure !=None:
+                if tile.figure != None:
                     if tile.figure.type == 'K' and tile.figure.color == color:
                         king_position = (y,x)
                     if tile.figure.color !=color:
@@ -146,18 +149,24 @@ class Board:
             possible_moves = set(self.get_regular_moves(field) + self.get_attack_moves(field))
             legal_cords = []
             for move in possible_moves:
-                if self.board_state[move[0]][move[1]].figure != None:
-                    if self.board_state[move[0]][move[1]].figure.type == 'K' and self.board_state[move[0]][move[1]].figure.color != turn:
-                        self.incheck = True
-                        print("Szach!",end=" ")
+                try:
+                    if self.board_state[move[0]][move[1]].figure != None and self.board_state[move[0]][move[1]].figure.color != turn:
+                        if self.board_state[move[0]][move[1]].figure.type == 'K':
+                            self.incheck = True
+                            print("Szach!",end=" ")
+                        else:
+                            legal_cords.append(move)
                     else:
-                        legal_cords.append(move)
-                else:            
-                    self.make_move(field.y,field.x,move[0],move[1])
-                    self.is_in_check(turn)
-                    if not self.incheck:
-                        legal_cords.append(move)
-                    self.make_move(move[0],move[1],field.y,field.x)
+                        figure1 = self.board_state[field.y][field.x].figure
+                        figure2 = self.board_state[move[0]][move[1]].figure
+                        self.make_move(field.y,field.x,move[0],move[1])
+                        self.is_in_check(turn)
+                        if not self.incheck:
+                            legal_cords.append(move)
+                        self.board_state[field.y][field.x].figure = figure1
+                        self.board_state[move[0]][move[1]].figure = figure2
+                except IndexError:
+                    continue
             return legal_cords
         
     def print_board(self):

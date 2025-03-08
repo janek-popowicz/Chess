@@ -62,10 +62,21 @@ def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
                             destination_tile.figure = None
                             start_tile.figure = None
                             return True
+    
                 else:
                     print("Nie twój ruch!")
     if(y2,x2) in main_board.get_legal_moves(start_tile,turn):
-            main_board.make_move(y1, x1, y2,x2)
+            #Wykonanie enpassant
+            if destination_tile.figure == None and start_tile.figure.type == 'p':
+                if main_board.board_state[start_tile.y][destination_tile.x].figure != None:
+                    if main_board.board_state[start_tile.y][destination_tile.x].figure.type == 'p':
+                        if start_tile.figure.can_enpassant_l:
+                            start_tile.figure.can_enpassant_l = False
+                            main_board.board_state[start_tile.y][destination_tile.x].figure = None
+                        elif start_tile.figure.can_enpassant_r:
+                            start_tile.figure.can_enpassant_r = False
+                            main_board.board_state[start_tile.y][destination_tile.x].figure = None
+            main_board.make_move(y1, x1, y2, x2)
             if destination_tile.figure.type in ['p','R','K']:
                 destination_tile.figure.has_moved = True
             return True
@@ -115,16 +126,11 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
                                     if (main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.type == 'p' 
                                     and main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.color != destination_tile.figure.color):
                                         main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.can_enpassant_r = True
-                                if (destination_tile.x - start_tile.x) * direction and destination_tile.figure.can_enpassant_l:
-                                    destination_tile.figure.can_enpassant_l = False
-                                    main_board.board_state[start_tile.y][destination_tile.x].figure = None
-                                if (start_tile.x - destination_tile.x) * direction and destination_tile.figure.can_enpassant_r:
-                                    destination_tile.figure.can_enpassant_r = False
-                                    main_board.board_state[start_tile.y][destination_tile.x].figure = None
                             except IndexError:
                                 continue
-                    if y in [0,7]:
-                        return("promotion", y,x)
+                            #Sprawdzanie promocji pionków
+                            if y in [0,7]:
+                                return("promotion", y,x)
                         
     if available_moves == []:
         if main_board.incheck == True:
