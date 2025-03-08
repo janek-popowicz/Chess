@@ -91,13 +91,13 @@ class Board:
                 if field_to_check_y > 7 or field_to_check_y < 0 or field_to_check_x > 7 or field_to_check_x < 0:
                     break 
                 field_to_check = self.board_state[field_to_check_y][field_to_check_x]
-                #Sprawdzanie, czy na polu do zbicia jest król
                 if field.figure.type == 'p':
                         if field.figure.can_enpassant_l == True:
                             possible_cords.append(((field.y + field.figure.attack_scheme[0][1],field.x + field.figure.attack_scheme[0][0])))
                         if field.figure.can_enpassant_r == True:
                             possible_cords.append((field.y + field.figure.attack_scheme[1][1],field.x + field.figure.attack_scheme[1][0]))
-                if field_to_check.figure != None:
+                #Sprawdzanie, czy na polu do zbicia jest król
+                if field_to_check.figure != None: 
                     if field_to_check.figure.color != field.figure.color:
                         if field_to_check.figure.type == 'K':
                             self.incheck = True
@@ -161,7 +161,7 @@ class Board:
             return legal_cords
         
     def print_board(self):
-        """printuje siebie w łanym formacie terminalowym
+        """printuje siebie w danym formacie terminalowym
         """
         print("+" + "----+" *8 )
         for x in range(7,-1,-1):

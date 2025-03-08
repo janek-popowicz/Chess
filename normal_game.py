@@ -84,7 +84,6 @@ def main():
                 if col < 8 and row < 8:
                     if selected_piece:
                         if engine.tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                            selected_piece = None
                             turn = 'w' if turn == 'b' else 'b'
                             if selected_piece!=None:
                                 whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
@@ -103,6 +102,7 @@ def main():
                                 elif whatAfter == "stalemate":
                                     print("Pat")
                                     running = False
+                            selected_piece = None
                         else:
                             selected_piece = (row, col)
                     else:
