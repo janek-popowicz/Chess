@@ -103,26 +103,52 @@ class Board:
                             possible_cords.append((field_to_check.y,field_to_check.x)) 
                     break
         return possible_cords
+    def is_attacked(self,field,color=None):
+        if color==None:
+            color = field.figure.color
+        attackschemes = {
+            'N':[(2,1,1),(-2,1,1),(2,-1,1),(-2,-1,1),(1,2,1),(1,-2,1),(-1,2,1),(-1,-2,1)],
+            'B':[(1,1,8),(1,-1,8),(-1,1,8),(-1,-1,8),],
+            'R':[(0, 1 ,8), (0, -1 ,8), (1, 0 ,8), (-1, 0 ,8)],
+            'Q':[(1,1,8),(1,-1,8),(-1,1,8),(-1,-1,8),(0, 1 ,8), (0, -1 ,8), (1, 0 ,8), (-1, 0 ,8)],
+            'K':[(1,1,1),(1,-1,1),(-1,1,1),(-1,-1,1),(0, 1 ,1), (0, -1 ,1), (1, 0 ,1), (-1, 0 ,1)],
+        }
+        if color == 'w':
+            attackschemes['p'] = [(-1, -1, 1),(1, -1, 1)]
+        else:
+            attackschemes['p'] = [(-1, 1, 1),(1, 1, 1)]
+        for figure_type in attackschemes:
+            attackscheme = attackschemes[figure_type]
+            for direction in attackscheme:
+                for distance in range(1,direction[2]+1):
+                    field_to_check_x = field.x + direction[0] * distance
+                    field_to_check_y= field.y + direction[1] * distance
+                    #Sprawdzanie, czy koordynaty pola nie wyszły poza szachownicę
+                    if field_to_check_y > 7 or field_to_check_y < 0 or field_to_check_x > 7 or field_to_check_x < 0:
+                        break 
+                    field_to_check = self.board_state[field_to_check_y][field_to_check_x]
+                    if field_to_check.figure != None:
+                        if field_to_check.figure.color == color:
+                            break
+                        else:
+                            if field_to_check.figure.type == figure_type:
+                                return True
+        return False
     def is_in_check(self,color): 
         """ Sprawdza czy któryś z królów jest szachowany
 
         Args:
             color (str): Kolor króla, którego sprawdzamy
         """
-        enemy_attacks = []
         for y in range(0,8):
             for x in range(0,8):
                 tile = self.board_state[y][x]
                 if tile.figure != None:
                     if tile.figure.type == 'K' and tile.figure.color == color:
-                        king_position = (y,x)
-                    if tile.figure.color !=color:
-                        enemy_attacks = enemy_attacks + self.get_attack_moves(tile)
-        enemy_attacks = set(enemy_attacks)
-        if king_position in enemy_attacks:
+                        king_position = tile
+        if self.is_attacked(king_position):
             if self.incheck == False:
                 self.incheck = True
-                print("Szach!", end=" ")
         else:
             self.incheck = False   
     def get_legal_moves(self, field, turn):
@@ -147,6 +173,9 @@ class Board:
             for move in possible_moves:
                         figure1 = self.board_state[field.y][field.x].figure
                         figure2 = self.board_state[move[0]][move[1]].figure
+                        if figure2 != None:
+                            if figure2.type == 'K':
+                                self.incheck = True
                         self.make_move(field.y,field.x,move[0],move[1])
                         self.is_in_check(turn)
                         if not self.incheck:
@@ -161,13 +190,13 @@ class Board:
                     for x_to_check in [0,7]:
                         if self.board_state[field.y][x_to_check].figure != None:
                             if self.board_state[field.y][x_to_check].figure.type == 'R' and self.board_state[field.y][x_to_check].figure.color == field.figure.color:
-                                if field.figure.has_moved == False and self.board_state[field.y][0].figure.has_moved == False:
+                                if field.figure.has_moved == False and self.board_state[field.y][x_to_check].figure.has_moved == False:
                                     space_free = False
                                     tile_to_check_y = field.y
                                     for i in range (1,(field.x - x_to_check)*(-j)):
                                         tile_to_check_x = field.x + i * j
                                         space_free = True
-                                        if self.board_state[tile_to_check_y][tile_to_check_x].figure != None:
+                                        if self.board_state[tile_to_check_y][tile_to_check_x].figure != None or self.is_attacked(self.board_state[tile_to_check_y][tile_to_check_x],turn):
                                             space_free = False
                                             break
                                     if space_free:

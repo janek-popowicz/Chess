@@ -34,7 +34,7 @@ def highlight_moves(screen, field, square_size:int,board, color_move, color_take
     try:
         cords = board.get_legal_moves(field, field.figure.color)
     except AttributeError:
-        return 0
+        return None
     for cord in cords:
         highlighted_tile = pygame.Surface((square_size, square_size))
         highlighted_tile.fill(color_move)
@@ -116,6 +116,8 @@ def main():
                 if col < 8 and row < 8:
                     if selected_piece:
                         if engine.tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
+                            draw_board(screen,SQUARE_SIZE,)
+                            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
                             move_time = time.time() - start_time
                             if turn == 'w':
                                 white_time += move_time
