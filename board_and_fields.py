@@ -145,16 +145,6 @@ class Board:
             possible_moves = set(self.get_regular_moves(field) + self.get_attack_moves(field))
             legal_cords = []
             for move in possible_moves:
-                try:
-                    if self.board_state[move[0]][move[1]].figure != None and self.board_state[move[0]][move[1]].figure.color != turn:
-                        if self.board_state[move[0]][move[1]].figure.type == 'K':
-                            self.incheck = True
-                            print("Szach!",end=" ")
-                        else:
-                            self.is_in_check(turn)
-                            if not self.incheck:
-                                legal_cords.append(move)                            
-                    else:
                         figure1 = self.board_state[field.y][field.x].figure
                         figure2 = self.board_state[move[0]][move[1]].figure
                         self.make_move(field.y,field.x,move[0],move[1])
@@ -163,15 +153,14 @@ class Board:
                             legal_cords.append(move)
                         self.board_state[field.y][field.x].figure = figure1
                         self.board_state[move[0]][move[1]].figure = figure2
-                except IndexError:
-                    continue
+            # Sprawdzanie roszady
             if field.figure.type == "K":
+                j =-1
                 for x_to_check in [0,7]:
                     if self.board_state[field.y][x_to_check].figure != None:
-                        if self.board_state[field.y][x_to_check].figure.type == 'R' and self.board_state[field.y][0].figure.color == field.figure.color:
+                        if self.board_state[field.y][x_to_check].figure.type == 'R' and self.board_state[field.y][x_to_check].figure.color == field.figure.color:
                             if field.figure.has_moved == False and self.board_state[field.y][0].figure.has_moved == False:
                                 space_free = False
-                                j =-1
                                 tile_to_check_y = field.y
                                 for i in range (1,(field.x - x_to_check)*(-j)):
                                     tile_to_check_x = field.x + i * j

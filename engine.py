@@ -52,12 +52,15 @@ def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
                         if start_tile.figure.can_enpassant_l:
                             start_tile.figure.can_enpassant_l = False
                             main_board.board_state[start_tile.y][destination_tile.x].figure = None
+                            return True
                         elif start_tile.figure.can_enpassant_r:
                             start_tile.figure.can_enpassant_r = False
                             main_board.board_state[start_tile.y][destination_tile.x].figure = None
+                            return True
             main_board.make_move(y1, x1, y2, x2)
-            if destination_tile.figure.type in ['p','R','K']:
-                destination_tile.figure.has_moved = True
+            if destination_tile.figure != None:
+                if destination_tile.figure.type in ['p','K','R']:
+                    destination_tile.figure.has_moved = True
             return True
     else: 
         print("Nielegalny ruch!")
@@ -120,7 +123,7 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
             return("stalemate", 0, 0)
     return(1,1,1)
     
-def promotion(y:int,x:int,main_board,choice:str)->None:
+def promotion(y:int,x:int,main_board, choice:str)->None:
     """ Robi promocję na podstawie wybranego wyboru
     
     Args:

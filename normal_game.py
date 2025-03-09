@@ -30,10 +30,17 @@ def draw_pieces(screen, board, SQUARE_SIZE, pieces):
                 screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
             
 # Funkcja do podświetlania możliwych ruchów
-def highlight_moves(screen, moves:list, square_size:int, color:str):
+def highlight_moves(screen, field, square_size:int,board, color_move, color_take):
+    try:
+        moves = board.get_legal_moves(field, field.figure.color)
+    except AttributeError:
+        return 0
     for move in moves:
         highlighted_tile = pygame.Surface((square_size, square_size))
-        highlighted_tile.fill(color)
+        highlighted_tile.fill(color_move)
+        if board.board_state[move[0]][move[1]].figure != None:
+            if field.figure.color != board.board_state[move[0]][move[1]].figure.color:
+                highlighted_tile.fill(color_take)
         screen.blit(highlighted_tile, (((7-move[1]) * square_size),((7- move[0]) * square_size)))
 # Funkcja do rysowania interfejsu
 def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times):
@@ -67,7 +74,8 @@ def main():
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     GRAY = (100, 100, 100)
-    HIGHLIGHT = (100, 200, 100)
+    HIGHLIGHT_MOVES = (100, 200, 100)
+    HIGHLIGHT_TAKES = (200, 100, 100)
 
     # Czcionka
     font = pygame.font.Font(None, 36)
@@ -124,7 +132,7 @@ def main():
                                 3 - Aby zmienić go w Wieżę
                                 4 - Aby zmienić go w Królową
                                                     """)
-                                    engine.promotion(turn, yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+                                    engine.promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                 if whatAfter == "checkmate":
                                     print("Szach Mat!")
                                     running = False
@@ -161,7 +169,7 @@ def main():
         draw_board(screen,SQUARE_SIZE,)
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font)
         try:
-            highlight_moves(screen, main_board.get_legal_moves(main_board.board_state[selected_piece[0]][selected_piece[1]],turn), SQUARE_SIZE, HIGHLIGHT)
+            highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
         except TypeError:
             pass
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
