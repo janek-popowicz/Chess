@@ -10,7 +10,7 @@ class Pawn():
         self.can_enpassant_l = False
         self.can_enpassant_r = False
         if color == 'w': 
-            self.move_scheme = [ (0, 1, 1)]
+            self.move_scheme = [(0, 1, 1)]
             self.attack_scheme = [(1, 1, 1), (-1, 1, 1)]
         if color == 'b':
             self.move_scheme = [(0, -1, 1)]
