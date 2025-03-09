@@ -12,7 +12,7 @@ def load_config():
         with open(CONFIG_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return {"volume": 0.5, "resolution": "1260x960"}
+        return {"volume": 0.5, "resolution": "1260x960", "icons": "classic"}
 
 # Funkcja do rysowania szachownicy
 def draw_board(screen, SQUARE_SIZE):
@@ -72,6 +72,9 @@ def main():
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Chess Game")
+    icon_logo = pygame.image.load('program_logo.png')
+    pygame.display.set_icon(icon_logo)
+
     # Kolory
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
@@ -83,10 +86,11 @@ def main():
     font = pygame.font.Font(None, 36)
 
     # Ładowanie ikon figur
+    icon_type = config["icons"]
     pieces_short = ["wp", "wR", "wN", "wB", "wQ", "wK", "bp", "bR", "bN", "bB", "bQ", "bK"]
     pieces = {}
     for piece in pieces_short:
-        pieces[piece] = pygame.transform.scale(pygame.image.load("pieces/" + piece + ".png"), (SQUARE_SIZE-10, SQUARE_SIZE-10))
+        pieces[piece] = pygame.transform.scale(pygame.image.load("pieces/" + icon_type + "/" + piece + ".png"), (SQUARE_SIZE-10, SQUARE_SIZE-10))
     
     running = True
     main_board = board_and_fields.Board()
