@@ -60,6 +60,31 @@ def format_time(seconds):
     seconds = int(seconds % 60)
     return f"{minutes}:{seconds:02}"
 
+def promotion_dialog(screen, SQUARE_SIZE, color):
+    font = pygame.font.Font(None, 36)
+    options = ["Knight", "Bishop", "Rook", "Queen"]
+    option_rects = []
+    for i, option in enumerate(options):
+        text = font.render(option, True, pygame.Color("white"))
+        rect = text.get_rect(center=(SQUARE_SIZE*4, SQUARE_SIZE*(2+i)))
+        option_rects.append((text, rect))
+    
+    while True:
+        screen.fill(pygame.Color("black"))
+        for text, rect in option_rects:
+            screen.blit(text, rect)
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for i, (text, rect) in enumerate(option_rects):
+                    if rect.collidepoint(pos):
+                        return options[i][0].lower()  # zwraca pierwszą literę opcji (n, b, r, q)
+
 # Funkcja główna
 def main():
     pygame.init()
@@ -131,13 +156,7 @@ def main():
                             if selected_piece!=None:
                                 whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "promotion":
-                                    main_board.print_board()
-                                    choiceOfPromotion = input(f"""Pionek w kolumnie {xForPromotion} dotarł do końca planszy. Wpisz:
-                                1 - Aby zmienić go w Skoczka
-                                2 - Aby zmienić go w Gońca
-                                3 - Aby zmienić go w Wieżę
-                                4 - Aby zmienić go w Królową
-                                                    """)
+                                    choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
                                     engine.promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                 if whatAfter == "checkmate":
                                     print("Szach Mat!")
