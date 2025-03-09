@@ -173,6 +173,7 @@ def main():
                                 whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "promotion":
                                     choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
+                                    choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
                                     engine.promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                 if whatAfter == "checkmate":
                                     print("Szach Mat!")
