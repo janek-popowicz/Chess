@@ -15,22 +15,26 @@ def load_config():
         return {"volume": 0.5, "resolution": "1260x960"}
 
 # Funkcja do rysowania szachownicy
-def draw_board(screen, board, SQUARE_SIZE, pieces):
+def draw_board(screen, SQUARE_SIZE):
     colors = [pygame.Color("white"), pygame.Color("gray")]
     for r in range(8):
         for c in range(8):
             color = colors[(r + c) % 2]
             pygame.draw.rect(screen, color, pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+
+def draw_pieces(screen, board, SQUARE_SIZE, pieces):
+    for r in range(8):
+        for c in range(8):
             piece = board.get_piece(r, c)
             if piece != "--":
                 screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-
+            
 # Funkcja do podświetlania możliwych ruchów
 def highlight_moves(screen, moves:list, square_size:int, color:str):
     for move in moves:
         highlighted_tile = pygame.Surface((square_size, square_size))
         highlighted_tile.fill(color)
-        screen.blit(highlighted_tile, (((move[1]) * square_size),((7- move[0]) * square_size)))
+        screen.blit(highlighted_tile, (((7-move[1]) * square_size),((7- move[0]) * square_size)))
 # Funkcja do rysowania interfejsu
 def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times):
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
@@ -120,7 +124,7 @@ def main():
                                 3 - Aby zmienić go w Wieżę
                                 4 - Aby zmienić go w Królową
                                                     """)
-                                    engine.promotion(turn, yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+                                    engine.promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                 if whatAfter == "checkmate":
                                     print("Szach Mat!")
                                     running = False
@@ -154,12 +158,13 @@ def main():
         player_times_font = ((font.render(format_time(current_white_time), True, WHITE),(8*SQUARE_SIZE+10,height - 150)),
                              (font.render(format_time(current_black_time), True, WHITE),(8*SQUARE_SIZE+10,80)))
         screen.fill(BLACK)
-        draw_board(screen, main_board, SQUARE_SIZE, pieces)
+        draw_board(screen,SQUARE_SIZE,)
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font)
         try:
-            highlight_moves(screen, main_board.get_legal_moves(main_board.board_state[selected_piece[0]][7-selected_piece[1]],turn), SQUARE_SIZE, HIGHLIGHT)
+            highlight_moves(screen, main_board.get_legal_moves(main_board.board_state[selected_piece[0]][selected_piece[1]],turn), SQUARE_SIZE, HIGHLIGHT)
         except TypeError:
             pass
+        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
         pygame.display.flip()
         clock.tick(60)
     pygame.quit()

@@ -1,0 +1,9 @@
+__pycache__/board_and_fields.cpython-312.pyc
+__pycache__/engine.cpython-312.pyc
+__pycache__/figures.cpython-312.pyc
+__pycache__/launcher.cpython-312.pyc
+__pycache__/normal_game.cpython-312.pyc
+__pycache__/settings.cpython-312.pyc
+__pycache__/test_mode_normal_game.cpython-312.pyc
+__pycache__/test_mode_random_ai_game.cpython-312.pyc
+config.json
