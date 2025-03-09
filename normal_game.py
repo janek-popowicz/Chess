@@ -32,16 +32,18 @@ def draw_pieces(screen, board, SQUARE_SIZE, pieces):
 # Funkcja do podświetlania możliwych ruchów
 def highlight_moves(screen, field, square_size:int,board, color_move, color_take):
     try:
-        moves = board.get_legal_moves(field, field.figure.color)
+        cords = board.get_legal_moves(field, field.figure.color)
     except AttributeError:
         return 0
-    for move in moves:
+    for cord in cords:
         highlighted_tile = pygame.Surface((square_size, square_size))
         highlighted_tile.fill(color_move)
-        if board.board_state[move[0]][move[1]].figure != None:
-            if field.figure.color != board.board_state[move[0]][move[1]].figure.color:
+        if board.board_state[cord[0]][cord[1]].figure != None:
+            if field.figure.color != board.board_state[cord[0]][cord[1]].figure.color:
                 highlighted_tile.fill(color_take)
-        screen.blit(highlighted_tile, (((7-move[1]) * square_size),((7- move[0]) * square_size)))
+        if field.figure.type == 'p' and (field.x - cord[1]) != 0:
+            highlighted_tile.fill(color_take)
+        screen.blit(highlighted_tile, (((7-cord[1]) * square_size),((7- cord[0]) * square_size)))
 # Funkcja do rysowania interfejsu
 def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times):
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))

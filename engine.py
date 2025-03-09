@@ -52,11 +52,9 @@ def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
                         if start_tile.figure.can_enpassant_l:
                             start_tile.figure.can_enpassant_l = False
                             main_board.board_state[start_tile.y][destination_tile.x].figure = None
-                            return True
                         elif start_tile.figure.can_enpassant_r:
                             start_tile.figure.can_enpassant_r = False
                             main_board.board_state[start_tile.y][destination_tile.x].figure = None
-                            return True
             main_board.make_move(y1, x1, y2, x2)
             if destination_tile.figure != None:
                 if destination_tile.figure.type in ['p','K','R']:
@@ -99,14 +97,15 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
         if destination_tile.figure.type == 'p' :
             direction = 1 if destination_tile.figure.color == 'w' else -1
             try:
-                if main_board.board_state[destination_tile.y][destination_tile.x +direction].figure != None:
-                    if (main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.type == 'p' 
-                    and main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.color != destination_tile.figure.color):
-                        main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.can_enpassant_l = True
-                if main_board.board_state[destination_tile.y][destination_tile.x -direction].figure != None:
-                    if (main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.type == 'p' 
-                    and main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.color != destination_tile.figure.color):
-                        main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.can_enpassant_r = True
+                if (destination_tile.y - start_tile.y) * direction == 2:
+                    if main_board.board_state[destination_tile.y][destination_tile.x +direction].figure != None:
+                        if (main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.type == 'p' 
+                        and main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.color != destination_tile.figure.color):
+                            main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.can_enpassant_l = True
+                    if main_board.board_state[destination_tile.y][destination_tile.x -direction].figure != None:
+                        if (main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.type == 'p' 
+                        and main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.color != destination_tile.figure.color):
+                            main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.can_enpassant_r = True
             except IndexError:
                 pass
             #Sprawdzanie promocji pionków
