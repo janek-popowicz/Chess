@@ -60,6 +60,47 @@ def format_time(seconds):
     seconds = int(seconds % 60)
     return f"{minutes}:{seconds:02}"
 
+def promotion_dialog(screen, SQUARE_SIZE:int, color:str)->str:
+    """okienko promocji
+
+    Args:
+        screen (pygame): pygame screen
+        SQUARE_SIZE (int): size of a square
+        color (str): 'w' or 'b'
+
+    Returns:
+        str: '1', '2', '3' or '4'
+    """
+    font = pygame.font.Font(None, 36)
+
+    dialog_text = "Pionek dotarł do końca planszy. Wybierz figurę do odzyskania."
+    dialog = font.render(dialog_text, True, pygame.Color("white"))
+
+    options = ["1. Koń", "2. Goniec", "3. Wieża", "4. Królowa"]
+    # Nie usuwać numeru przed opcjami, on ma znaczenie! Bierze się to z poprzedniości tego jako wybór terminalowy.
+    option_rects = []
+    for i, option in enumerate(options):
+        text = font.render(option, True, pygame.Color("white"))
+        rect = text.get_rect(center=(SQUARE_SIZE*4, SQUARE_SIZE*(2+i)))
+        option_rects.append((text, rect))
+    
+    while True:
+        screen.fill(pygame.Color("black"))
+        screen.blit(dialog, (100, 100))
+        for text, rect in option_rects:
+            screen.blit(text, rect)
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for i, (text, rect) in enumerate(option_rects):
+                    if rect.collidepoint(pos):
+                        return options[i][0]  # zwraca pierwszą literę opcji (1, 2, 3, 4)
+
 # Funkcja główna
 def main():
     pygame.init()
@@ -133,13 +174,8 @@ def main():
                             if selected_piece!=None:
                                 whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "promotion":
-                                    main_board.print_board()
-                                    choiceOfPromotion = input(f"""Pionek w kolumnie {xForPromotion} dotarł do końca planszy. Wpisz:
-                                1 - Aby zmienić go w Skoczka
-                                2 - Aby zmienić go w Gońca
-                                3 - Aby zmienić go w Wieżę
-                                4 - Aby zmienić go w Królową
-                                                    """)
+                                    choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
+                                    choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
                                     engine.promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                 if whatAfter == "checkmate":
                                     print("Szach Mat!")
