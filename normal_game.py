@@ -22,7 +22,12 @@ def draw_board(screen, board, SQUARE_SIZE, pieces):
             if piece != "--":
                 screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-
+# Funkcja do podświetlania możliwych ruchów
+def highlight_moves(screen, moves:list, square_size:int, color:str):
+    for move in moves:
+        highlighted_tile = pygame.Surface((square_size, square_size))
+        highlighted_tile.fill(color)
+        screen.blit(highlighted_tile, (((move[1]) * square_size),((7- move[0]) * square_size)))
 # Funkcja do rysowania interfejsu
 def draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts):
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
@@ -35,7 +40,6 @@ def draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts):
 # Funkcja główna
 def main():
     pygame.init()
-
     # Ładowanie konfiguracji
     config = load_config()
     resolution = config["resolution"]
@@ -45,12 +49,11 @@ def main():
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Chess Game")
-
     # Kolory
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     GRAY = (100, 100, 100)
-    HIGHLIGHT = (200, 200, 200)
+    HIGHLIGHT = (100, 200, 100)
 
     # Czcionka
     font = pygame.font.Font(None, 36)
@@ -73,56 +76,63 @@ def main():
             (font.render(f"Wyjście", True, WHITE), (8*SQUARE_SIZE+10, height-50)))
 
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                print(pos)
-                col = 7 - (pos[0] // SQUARE_SIZE)
-                row = 7 - (pos[1] // SQUARE_SIZE)
-                if col < 8 and row < 8:
-                    if selected_piece:
-                        if engine.tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                            turn = 'w' if turn == 'b' else 'b'
-                            if selected_piece!=None:
-                                whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
-                                if whatAfter == "promotion":
-                                    main_board.print_board()
-                                    choiceOfPromotion = input(f"""Pionek w kolumnie {xForPromotion} dotarł do końca planszy. Wpisz:
-                                1 - Aby zmienić go w Skoczka
-                                2 - Aby zmienić go w Gońca
-                                3 - Aby zmienić go w Wieżę
-                                4 - Aby zmienić go w Królową
-                                                    """)
-                                    engine.promotion(turn, yForPromotion, xForPromotion, main_board, choiceOfPromotion)
-                                if whatAfter == "checkmate":
-                                    print("Szach Mat!")
-                                    running = False
-                                elif whatAfter == "stalemate":
-                                    print("Pat")
-                                    running = False
-                            selected_piece = None
-                        else:
-                            selected_piece = (row, col)
+        event = pygame.event.wait()
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            pos = pygame.mouse.get_pos()
+            print(pos)
+            col = 7 - (pos[0] // SQUARE_SIZE)
+            row = 7 - (pos[1] // SQUARE_SIZE)
+            if col < 8 and row < 8:
+                if selected_piece:
+                    if engine.tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
+                        if selected_piece!=None:
+                            turn = 'w' if turn == 'b' else 'b' 
+                            whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                            if whatAfter == "promotion":
+                                main_board.print_board()
+                                choiceOfPromotion = input(f"""Pionek w kolumnie {xForPromotion} dotarł do końca planszy. Wpisz:
+                            1 - Aby zmienić go w Skoczka
+                            2 - Aby zmienić go w Gońca
+                            3 - Aby zmienić go w Wieżę
+                            4 - Aby zmienić go w Królową
+                            """)
+                                engine.promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+                            if whatAfter == "checkmate":
+                                print("Szach Mat!")
+                                main_board.print_board()
+                                running = False
+                            elif whatAfter == "stalemate":
+                                print("Pat")
+                                main_board.print_board()
+                                running = False
+                        selected_piece = None
                     else:
                         selected_piece = (row, col)
-                if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
-                    running = False
-                    pygame.quit()
-                    import launcher
-                    launcher.main()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
+                else:
+                    selected_piece = (row, col)
+            if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
+                running = False
+                pygame.quit()
+                import launcher
+                launcher.main()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                running = False
 
         screen.fill(BLACK)
         draw_board(screen, main_board, SQUARE_SIZE, pieces)
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts)
+        try:
+            highlight_moves(screen, main_board.get_legal_moves(main_board.board_state[selected_piece[0]][7-selected_piece[1]],turn), SQUARE_SIZE, HIGHLIGHT)
+        except TypeError:
+            pass
         pygame.display.flip()
         clock.tick(60)
-
     pygame.quit()
+    import launcher
+    launcher.main()
     sys.exit()
 
 if __name__ == "__main__":
