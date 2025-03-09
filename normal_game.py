@@ -70,6 +70,8 @@ def main():
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Chess Game")
+    icon_logo = pygame.image.load('program_logo.png')
+    pygame.display.set_icon(icon_logo)
     # Kolory
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)

@@ -28,7 +28,8 @@ def main():
 
     # Inicjalizacja Pygame
     pygame.init()
-
+    icon_logo = pygame.image.load('program_logo.png')
+    pygame.display.set_icon(icon_logo)
     # Ustawienia ekranu
     screen = pygame.display.set_mode((1600, 1000))
     pygame.display.set_caption("Chess Game Launcher")
