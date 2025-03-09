@@ -30,44 +30,23 @@ def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
     """
     start_tile = main_board.board_state[y1][x1] 
     destination_tile = main_board.board_state[y2][x2]
-    #Mechanizm roszady
-    if (start_tile.figure != None 
-        and destination_tile.figure != None):
-        if (start_tile.figure.type == 'K' 
-            and destination_tile.figure.type == 'R' ):
-                if( destination_tile.figure.color == turn 
-                and start_tile.figure.color == turn):
-                    if (start_tile.figure.has_moved == False 
-                        and destination_tile.figure.has_moved == False):
-                        space_free = False
-                        tile_to_check_y = start_tile.y
-                        if start_tile.x < destination_tile.x:
-                            j = 1
-                        else:
-                            j = -1
-                        for i in range (1,(start_tile.x - destination_tile.x)*(-j)):
-                            tile_to_check_x = start_tile.x + i * j
-                            space_free = True
-                            if main_board.board_state[tile_to_check_y][tile_to_check_x].figure != None:
-                                space_free = False
-                                break
-                        if space_free:
-                            #Zmiana flag roszady
-                            start_tile.figure.has_moved = True
-                            destination_tile.figure.has_moved = True
-                            #Zmiana pozycji króla
-                            main_board.board_state[start_tile.y][start_tile.x + 2*j].figure = start_tile.figure
-                            #Zmiana pozycji wieży
-                            main_board.board_state[start_tile.y][start_tile.x + j].figure = destination_tile.figure
-                            destination_tile.figure = None
-                            start_tile.figure = None
-                            return True
-    
-                else:
-                    print("Nie twój ruch!")
     if(y2,x2) in main_board.get_legal_moves(start_tile,turn):
+            #Wykonanie roszady
+            if destination_tile.figure != None:
+                if destination_tile.figure.type == 'R' and  destination_tile.figure.color == start_tile.figure.color:
+                    #Zmiana flag roszady
+                    start_tile.figure.has_moved = True
+                    destination_tile.figure.has_moved = True
+                    #Zmiana pozycji króla
+                    direction =  -1 if destination_tile.x - start_tile.x < 0 else 1
+                    main_board.board_state[start_tile.y][start_tile.x + 2*direction].figure = start_tile.figure
+                    #Zmiana pozycji wieży
+                    main_board.board_state[start_tile.y][start_tile.x + direction].figure = destination_tile.figure
+                    destination_tile.figure = None
+                    start_tile.figure = None
+                    return True
             #Wykonanie enpassant
-            if destination_tile.figure == None and start_tile.figure.type == 'p':
+            elif destination_tile.figure == None and start_tile.figure.type == 'p':
                 if main_board.board_state[start_tile.y][destination_tile.x].figure != None:
                     if main_board.board_state[start_tile.y][destination_tile.x].figure.type == 'p':
                         if start_tile.figure.can_enpassant_l:

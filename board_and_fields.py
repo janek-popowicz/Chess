@@ -165,6 +165,23 @@ class Board:
                         self.board_state[move[0]][move[1]].figure = figure2
                 except IndexError:
                     continue
+            if field.figure.type == "K":
+                for x_to_check in [0,7]:
+                    if self.board_state[field.y][x_to_check].figure != None:
+                        if self.board_state[field.y][x_to_check].figure.type == 'R' and self.board_state[field.y][0].figure.color == field.figure.color:
+                            if field.figure.has_moved == False and self.board_state[field.y][0].figure.has_moved == False:
+                                space_free = False
+                                j =-1
+                                tile_to_check_y = field.y
+                                for i in range (1,(field.x - x_to_check)*(-j)):
+                                    tile_to_check_x = field.x + i * j
+                                    space_free = True
+                                    if self.board_state[tile_to_check_y][tile_to_check_x].figure != None:
+                                        space_free = False
+                                        break
+                                if space_free:
+                                   legal_cords.append((field.y,x_to_check))
+                                j =1
             return legal_cords
         
     def print_board(self):
