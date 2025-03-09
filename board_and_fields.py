@@ -100,18 +100,14 @@ class Board:
                 #Sprawdzanie, czy na polu do zbicia jest król
                 if field_to_check.figure != None: 
                     if field_to_check.figure.color != field.figure.color:
-                        # if field_to_check.figure.type == 'K':
-                        #     self.incheck = True
-                        #     print("Szach!", end=" ")
-                        # else:
                             possible_cords.append((field_to_check.y,field_to_check.x)) 
                     break
         return possible_cords
-    def is_in_check(self,color):
-        """ sprawdza czy jest szach
+    def is_in_check(self,color): 
+        """ Sprawdza czy któryś z królów jest szachowany
 
         Args:
-            color (_type_): _description_
+            color (str): Kolor króla, którego sprawdzamy
         """
         enemy_attacks = []
         for y in range(0,8):
@@ -126,18 +122,18 @@ class Board:
         if king_position in enemy_attacks:
             if self.incheck == False:
                 self.incheck = True
-                print("Szach!",end=" ")
+                print("Szach!", end=" ")
         else:
             self.incheck = False   
-    def get_legal_moves(self,field,turn):
-        """Generuje legalne ruchy
+    def get_legal_moves(self, field, turn):
+        """Generuje legalne ruchy 
 
         Args:
-            field (_type_): _description_
-            turn (_type_): _description_
+            field (obiekt Field): Pole figury, dla której generowane są ruchy
+            turn (str): Aktualna tura
 
         Returns:
-            list: Benedykt dodaj description
+            list: Lista legalnych ruchów
         """
         if field.figure == None:
             print("Na tym polu nie ma figury!",end=" ")
@@ -155,7 +151,9 @@ class Board:
                             self.incheck = True
                             print("Szach!",end=" ")
                         else:
-                            legal_cords.append(move)
+                            self.is_in_check(turn)
+                            if not self.incheck:
+                                legal_cords.append(move)                            
                     else:
                         figure1 = self.board_state[field.y][field.x].figure
                         figure2 = self.board_state[move[0]][move[1]].figure

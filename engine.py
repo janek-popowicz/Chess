@@ -104,35 +104,35 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
     for y in range(0,8):
         for x in range(0,8):
             if main_board.board_state[y][x].figure != None:
-                color_to_check = 'w' if turn == 'b' else 'b'
-                if main_board.board_state[y][x].figure.color == color_to_check:
-                    available_moves+=main_board.get_legal_moves(main_board.board_state[y][x],main_board.board_state[y][x].figure.color)
+                if main_board.board_state[y][x].figure.color == turn:
+                    available_moves+=main_board.get_legal_moves(main_board.board_state[y][x],turn)
                 if main_board.board_state[y][x].figure.type == 'p':
                     #Sprawdzanie flag enpassant
                     if main_board.board_state[y][x].figure.can_enpassant_l == True:
                         main_board.board_state[y][x].figure.can_enpassant_l = False
                     if main_board.board_state[y][x].figure.can_enpassant_r == True:
                         main_board.board_state[y][x].figure.can_enpassant_r = False
-                    #Sprawdzanie enpassant
-                    if destination_tile.figure != None:
-                        if destination_tile.figure.type == 'p' :
-                            direction = 1 if destination_tile.figure.color == 'w' else -1
-                            try:
-                                if main_board.board_state[destination_tile.y][destination_tile.x +direction].figure != None:
-                                    if (main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.type == 'p' 
-                                    and main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.color != destination_tile.figure.color):
-                                        main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.can_enpassant_l = True
-                                if main_board.board_state[destination_tile.y][destination_tile.x -direction].figure != None:
-                                    if (main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.type == 'p' 
-                                    and main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.color != destination_tile.figure.color):
-                                        main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.can_enpassant_r = True
-                            except IndexError:
-                                continue
-                            #Sprawdzanie promocji pionków
-                            if y in [0,7]:
-                                return("promotion", y,x)
+    #Sprawdzanie enpassant
+    if destination_tile.figure != None:
+        if destination_tile.figure.type == 'p' :
+            direction = 1 if destination_tile.figure.color == 'w' else -1
+            try:
+                if main_board.board_state[destination_tile.y][destination_tile.x +direction].figure != None:
+                    if (main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.type == 'p' 
+                    and main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.color != destination_tile.figure.color):
+                        main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.can_enpassant_l = True
+                if main_board.board_state[destination_tile.y][destination_tile.x -direction].figure != None:
+                    if (main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.type == 'p' 
+                    and main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.color != destination_tile.figure.color):
+                        main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.can_enpassant_r = True
+            except IndexError:
+                pass
+            #Sprawdzanie promocji pionków
+            if destination_tile.y in [0,7]:
+                return("promotion", destination_tile.y, destination_tile.x)
                         
     if available_moves == []:
+        main_board.is_in_check(turn)
         if main_board.incheck == True:
             main_board.print_board()
             return("checkmate", 0, 0)
@@ -141,9 +141,9 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
             return("stalemate", 0, 0)
     return(1,1,1)
     
-def promotion(turn:str, y:int,x:int,main_board,choice:str)->None:
+def promotion(y:int,x:int,main_board,choice:str)->None:
     """ Robi promocję na podstawie wybranego wyboru
-
+    
     Args:
         turn (str): 'w' or 'b'
         y (int): earlier y from afterMove
@@ -151,14 +151,15 @@ def promotion(turn:str, y:int,x:int,main_board,choice:str)->None:
         main_board (): board object
         choice (str): '1', '2', '3', '4'; knight, bishop, rook,queen
     """
+    color = main_board.board_state[y][x].figure.color 
     if choice == "1":
-        main_board.board_state[y][x].figure = figures.Knight(turn)
+        main_board.board_state[y][x].figure = figures.Knight(color)
     if choice == "2":
-        main_board.board_state[y][x].figure = figures.Bishop(turn)
+        main_board.board_state[y][x].figure = figures.Bishop(color)
     if choice == "3":
-        main_board.board_state[y][x].figure = figures.Rook(turn)
+        main_board.board_state[y][x].figure = figures.Rook(color)
     if choice == "4":
-        main_board.board_state[y][x].figure = figures.Queen(turn)
+        main_board.board_state[y][x].figure = figures.Queen(color)
 '''
 running = True
 main_board = board_and_fields.Board()
