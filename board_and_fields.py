@@ -22,6 +22,10 @@ class Board:
                 [Field(0, 7, figures.Rook('b')), Field(1, 7, figures.Knight('b')), Field(2, 7, figures.Bishop('b')), Field(3, 7, figures.King('b')), Field(4, 7, figures.Queen('b')), Field(5, 7, figures.Bishop('b')), Field(6, 7, figures.Knight('b')), Field(7, 7, figures.Rook('b'))]
         ]
         self.incheck = False
+        self.moves_numeric=[]
+        self.moves_algebraic=[]
+
+
     def make_move(self, y1:int, x1:int, y2:int, x2:int)->None:
         """robienie ruchu
 
@@ -31,8 +35,18 @@ class Board:
             y2 (int): cord
             x2 (int): cord
         """
+        self.moves_numeric.append((y1,x1,y2,x2))
+        algebraic_x = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e',5:'f',6:'g',7:'h'}
+        if self.board_state[y1][x1].figure.type!='p':
+            algebraic_figure = self.board_state[y1][x1].figure.type
+        else:
+            algebraic_figure = ""
+        self.moves_algebraic.append(algebraic_figure+algebraic_x[x2]+str(y2+1))
+        print(self.moves_algebraic)
         self.board_state[y2][x2].figure = self.board_state[y1][x1].figure
         self.board_state[y1][x1].figure = None
+
+
     def get_regular_moves(self,field):
         """_summary_
 
