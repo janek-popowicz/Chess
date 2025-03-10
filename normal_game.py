@@ -15,11 +15,13 @@ def load_config():
         return {"volume": 0.5, "resolution": "1260x960", "icons": "classic"}
 
 # Funkcja do rysowania szachownicy
-def draw_board(screen, SQUARE_SIZE):
+def draw_board(screen, SQUARE_SIZE, main_board, in_check):
     colors = [pygame.Color("white"), pygame.Color("gray")]
     for r in range(8):
         for c in range(8):
             color = colors[(r + c) % 2]
+            if in_check and main_board.board_state[r][c].figure and main_board.board_state[r][c].figure.type == 'K' and main_board.board_state[r][c].figure.color == in_check:
+                color = pygame.Color("red")
             pygame.draw.rect(screen, color, pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
 def draw_pieces(screen, board, SQUARE_SIZE, pieces):
@@ -45,7 +47,7 @@ def highlight_moves(screen, field, square_size:int,board, color_move, color_take
             highlighted_tile.fill(color_take)
         screen.blit(highlighted_tile, (((7-cord[1]) * square_size),((7- cord[0]) * square_size)))
 # Funkcja do rysowania interfejsu
-def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times):
+def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text):
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
     if turn == 'w':
         screen.blit(texts[0][0], texts[0][1])
@@ -54,7 +56,11 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times):
     screen.blit(player_times[0][0], player_times[0][1])
     screen.blit(player_times[1][0], player_times[1][1])
     screen.blit(texts[2][0], texts[2][1])
+    if in_check:
+        
+        screen.blit(check_text, (8*SQUARE_SIZE+10, 150))
 
+#formatuje czas z formatu time.time() na minuty i sekundy
 def format_time(seconds):
     minutes = int(seconds // 60)
     seconds = int(seconds % 60)
@@ -101,6 +107,35 @@ def promotion_dialog(screen, SQUARE_SIZE:int, color:str)->str:
                     if rect.collidepoint(pos):
                         return options[i][0]  # zwraca pierwszą literę opcji (1, 2, 3, 4)
 
+def end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK):
+    font = pygame.font.Font(None, 36)
+    pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
+    result_text = font.render(result, True, WHITE)
+    winner_text = font.render(f"Zwycięzca: {winner}", True, WHITE)
+    white_time_label = font.render("Czas białego gracza:", True, WHITE)
+    white_time_value = font.render(format_time(white_time), True, WHITE)
+    black_time_label = font.render("Czas czarnego gracza:", True, WHITE)
+    black_time_value = font.render(format_time(black_time), True, WHITE)
+    exit_text = font.render("Wyjście do menu", True, pygame.Color("yellow"))
+    screen.blit(result_text, (SQUARE_SIZE*8+10, SQUARE_SIZE*2))
+    screen.blit(winner_text, (SQUARE_SIZE*8+10, SQUARE_SIZE*3))
+    screen.blit(white_time_label, (SQUARE_SIZE*8+10, SQUARE_SIZE*4))
+    screen.blit(white_time_value, (SQUARE_SIZE*8+10, SQUARE_SIZE*4+30))
+    screen.blit(black_time_label, (SQUARE_SIZE*8+10, SQUARE_SIZE*5))
+    screen.blit(black_time_value, (SQUARE_SIZE*8+10, SQUARE_SIZE*5+30))
+    screen.blit(exit_text, (8*SQUARE_SIZE+10, height-50))
+    pygame.display.flip()
+    
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if pos[0]> SQUARE_SIZE*8 and pos[1] >= height-80:
+                    return
+
 # Funkcja główna
 def main():
     pygame.init()
@@ -120,8 +155,9 @@ def main():
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     GRAY = (100, 100, 100)
+    YELLOW = pygame.Color("yellow")
     HIGHLIGHT_MOVES = (100, 200, 100)
-    HIGHLIGHT_TAKES = (200, 100, 100)
+    HIGHLIGHT_TAKES = (147, 168, 50)
 
     # Czcionka
     font = pygame.font.Font(None, 36)
@@ -140,19 +176,24 @@ def main():
     clock = pygame.time.Clock()
 
     # Teksty interfejsu
-    texts = ((font.render(f"Kolejka: Białas", True, WHITE),(8*SQUARE_SIZE+10, 10)),
-            (font.render(f"Kolejka: Czarnuch", True, WHITE), (8*SQUARE_SIZE+10, 10)),
-            (font.render(f"Wyjście", True, WHITE), (8*SQUARE_SIZE+10, height-50)))
+    texts = ((font.render(f"Kolejka: białe", True, WHITE),(8*SQUARE_SIZE+10, 10)),
+            (font.render(f"Kolejka: czarne", True, WHITE), (8*SQUARE_SIZE+10, 10)),
+            (font.render(f"Wyjście", True, GRAY), (8*SQUARE_SIZE+10, height-50)))
+    check_text = font.render("Szach!", True, pygame.Color("red"))
 
     # Czasy graczy
     start_time = time.time()
     black_time = 0
     white_time = 0
+    result = ""
+    winner = ""
+    in_check = None
     while running:
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                pygame.quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 print(pos)
@@ -170,17 +211,23 @@ def main():
                             
                             #sprawdzanie co po ruchu
                             if selected_piece!=None:
-                                whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                                whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "promotion":
                                     choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
-                                    choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
                                     engine.promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+                                    whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "checkmate":
-                                    print("Szach Mat!")
+                                    result = "Szach Mat!"
+                                    winner = "Białas" if turn == 'b' else "Czarnuch"
                                     running = False
                                 elif whatAfter == "stalemate":
-                                    print("Pat")
+                                    result = "Pat"
+                                    winner = "Remis"
                                     running = False
+                                elif whatAfter == "check":
+                                    in_check = turn
+                                else:
+                                    in_check = None
                             selected_piece = None
                             start_time = time.time()
                         else:
@@ -205,11 +252,11 @@ def main():
             current_black_time = black_time + (current_time - start_time)
             current_white_time = white_time
 
-        player_times_font = ((font.render(format_time(current_white_time), True, WHITE),(8*SQUARE_SIZE+10,height - 150)),
-                             (font.render(format_time(current_black_time), True, WHITE),(8*SQUARE_SIZE+10,80)))
+        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn=='w' else GRAY),(8*SQUARE_SIZE+10,height - 150)),
+                             (font.render(format_time(current_black_time), True, YELLOW if turn=='b' else GRAY),(8*SQUARE_SIZE+10,80)))
         screen.fill(BLACK)
-        draw_board(screen,SQUARE_SIZE,)
-        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font)
+        draw_board(screen, SQUARE_SIZE, main_board, in_check)
+        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
         try:
             highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
         except TypeError:
@@ -217,6 +264,8 @@ def main():
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
         pygame.display.flip()
         clock.tick(60)
+    
+    end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
     pygame.quit()
     import launcher
     launcher.main()

@@ -111,7 +111,9 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
             #Sprawdzanie promocji pionków
             if destination_tile.y in [0,7]:
                 return("promotion", destination_tile.y, destination_tile.x)
-                        
+
+    
+
     if available_moves == []:
         main_board.is_in_check(turn)
         if main_board.incheck == True:
@@ -120,7 +122,12 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
         else:
             main_board.print_board()
             return("stalemate", 0, 0)
+        
+    if main_board.incheck == True:
+        return ("check",0,0)
     return(1,1,1)
+
+    
     
 def promotion(y:int,x:int,main_board, choice:str)->None:
     """ Robi promocję na podstawie wybranego wyboru
