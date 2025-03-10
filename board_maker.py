@@ -80,6 +80,7 @@ def main():
     BLACK = (0, 0, 0)
     GRAY = (100, 100, 100)
     YELLOW = pygame.Color("yellow")
+    RED = pygame.Color("red")
 
     font = pygame.font.Font(None, 36)
 
@@ -106,6 +107,7 @@ def main():
     selected_piece = None
     white_king_count = 0
     black_king_count = 0
+    show_error = False
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -148,22 +150,49 @@ def main():
                             row = j // 2
                             if 8*SQUARE_SIZE + col * (SQUARE_SIZE + 10) <= pos[0] <= 8*SQUARE_SIZE + col * (SQUARE_SIZE + 10) + SQUARE_SIZE and (i * 3 + row) * SQUARE_SIZE + 10 <= pos[1] <= (i * 3 + row) * SQUARE_SIZE + 10 + SQUARE_SIZE:
                                 selected_piece = (color, piece_type)
+                # Sprawdzenie kliknięcia na przycisk "Zapisz i wyjdź"
+                if pos[0] > SQUARE_SIZE*8 and pos[0] <= width-20 and pos[1] >= height-80:
+                    if white_king_count == 1 and black_king_count == 1:
+                        running = False
+                    else:
+                        show_error = True
+                # Sprawdzenie kliknięcia na przycisk "Wyjdź bez zapisywania"
+                if pos[0] > SQUARE_SIZE*8 and pos[0] <= width-20 and pos[1] >= height-140 and pos[1] <height-80:
+                    running = False
 
         screen.fill(GRAY)
         draw_board(screen, SQUARE_SIZE, board_state, pieces)
         draw_pieces_selection(screen, SQUARE_SIZE, pieces, config, selected_piece)
+        # Rysowanie przycisku "Zapisz i wyjdź"
+        pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, height-80, width-SQUARE_SIZE*8-20, 60))
+        exit_text = font.render("Zapisz i wyjdź", True, WHITE)
+        screen.blit(exit_text, (SQUARE_SIZE*8+10, height-70))
+        # Rysowanie przycisku "Wyjdź bez zapisywania"
+        pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, height-140, width-SQUARE_SIZE*8-20, 60))
+        exit_without_save_text = font.render("Wyjdź bez zapisywania", True, WHITE)
+        screen.blit(exit_without_save_text, (SQUARE_SIZE*8+10, height-130))
+        # Wyświetlanie komunikatu o błędzie
+        if show_error:
+            error_text = font.render("Musisz ustawić królów!", True, RED)
+            screen.blit(error_text, (SQUARE_SIZE*8+10, height-200))
+
         pygame.display.flip()
 
     pygame.quit()
 
-    # Zapisz ustawienie szachownicy do pliku w formacie FEN
-    fen = board_to_fen(board_state)
-    with open("custom_board.fen", "w") as file:
-        file.write(fen)
+    if white_king_count == 1 and black_king_count == 1:
+        # Zapisz ustawienie szachownicy do pliku w formacie FEN
+        fen = board_to_fen(board_state)
+        with open("custom_board.fen", "w") as file:
+            file.write(fen)
 
-    # Uruchom normal_game.py z nowym ustawieniem szachownicy
-    import normal_game
-    normal_game.main()
+        # Uruchom normal_game.py z nowym ustawieniem szachownicy
+        import normal_game
+        normal_game.main()
+        return
+    
+    import launcher
+    launcher.main()
 
 if __name__ == "__main__":
     main()
