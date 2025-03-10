@@ -96,19 +96,18 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
     if destination_tile.figure != None:
         if destination_tile.figure.type == 'p' :
             direction = 1 if destination_tile.figure.color == 'w' else -1
-            try:
-                if (destination_tile.y - start_tile.y) * direction == 2:
+            if (destination_tile.y - start_tile.y) * direction == 2:
+                if destination_tile.x+direction <= 0:
                     if main_board.board_state[destination_tile.y][destination_tile.x +direction].figure != None:
                         if (main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.type == 'p' 
                         and main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.color != destination_tile.figure.color):
                             main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.can_enpassant_l = True
+                if destination_tile.x+direction >= 7:
                     if main_board.board_state[destination_tile.y][destination_tile.x -direction].figure != None:
                         if (main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.type == 'p' 
                         and main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.color != destination_tile.figure.color):
                             main_board.board_state[destination_tile.y][destination_tile.x-direction].figure.can_enpassant_r = True
-            except IndexError:
-                pass
-            #Sprawdzanie promocji pionków
+           #Sprawdzanie promocji pionków
             if destination_tile.y in [0,7]:
                 return("promotion", destination_tile.y, destination_tile.x)
 
