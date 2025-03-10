@@ -127,9 +127,9 @@ class Board:
             'K':[(1,1,1),(1,-1,1),(-1,1,1),(-1,-1,1),(0, 1 ,1), (0, -1 ,1), (1, 0 ,1), (-1, 0 ,1)],
         }
         if color == 'w':
-            attackschemes['p'] = [(-1, -1, 1),(1, -1, 1)]
-        else:
             attackschemes['p'] = [(-1, 1, 1),(1, 1, 1)]
+        else:
+            attackschemes['p'] = [(-1, -1, 1),(1, -1, 1)]
         for figure_type in attackschemes:
             attackscheme = attackschemes[figure_type]
             for direction in attackscheme:
@@ -146,6 +146,7 @@ class Board:
                         else:
                             if field_to_check.figure.type == figure_type:
                                 return True
+                            break
         return False
     def is_in_check(self,color): 
         """ Sprawdza czy któryś z królów jest szachowany

@@ -202,7 +202,7 @@ def main():
                 if col < 8 and row < 8:
                     if selected_piece:
                         if engine.tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                            draw_board(screen,SQUARE_SIZE,)
+                            draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
                             draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
                             move_time = time.time() - start_time
                             if turn == 'w':
@@ -273,4 +273,4 @@ def main():
     launcher.main()
     sys.exit()
 
-    main()
+main()
