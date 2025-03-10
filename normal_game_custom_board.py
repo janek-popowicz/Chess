@@ -4,6 +4,7 @@ import engine
 import board_and_fields
 import json
 import time
+import figures
 
 CONFIG_FILE = "config.json"
 
@@ -13,6 +14,38 @@ def load_config():
             return json.load(file)
     except FileNotFoundError:
         return {"volume": 0.5, "resolution": "1260x960", "icons": "classic"}
+
+def load_custom_board(fen_file):
+    with open(fen_file, "r") as file:
+        fen = file.read().strip()
+    return fen
+
+def fen_to_board_state(fen):
+    rows = fen.split(" ")[0].split("/")
+    board_state = []
+    for r, row in enumerate(rows):
+        board_row = []
+        c = 0
+        for char in row:
+            if char.isdigit():
+                for _ in range(int(char)):
+                    board_row.append(board_and_fields.Field(c, r))
+                    c += 1
+            else:
+                color = 'w' if char.isupper() else 'b'
+                piece_type = char.lower()
+                piece_class = {
+                    'r': figures.Rook,
+                    'n': figures.Knight,
+                    'b': figures.Bishop,
+                    'q': figures.Queen,
+                    'k': figures.King,
+                    'p': figures.Pawn
+                }[piece_type]
+                board_row.append(board_and_fields.Field(c, r, piece_class(color)))
+                c += 1
+        board_state.append(board_row)
+    return board_state
 
 # Funkcja do rysowania szachownicy
 def draw_board(screen, SQUARE_SIZE, main_board, in_check):
@@ -29,14 +62,14 @@ def draw_pieces(screen, board, SQUARE_SIZE, pieces):
         for c in range(8):
             piece = board.get_piece(r, c)
             if piece != "--":
-                screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                screen.blit(pieces[piece], pygame.Rect((c)*SQUARE_SIZE, (r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
             
 # Funkcja do podświetlania możliwych ruchów
 def highlight_moves(screen, field, square_size:int,board, color_move, color_take):
     try:
         cords = board.get_legal_moves(field, field.figure.color)
     except AttributeError:
-        return None
+        return 0
     for cord in cords:
         highlighted_tile = pygame.Surface((square_size, square_size))
         highlighted_tile.fill(color_move)
@@ -170,7 +203,9 @@ def main():
         pieces[piece] = pygame.transform.scale(pygame.image.load("pieces/" + icon_type + "/" + piece + ".png"), (SQUARE_SIZE-10, SQUARE_SIZE-10))
     
     running = True
-    main_board = board_and_fields.Board()
+    fen = load_custom_board("custom_board.fen")
+    board_state = fen_to_board_state(fen)
+    main_board = board_and_fields.Board(board_state)
     turn = 'w'
     selected_piece = None
     clock = pygame.time.Clock()
@@ -202,8 +237,6 @@ def main():
                 if col < 8 and row < 8:
                     if selected_piece:
                         if engine.tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                            draw_board(screen,SQUARE_SIZE,)
-                            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
                             move_time = time.time() - start_time
                             if turn == 'w':
                                 white_time += move_time
@@ -273,4 +306,5 @@ def main():
     launcher.main()
     sys.exit()
 
+if __name__ == "__main__":
     main()

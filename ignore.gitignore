@@ -1,10 +1,15 @@
 
+
+config.json
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 __pycache__
 __pycache
 *.py[cod]
 *$py.class
+__pycache__/*
 
 # C extensions
 *.so
