@@ -29,7 +29,7 @@ def fen_to_board_state(fen):
         for char in row:
             if char.isdigit():
                 for _ in range(int(char)):
-                    board_row.append(board_and_fields.Field(c, r))
+                    board_row.append(board_and_fields.Field(7-c,7-r))
                     c += 1
             else:
                 color = 'w' if char.isupper() else 'b'
@@ -42,9 +42,11 @@ def fen_to_board_state(fen):
                     'k': figures.King,
                     'p': figures.Pawn
                 }[piece_type]
-                board_row.append(board_and_fields.Field(c, r, piece_class(color)))
+                board_row.append(board_and_fields.Field(7-c, 7-r, piece_class(color)))
                 c += 1
+        board_row.reverse()
         board_state.append(board_row)
+    board_state.reverse()
     return board_state
 
 # Funkcja do rysowania szachownicy
@@ -62,7 +64,7 @@ def draw_pieces(screen, board, SQUARE_SIZE, pieces):
         for c in range(8):
             piece = board.get_piece(r, c)
             if piece != "--":
-                screen.blit(pieces[piece], pygame.Rect((c)*SQUARE_SIZE, (r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
             
 # Funkcja do podświetlania możliwych ruchów
 def highlight_moves(screen, field, square_size:int,board, color_move, color_take):
@@ -277,7 +279,7 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-
+        main_board.print_board()
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
         if turn == 'w':
