@@ -121,7 +121,7 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
         else:
             main_board.print_board()
             return("stalemate", 0, 0)
-        
+    main_board.is_in_check(turn)
     if main_board.incheck == True:
         return ("check",0,0)
     return(1,1,1)
