@@ -165,7 +165,7 @@ def main():
         draw_pieces_selection(screen, SQUARE_SIZE, pieces, config, selected_piece)
         # Rysowanie przycisku "Zapisz i wyjdź"
         pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, height-80, width-SQUARE_SIZE*8-20, 60))
-        exit_text = font.render("Zapisz i wyjdź", True, WHITE)
+        exit_text = font.render("Zapisz i graj", True, WHITE)
         screen.blit(exit_text, (SQUARE_SIZE*8+10, height-70))
         # Rysowanie przycisku "Wyjdź bez zapisywania"
         pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, height-140, width-SQUARE_SIZE*8-20, 60))
@@ -187,8 +187,8 @@ def main():
             file.write(fen)
 
         # Uruchom normal_game.py z nowym ustawieniem szachownicy
-        import normal_game
-        normal_game.main()
+        import normal_game_custom_board
+        normal_game_custom_board.main()
         return
     
     import launcher

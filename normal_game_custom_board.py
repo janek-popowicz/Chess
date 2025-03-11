@@ -288,6 +288,7 @@ def main():
                     pygame.quit()
                     import launcher
                     launcher.main()
+                    return
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False

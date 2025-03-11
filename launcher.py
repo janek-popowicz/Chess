@@ -47,9 +47,9 @@ def main():
 
     # Opcje menu
     menu_options = [
-        "Zwykła gra w terminalu",
         "Zwykła gra",
-        "Random AI Game (nie ma)",
+        "Tryb niestandardowy",
+        "Board maker",
         "Ustawienia",
         "Wyjście"
     ]
@@ -84,20 +84,20 @@ def main():
                         running = False
                         pygame.mixer.music.stop()
                         pygame.quit()
-                        import test_mode_normal_game
-                        test_mode_normal_game.main()
+                        import normal_game
+                        normal_game.main()
                     elif selected_option == 1:
                         running = False
                         pygame.mixer.music.stop()
                         pygame.quit()
-                        import normal_game
-                        normal_game.main()
+                        import normal_game_custom_board
+                        normal_game_custom_board.main()
                     elif selected_option == 2:
                         running = False
                         pygame.mixer.music.stop()
                         pygame.quit()
-                        import test_mode_random_ai_game
-                        test_mode_random_ai_game.main()
+                        import board_maker
+                        board_maker.main()
                     elif selected_option == 3:
                         running=False
                         pygame.mixer.music.stop()
@@ -115,20 +115,20 @@ def main():
                             running = False
                             pygame.mixer.music.stop()
                             pygame.quit()
-                            import test_mode_normal_game
-                            test_mode_normal_game.main()
+                            import normal_game
+                            normal_game.main()
                         elif selected_option == 1:
                             running = False
                             pygame.mixer.music.stop()
                             pygame.quit()
-                            import normal_game
-                            normal_game.main()
+                            import normal_game_custom_board
+                            normal_game_custom_board.main()
                         elif selected_option == 2:
                             running = False
                             pygame.mixer.music.stop()
                             pygame.quit()
-                            import test_mode_random_ai_game
-                            test_mode_random_ai_game.main()
+                            import board_maker
+                            board_maker.main()
                         elif selected_option == 3:
                             running=False
                             pygame.mixer.music.stop()
