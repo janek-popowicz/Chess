@@ -14,8 +14,37 @@ class evaluation:
         self.Hetman = 9
         self.Król = 1000
     # w stoi za white a b za black
-    def ocena_materiału(self): 
+    def ocena_materiału(self,): 
         for i in range(8):
             for j in range(8):
-                pole = self.main_board.board[i][j]
-                if pole[1] == 'p'       
+                pole = self.main_board.board_state[i][j]
+                pole = str(pole)
+                
+                if pole[1] == 'p':
+                    if pole[0] == 'w':
+                        self.waga_białych += self.Pionek
+                    else:
+                        self.waga_czarnych += self.Pionek
+                elif pole[1] == 'N':
+                    if pole[0] == 'w':
+                        self.waga_białych += self.Skoczek
+                    else:
+                        self.waga_czarnych += self.Skoczek
+                elif pole[1] == 'B':
+                    if pole[0] == 'w':
+                        self.waga_białych += self.Goniec
+                    else:
+                        self.waga_czarnych += self.Goniec
+                elif pole[1] == 'R':
+                    if pole[0] == 'w':
+                        self.waga_białych += self.Wieża
+                    else:
+                        self.waga_czarnych += self.Wieża
+                elif pole[1] == 'Q':
+                    if pole[0] == 'w':
+                        self.waga_białych += self.Hetman
+                    else:
+                        self.waga_czarnych += self.Hetman
+
+        return [self.waga_białych, self.waga_czarnych]
+                
