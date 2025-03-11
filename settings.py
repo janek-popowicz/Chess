@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 import json
-import subprocess
 
 CONFIG_FILE = "config.json"
 
@@ -10,7 +9,7 @@ def load_config():
         with open(CONFIG_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return {"volume": 0.5, "resolution": "1260x960", "icons": "classic"}
+        return {"volume": 0.5, "resolution": "1260x960", "icons": "classic", "highlight": 0}
 
 def save_config(config):
     with open(CONFIG_FILE, "w") as file:
@@ -40,6 +39,11 @@ def main():
     icons = tk.StringVar(value=config["icons"])
     ttk.Combobox(root, textvariable=icons, values=["classic", "modern"]).grid(row=2, column=1, padx=10, pady=10)
 
+    # Podświetlenie figur przeciwnika
+    highlight = tk.BooleanVar(value=config["highlight"])
+    tk.Checkbutton(root, variable=highlight, text="Czy podświetlać figury przeciwnika?",onvalue=True,offvalue=False).grid(row=3, column=1, padx=10, pady=10)
+    
+
     # Zapisz i Zastosuj
     def save_and_apply():
         config["volume"] = volume.get()
@@ -48,11 +52,12 @@ def main():
         save_config(config)
         apply_settings(config["volume"], config["resolution"], config["icons"])
         root.destroy()
-        subprocess.Popen(["python3", "launcher.py"])
+        import launcher
+        launcher.main()
 
     tk.Button(root, text="Zapisz i Zastosuj", command=save_and_apply).grid(row=7, column=0, columnspan=2, padx=10, pady=10)
 
     root.mainloop()
-
+    
 if __name__ == "__main__":
     main()

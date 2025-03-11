@@ -190,6 +190,7 @@ class Board:
                         if figure2 != None:
                             if figure2.type == 'K':
                                 self.incheck = True
+                                continue
                         self.make_move(field.y,field.x,move[0],move[1])
                         self.is_in_check(turn)
                         if not self.incheck:
@@ -233,9 +234,10 @@ class Board:
             print(x)
             print("+" + "----+" *8 )
         print("  7    6    5    4    3    2    1    0")
-    def get_piece(self,r,c):
-        if self.board_state[r][c].figure == None:
+    def get_piece(self,row:int,col:int):
+        
+        if self.board_state[row][col].figure == None:
             return "--"
         else:
-            return self.board_state[r][c].figure.return_figure()
+            return self.board_state[row][col].figure.return_figure()
     
