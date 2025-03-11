@@ -190,6 +190,7 @@ class Board:
                         if figure2 != None:
                             if figure2.type == 'K':
                                 self.incheck = True
+                                continue
                         self.make_move(field.y,field.x,move[0],move[1])
                         self.is_in_check(turn)
                         if not self.incheck:
