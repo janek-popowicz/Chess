@@ -128,7 +128,10 @@ def promotion_dialog(screen, SQUARE_SIZE:int, color:str)->str:
     while True:
         screen.fill(pygame.Color("black"))
         screen.blit(dialog, (100, 100))
-        for text, rect in option_rects:
+        mouse_pos = pygame.mouse.get_pos()
+        for i, (text, rect) in enumerate(option_rects):
+            if rect.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, pygame.Color("yellow"), rect.inflate(10, 10), 2)
             screen.blit(text, rect)
         pygame.display.flip()
         
@@ -141,7 +144,16 @@ def promotion_dialog(screen, SQUARE_SIZE:int, color:str)->str:
                 for i, (text, rect) in enumerate(option_rects):
                     if rect.collidepoint(pos):
                         return options[i][0]  # zwraca pierwszą literę opcji (1, 2, 3, 4)
-
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return '1'
+                elif event.key == pygame.K_2:
+                    return '2'
+                elif event.key == pygame.K_3:
+                    return '3'
+                elif event.key == pygame.K_4:
+                    return '4'
+                
 def end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK):
     font = pygame.font.Font(None, 36)
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
