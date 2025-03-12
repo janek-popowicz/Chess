@@ -108,13 +108,15 @@ def main():
     selected_piece = None
     white_king_count = 0
     black_king_count = 0
-    show_error = False
+    show_no_king_error = False
     show_check_error = False
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                show_check_error = False
+                show_no_king_error = False
                 pos = pygame.mouse.get_pos()
                 col = pos[0] // SQUARE_SIZE
                 row = pos[1] // SQUARE_SIZE
@@ -123,21 +125,21 @@ def main():
                         piece_type = selected_piece[1]
                         piece_color = selected_piece[0]
                         if piece_type == "K":
-                            if piece_color == "w" and white_king_count >= 1:
-                                continue
-                            elif piece_color == "b" and black_king_count >= 1:
-                                continue
-                        if piece_type == "K":
                             if piece_color == "w":
+                                if white_king_count >= 1:
+                                    continue
                                 white_king_count += 1
                             else:
+                                if black_king_count >= 1:
+                                    continue
                                 black_king_count += 1
                         piece_class = piece_classes[piece_type]
                         if board_state[row][col].figure:    
-                            if board_state[row][col].figure.color == 'w':
-                                white_king_count -= 1 
-                            if board_state[row][col].figure.color == 'b':
-                                black_king_count -= 1 
+                            if board_state[row][col].figure.type == 'K':
+                                if board_state[row][col].figure.color == 'w':
+                                    white_king_count -= 1 
+                                if board_state[row][col].figure.color == 'b':
+                                    black_king_count -= 1 
                         board_state[row][col].figure = piece_class(piece_color)
                         selected_piece = None
                     else:
@@ -162,15 +164,29 @@ def main():
                     if white_king_count == 1 and black_king_count == 1:
                         # Inicjalizacja obiektu Board z custom state
                         board = board_and_fields.Board([[board_and_fields.Field(c, r, board_state[r][c].figure) for c in range(8)] for r in range(8)])
-                        if not board.is_in_check_bool('w') and not board.is_in_check_bool('b'):
+                        board.is_in_check('w')
+                        if not board.incheck:
+                            board.is_in_check('b')
+                        if not board.incheck:
                             running = False
+                            # Zapisz ustawienie szachownicy do pliku w formacie FEN
+                            fen = board_to_fen(board_state)
+                            with open("custom_board.fen", "w") as file:
+                                file.write(fen)
+                            pygame.quit()
+                            import normal_game_custom_board
+                            normal_game_custom_board.main()
                         else:
                             show_check_error = True
                     else:
-                        show_error = True
+                        show_no_king_error = True
+                    
                 # Sprawdzenie kliknięcia na przycisk "Wyjdź bez zapisywania"
                 if pos[0] > SQUARE_SIZE*8 and pos[0] <= width-20 and pos[1] >= height-140 and pos[1] < height-80:
                     running = False
+                    pygame.quit()
+                    import launcher
+                    launcher.main()
 
         screen.fill(GRAY)
         draw_board(screen, SQUARE_SIZE, board_state, pieces)
@@ -184,30 +200,22 @@ def main():
         exit_without_save_text = font.render("Wyjdź bez zapisywania", True, WHITE)
         screen.blit(exit_without_save_text, (SQUARE_SIZE*8+10, height-130))
         # Wyświetlanie komunikatu o błędzie
-        if show_error:
+        if show_no_king_error:
             error_text = font.render("Musisz ustawić królów!", True, RED)
-            screen.blit(error_text, (SQUARE_SIZE*8+10, height-200))
+            screen.blit(error_text, (SQUARE_SIZE*8+10, height-200))       
+        else:
+            pygame.draw.rect(screen, GRAY,pygame.Rect(SQUARE_SIZE*8+10, height-200,300,20,))
         if show_check_error:
             check_error_text = font.render("Szach!", True, RED)
             screen.blit(check_error_text, (SQUARE_SIZE*8+10, height-230))
-
+        else:
+            pygame.draw.rect(screen, GRAY,pygame.Rect(SQUARE_SIZE*8+10, height-230,300,20,))
         pygame.display.flip()
 
-    pygame.quit()
+    return
 
-    if white_king_count == 1 and black_king_count == 1:
-        # Zapisz ustawienie szachownicy do pliku w formacie FEN
-        fen = board_to_fen(board_state)
-        with open("custom_board.fen", "w") as file:
-            file.write(fen)
 
         # Uruchom normal_game.py z nowym ustawieniem szachownicy
-        import normal_game_custom_board
-        normal_game_custom_board.main()
-        return
-    
-    import launcher
-    launcher.main()
 
 if __name__ == "__main__":
     main()
