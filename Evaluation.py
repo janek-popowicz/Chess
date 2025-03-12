@@ -17,8 +17,12 @@ class evaluation:
     def ocena_materiału(self,): 
         for i in range(8):
             for j in range(8):
-                pole = self.main_board.board_state[i][j]
+                pole = self.main_board[i][j]
                 pole = str(pole)
+                #print(f"Checking position ({i}, {j}): {pole}")  # Debugging print statement
+                print(pole)
+                if len(pole) < 2:
+                    continue  # Skip if the pole does not represent a piece
                 
                 if pole[1] == 'p':
                     if pole[0] == 'w':
@@ -46,5 +50,6 @@ class evaluation:
                     else:
                         self.waga_czarnych += self.Hetman
 
+        print(f"Final weights - White: {self.waga_białych}, Black: {self.waga_czarnych}")  # Debugging print statement
         return [self.waga_białych, self.waga_czarnych]
                 

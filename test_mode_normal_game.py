@@ -14,7 +14,7 @@ def main():
             print("Szach!", end=" ")
         moving = True
         while moving:
-           #print(Evaluation.evaluation().ocena_materiału())
+            print(Evaluation.evaluation().ocena_materiału())
             y1 = input("Wprowadź rząd figury, którą chcesz przesunąć: ")
             x1 = input("Wprowadź kolumnę figury, którą chcesz przesunąć: ")
             y2 = input("Wprowadź rząd, na który chcesz przesunąć figurę: ")
