@@ -4,6 +4,7 @@ import board_and_fields
 import figures
 import json
 import time
+import engine
 
 CONFIG_FILE = "config.json"
 
@@ -108,6 +109,7 @@ def main():
     white_king_count = 0
     black_king_count = 0
     show_error = False
+    show_check_error = False
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -153,11 +155,16 @@ def main():
                 # Sprawdzenie kliknięcia na przycisk "Zapisz i wyjdź"
                 if pos[0] > SQUARE_SIZE*8 and pos[0] <= width-20 and pos[1] >= height-80:
                     if white_king_count == 1 and black_king_count == 1:
-                        running = False
+                        # Inicjalizacja obiektu Board z custom state
+                        board = board_and_fields.Board([[board_and_fields.Field(c, r, board_state[r][c].figure) for c in range(8)] for r in range(8)])
+                        if not board.is_in_check_bool('w') and not board.is_in_check_bool('b'):
+                            running = False
+                        else:
+                            show_check_error = True
                     else:
                         show_error = True
                 # Sprawdzenie kliknięcia na przycisk "Wyjdź bez zapisywania"
-                if pos[0] > SQUARE_SIZE*8 and pos[0] <= width-20 and pos[1] >= height-140 and pos[1] <height-80:
+                if pos[0] > SQUARE_SIZE*8 and pos[0] <= width-20 and pos[1] >= height-140 and pos[1] < height-80:
                     running = False
 
         screen.fill(GRAY)
@@ -175,6 +182,9 @@ def main():
         if show_error:
             error_text = font.render("Musisz ustawić królów!", True, RED)
             screen.blit(error_text, (SQUARE_SIZE*8+10, height-200))
+        if show_check_error:
+            check_error_text = font.render("Szach!", True, RED)
+            screen.blit(check_error_text, (SQUARE_SIZE*8+10, height-230))
 
         pygame.display.flip()
 

@@ -165,6 +165,22 @@ class Board:
                 self.incheck = True
         else:
             self.incheck = False   
+    def is_in_check_bool(self,color): 
+        """ Sprawdza czy któryś z królów jest szachowany
+
+        Args:
+            color (str): Kolor króla, którego sprawdzamy
+        """
+        for y in range(0,8):
+            for x in range(0,8):
+                tile = self.board_state[y][x]
+                if tile.figure != None:
+                    if tile.figure.type == 'K' and tile.figure.color == color:
+                        king_position = tile
+        if self.is_attacked(king_position):
+            return True
+        else:
+            return False
     def get_legal_moves(self, field, turn):
         """Generuje legalne ruchy 
 

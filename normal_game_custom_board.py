@@ -292,7 +292,6 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-        main_board.print_board()
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
         if turn == 'w':
