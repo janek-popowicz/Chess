@@ -24,7 +24,7 @@ class Evaluation:
                     continue  # Skip if the field does not have a piece
                 
                 figure = field.figure.return_figure()
-                print(figure)
+                #print(figure)
                 
                 if len(figure) < 2:
                     continue  # Skip if the figure representation is invalid
