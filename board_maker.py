@@ -127,13 +127,18 @@ def main():
                                 continue
                             elif piece_color == "b" and black_king_count >= 1:
                                 continue
-                        piece_class = piece_classes[piece_type]
-                        board_state[row][col].figure = piece_class(piece_color)
                         if piece_type == "K":
                             if piece_color == "w":
                                 white_king_count += 1
                             else:
                                 black_king_count += 1
+                        piece_class = piece_classes[piece_type]
+                        if board_state[row][col].figure:    
+                            if board_state[row][col].figure.color == 'w':
+                                white_king_count -= 1 
+                            if board_state[row][col].figure.color == 'b':
+                                black_king_count -= 1 
+                        board_state[row][col].figure = piece_class(piece_color)
                         selected_piece = None
                     else:
                         piece = board_state[row][col].figure
