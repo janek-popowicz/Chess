@@ -27,11 +27,10 @@ def save_games(games, username, year, month):
 
 if __name__ == "__main__":
     username = "MagnusCarlsen"  # Możesz podmienić na dowolnego gracza
-    year = 2025
-    month = 1
-    
-    games = fetch_chess_games(username, year, month)
-    if games:
-        save_games(games, username, year, month)
-    else:
-        print("Brak partii do zapisania.")
+    for year in range(2000, 2026):
+        for month in range(1, 13):
+            games = fetch_chess_games(username, year, month)
+            if games:
+                save_games(games, username, year, month)
+            else:
+                print("Brak partii do zapisania.", year, month)
