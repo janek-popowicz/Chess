@@ -14,15 +14,15 @@ options.add_argument("--headless")  # Uruchamianie bez GUI (możesz usunąć, je
 service = Service(GeckoDriverManager().install())
 driver = webdriver.Firefox(service=service, options=options)
 
-# Strona z partiami Kasparova
-url = "https://www.chess.com/pl/games/bobby-fischer"
+# Strona z partiami graczy
+url = "https://www.chess.com/pl/games/paul-morphy"
 driver.get(url)
 time.sleep(random.uniform(2, 4))  # Czekamy na załadowanie strony
 
 all_games_pgn = []
 page_count = 1
 
-while page_count < 48:
+while page_count < 16:
     try:
         print(f"📄 Przetwarzanie strony {page_count}...")
 
@@ -81,7 +81,7 @@ while page_count < 48:
         break
 
 # **Zapisanie do pliku PGN**
-with open("kasparov_games.pgn", "w", encoding="utf-8") as f:
+with open("nic.pgn", "w", encoding="utf-8") as f:
     f.write("\n\n".join(all_games_pgn))
 
 print(f"🎉 Pobrano {len(all_games_pgn)} partii i zapisano do ktośtam_games.pgn")

@@ -4,7 +4,7 @@
 PGN_DIR="$HOME/Downloads"
 
 # Plik wynikowy
-OUTPUT_FILE="ktośtam_all_games.pgn"
+OUTPUT_FILE="next_one_all_games.pgn"
 
 # Sprawdzenie, czy są pliki do połączenia
 if ls "$PGN_DIR"/master_games*.pgn 1> /dev/null 2>&1; then
