@@ -6,9 +6,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'e
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'board')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'figures')))
 
-import board_and_fields
-import figures
-import engine
+from engine import engine
+from engine import board_and_fields
 
 def rotate_pst(white_pst):
     """
