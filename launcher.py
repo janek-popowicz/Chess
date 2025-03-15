@@ -1,6 +1,15 @@
 import pygame
 import sys
 import json
+import os
+
+# Dodajemy ścieżki do sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'normal_games')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'custom_board_game')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'engine')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'board')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'figures')))
+
 # Funkcja do rysowania menu
 def draw_menu(selected_option:int, screen, menu_texts, text_white, text_gray,BLACK)->None:
     """rysuje menu i renderuje tekst
@@ -24,8 +33,6 @@ def load_config():
 
 # Funkcja główna
 def main():
-
-
     # Inicjalizacja Pygame
     pygame.init()
     icon_logo = pygame.image.load('program_logo.png')
@@ -84,22 +91,22 @@ def main():
                         running = False
                         pygame.mixer.music.stop()
                         pygame.quit()
-                        import normal_game
-                        normal_game.main()
+                        import normal_games.normal_game
+                        normal_games.normal_game.main()
                     elif selected_option == 1:
                         running = False
                         pygame.mixer.music.stop()
                         pygame.quit()
-                        import normal_game_custom_board
-                        normal_game_custom_board.main()
+                        import custom_board_game.normal_game_custom_board
+                        custom_board_game.normal_game_custom_board.main()
                     elif selected_option == 2:
                         running = False
                         pygame.mixer.music.stop()
                         pygame.quit()
-                        import board_maker
-                        board_maker.main()
+                        import custom_board_game.board_maker
+                        custom_board_game.board_maker.main()
                     elif selected_option == 3:
-                        running=False
+                        running = False
                         pygame.mixer.music.stop()
                         pygame.quit()
                         import settings
@@ -115,22 +122,22 @@ def main():
                             running = False
                             pygame.mixer.music.stop()
                             pygame.quit()
-                            import normal_game
-                            normal_game.main()
+                            import normal_games.normal_game
+                            normal_games.normal_game.main()
                         elif selected_option == 1:
                             running = False
                             pygame.mixer.music.stop()
                             pygame.quit()
-                            import normal_game_custom_board
-                            normal_game_custom_board.main()
+                            import custom_board_game.normal_game_custom_board
+                            custom_board_game.normal_game_custom_board.main()
                         elif selected_option == 2:
                             running = False
                             pygame.mixer.music.stop()
                             pygame.quit()
-                            import board_maker
-                            board_maker.main()
+                            import custom_board_game.board_maker
+                            custom_board_game.board_maker.main()
                         elif selected_option == 3:
-                            running=False
+                            running = False
                             pygame.mixer.music.stop()
                             pygame.quit()
                             import settings
@@ -144,7 +151,7 @@ def main():
             if text_rect.collidepoint(mouse_pos):
                 selected_option = i
 
-        draw_menu(selected_option, screen, menu_texts, text_white, text_gray,BLACK)
+        draw_menu(selected_option, screen, menu_texts, text_white, text_gray, BLACK)
 
     pygame.mixer.music.stop()
     pygame.quit()
