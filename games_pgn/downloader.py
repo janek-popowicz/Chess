@@ -1,88 +1,112 @@
+import os
 import time
 import random
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.firefox import GeckoDriverManager
 
+# Lista arcymistrzów i ich liczby partii
+grandmasters = {
+    # "viswanathan-anand": 4297,
+    # "mikhail-tal": 3189,
+    # "fabiano-caruana": 4749,
+    # "mikhail-botvinnik": 1315,
+    # "judit-polgar": 2093,
+    "alexander-alekhine": 2354
+}
 
+# Katalog docelowy dla pobranych plików
+download_dir = os.path.expanduser("~/Downloads")
+
+# Konfiguracja Firefoksa
 options = Options()
-options.add_argument("--headless")  # Uruchamianie bez GUI (możesz usunąć, jeśli chcesz widzieć, co się dzieje)
 service = Service(GeckoDriverManager().install())
+options.add_argument("--headless")  # Uruchamianie bez GUI (możesz usunąć, jeśli chcesz widzieć, co się dzieje)
 driver = webdriver.Firefox(service=service, options=options)
 
-# Strona z partiami graczy
-url = "https://www.chess.com/pl/games/paul-morphy"
-driver.get(url)
-time.sleep(random.uniform(2, 4))  # Czekamy na załadowanie strony
+def download_games(player, num_games):
+    url = f"https://www.chess.com/pl/games/{player}"
+    driver.get(url)
+    time.sleep(random.uniform(3, 6))
 
-all_games_pgn = []
-page_count = 1
+    num_pages = (num_games // 25) + (1 if num_games % 25 else 0)
+    print(f"📥 Pobieranie {num_games} partii dla {player} ({num_pages} stron)...")
 
-while page_count < 16:
-    try:
-        print(f"📄 Przetwarzanie strony {page_count}...")
-
-        # **1. Zamknięcie bannera (jeśli istnieje)**
+    for page in range(1, num_pages + 1):
+        print(f"➡️ Strona {page}/{num_pages}")
+        
         try:
-            close_banner = driver.find_element(By.CLASS_NAME, "ready-to-play-banner-content")
-            driver.execute_script("arguments[0].remove();", close_banner)
-            print("✅ Usunięto banner.")
-        except:
-            print("ℹ️ Brak bannera.")
+            # Usunięcie bannera
+            try:
+                close_banner = driver.find_element(By.CLASS_NAME, "ready-to-play-banner-content")
+                driver.execute_script("arguments[0].remove();", close_banner)
+                print("✅ Usunięto banner.")
+            except:
+                pass
+            
+            time.sleep(random.uniform(1, 3))
+            
+            # Zaznaczenie wszystkich partii
+            try:
+                checkbox = driver.find_element(By.ID, "master-games-check-all")
+                driver.execute_script("arguments[0].click();", checkbox)
+                print("✅ Zaznaczono wszystkie partie.")
+            except:
+                print("⚠️ Nie znaleziono przycisku zaznaczenia.")
+                continue
+            
+            time.sleep(random.uniform(1, 3))
+            
+            # Kliknięcie pobrania
+            try:
+                download_button = driver.find_element(By.CLASS_NAME, "master-games-download-icon")
+                driver.execute_script("arguments[0].click();", download_button)
+                print("✅ Kliknięto przycisk pobierania.")
+            except:
+                print("⚠️ Nie znaleziono przycisku pobierania.")
+                continue
+            
+            time.sleep(random.uniform(2, 5))
+            
+            # Przejście do następnej strony
+            try:
+                next_page = driver.find_element(By.CLASS_NAME, "chevron-right")
+                next_page.click()
+                print("➡️ Przejście do następnej strony.")
+            except:
+                print("⚠️ Nie znaleziono przycisku przejścia.")
+                break
+            
+            time.sleep(random.uniform(4, 8))
+        except Exception as e:
+            print(f"❌ Błąd na stronie {page}: {e}")
+            break
+    
+    merge_pgn_files(player)
 
-        time.sleep(random.uniform(0.5, 1.5))
+def merge_pgn_files(player):
+    merged_file = os.path.join(download_dir, f"{player}.pgn")
+    pgn_files = sorted([f for f in os.listdir(download_dir) if f.startswith("master_games") and f.endswith(".pgn")])
+    
+    if not pgn_files:
+        print(f"⚠️ Brak plików do scalania dla {player}!")
+        return
+    
+    print(f"🔄 Scalanie {len(pgn_files)} plików PGN dla {player}...")
+    
+    with open(merged_file, "w", encoding="utf-8") as outfile:
+        for pgn_file in pgn_files:
+            with open(os.path.join(download_dir, pgn_file), "r", encoding="utf-8") as infile:
+                outfile.write(infile.read() + "\n\n")
+            os.remove(os.path.join(download_dir, pgn_file))
+    
+    print(f"✅ Pobrano i scalono {player} do {merged_file}")
 
-        # **2. Kliknięcie checkboxa "Wybierz wszystkie"**
-        try:
-            select_all_checkbox = driver.find_element(By.ID, "master-games-check-all")
-            driver.execute_script("arguments[0].click();", select_all_checkbox)
-            print("✅ Zaznaczono wszystkie partie.")
-        except:
-            print("⚠️ Nie znaleziono przycisku zaznaczenia.")
-            continue
+# Pobieranie partii dla wszystkich arcymistrzów
+for gm, games in grandmasters.items():
+    download_games(gm, games)
 
-        time.sleep(random.uniform(0.5, 1.5))
-
-        # **3. Kliknięcie przycisku pobierania**
-        try:
-            download_button = driver.find_element(By.CLASS_NAME, "master-games-download-icon")
-            driver.execute_script("arguments[0].click();", download_button)
-            print("✅ Kliknięto przycisk pobierania.")
-        except:
-            print("⚠️ Nie znaleziono przycisku pobierania.")
-            continue
-
-        time.sleep(random.uniform(1, 2))
-
-        # **4. Pobranie PGN z kodu strony**
-        pgn_elements = driver.find_elements(By.CLASS_NAME, "archive-games-download-games")
-        for element in pgn_elements:
-            all_games_pgn.append(element.text)
-
-        time.sleep(random.uniform(0.5, 1.5))
-
-        # **5. Przejście do następnej strony**
-        try:
-            next_page = driver.find_element(By.CLASS_NAME, "chevron-right")
-            next_page.click()
-            print("➡️ Przejście do następnej strony.")
-            page_count += 1
-        except:
-            print("⚠️ Nie znaleziono przycisku przejścia.")
-
-        time.sleep(random.uniform(2, 4))  # Opóźnienie przed kolejną stroną
-
-    except Exception as e:
-        print(f"❌ Błąd: {e}")
-        break
-
-# **Zapisanie do pliku PGN**
-with open("nic.pgn", "w", encoding="utf-8") as f:
-    f.write("\n\n".join(all_games_pgn))
-
-print(f"🎉 Pobrano {len(all_games_pgn)} partii i zapisano do ktośtam_games.pgn")
 driver.quit()
+print("🎉 Pobieranie zakończone!")
