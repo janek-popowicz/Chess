@@ -12,7 +12,8 @@ Jeżeli jest to głupie i (Benedykt) masz lepszy plan, to daj znać.
 Dzięki copilot za pomoc w pisaniu tego komentarza.
 """
 
-import figures,board_and_fields
+import engine.figures as figures
+import engine.board_and_fields as board_and_fields
 
 def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
     """ Próbuje zrobić ruch

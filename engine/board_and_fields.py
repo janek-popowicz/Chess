@@ -1,7 +1,7 @@
 """
 This is gonna be chess game. Here are gonna be classes for figures and board.
 """
-import figures
+import engine.figures as figures
 class Field:
     def __init__(self, x, y,  figure=None):
         self.x = x

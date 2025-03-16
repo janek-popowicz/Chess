@@ -4,15 +4,11 @@ import json
 import time
 import os
 
-# Dodajemy ścieżki do sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'engine')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'board')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'figures')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  # Dodajemy ścieżkę do katalogu głównego
+#wygląda dziwnie ale musi działać
+from engine.board_and_fields import *
+from engine.engine import *
+from engine.figures import *
 
-import engine
-import board_and_fields
-import figures
 
 CONFIG_FILE = "config.json"
 
@@ -258,7 +254,7 @@ def main():
                 row = 7 - (pos[1] // SQUARE_SIZE)
                 if col < 8 and row < 8:
                     if selected_piece:
-                        if engine.tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
+                        if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
                             move_time = time.time() - start_time
                             if turn == 'w':
                                 white_time += move_time
@@ -268,11 +264,11 @@ def main():
                             
                             #sprawdzanie co po ruchu
                             if selected_piece!=None:
-                                whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
+                                whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "promotion":
                                     choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
-                                    engine.promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
-                                    whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                                    promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+                                    whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "checkmate":
                                     result = "Szach Mat!"
                                     winner = "Białas" if turn == 'b' else "Czarnuch"
@@ -293,9 +289,6 @@ def main():
                         selected_piece = (row, col)
                 if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
                     running = False
-                    pygame.quit()
-                    import launcher
-                    launcher.main()
                     return
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -323,10 +316,8 @@ def main():
         clock.tick(60)
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
-    pygame.quit()
-    import launcher
-    launcher.main()
     sys.exit()
+    return
 
 if __name__ == "__main__":
     main()

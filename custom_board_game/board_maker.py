@@ -181,8 +181,8 @@ def main():
                             with open("custom_board.fen", "w") as file:
                                 file.write(fen)
                             pygame.quit()
-                            import normal_game_custom_board
-                            normal_game_custom_board.main()
+                            import custom_board_game.normal_game_custom_board
+                            custom_board_game.normal_game_custom_board.main()
                         else:
                             show_check_error = True
                     else:
@@ -191,9 +191,7 @@ def main():
                 # Sprawdzenie kliknięcia na przycisk "Wyjdź bez zapisywania"
                 if pos[0] > SQUARE_SIZE*8 and pos[0] <= width-20 and pos[1] >= height-140 and pos[1] < height-80:
                     running = False
-                    pygame.quit()
-                    import launcher
-                    launcher.main()
+                    return
 
         screen.fill(GRAY)
         draw_board(screen, SQUARE_SIZE, board_state, pieces)
@@ -220,9 +218,6 @@ def main():
         pygame.display.flip()
 
     return
-
-
-        # Uruchom normal_game.py z nowym ustawieniem szachownicy
 
 if __name__ == "__main__":
     main()

@@ -4,15 +4,10 @@ import json
 import time
 import os
 
-# Dodajemy ścieżki do sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'engine')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'board')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'figures')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  # Dodajemy ścieżkę do katalogu głównego
-
-from engine import tryMove, afterMove, promotion
-from board_and_fields import Board, Field
-from figures import Rook, Knight, Bishop, Queen, King, Pawn
+#wygląda dziwnie ale musi działać
+from engine.board_and_fields import *
+from engine.engine import *
+from engine.figures import *
 
 CONFIG_FILE = "config.json"
 
@@ -259,9 +254,6 @@ def main():
                         selected_piece = (row, col)
                 if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
                     running = False
-                    pygame.quit()
-                    import launcher
-                    launcher.main()
                     return
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -293,9 +285,7 @@ def main():
         clock.tick(60)
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
-    pygame.quit()
-    import launcher
-    launcher.main()
-    sys.exit()
+    return
+if __name__ == "__main__":
 
-main()
+    main()

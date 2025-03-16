@@ -1,14 +1,10 @@
 import sys
 import os
 
-# Dodajemy ścieżki do sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'engine')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'board')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'algorithms')))
-
-import engine
-import board_and_fields
-import evaluation
+#wygląda dziwnie ale musi działać
+from engine.board_and_fields import *
+from engine.engine import *
+from engine.figures import *
 
 def main():
     running = True
@@ -52,6 +48,6 @@ def main():
             break
         else:
             continue
-
+    return
 if __name__ == "__main__":
     main()
