@@ -4,14 +4,10 @@ import json
 import time
 import os
 
-# Dodajemy ścieżki do sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'engine')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'board')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'figures')))
-
-import board_and_fields
-import figures
-import engine
+#wygląda dziwnie ale musi działać
+from engine.board_and_fields import *
+from engine.engine import *
+from engine.figures import *
 
 CONFIG_FILE = "config.json"
 
@@ -183,6 +179,7 @@ def main():
                             pygame.quit()
                             import custom_board_game.normal_game_custom_board
                             custom_board_game.normal_game_custom_board.main()
+                            return
                         else:
                             show_check_error = True
                     else:

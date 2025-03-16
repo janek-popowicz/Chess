@@ -316,7 +316,6 @@ def main():
         clock.tick(60)
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
-    sys.exit()
     return
 
 if __name__ == "__main__":

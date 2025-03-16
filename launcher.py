@@ -40,7 +40,8 @@ def main():
         "Tryb niestandardowy",
         "Board maker",
         "Ustawienia",
-        "Wyjście"
+        "Wyjście",
+        "Test mode"
     ]
 
     selected_option = 0
@@ -106,6 +107,8 @@ def do_an_action(selected_option):
         settings.main()
     elif selected_option == 4:
         return False
+    elif selected_option == 5:
+        normal_games.test_mode_normal_game.main()
 
 # Funkcja do rysowania menu
 def draw_menu(selected_option:int, screen, menu_texts, text_white, text_gray,BLACK)->None:

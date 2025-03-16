@@ -5,6 +5,7 @@ import os
 from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
+from algorithms import evaluation
 
 def main():
     running = True
@@ -28,9 +29,9 @@ def main():
             x1 = int(x1)
             y2 = int(y2)
             x2 = int(x2)
-            moving = not engine.tryMove(turn, main_board, y1, x1, y2, x2)
-        print(engine.afterMove(turn, main_board, y1, x1, y2, x2))
-        whatAfter, yForPromotion, xForPromotion = engine.afterMove(turn, main_board, y1, x1, y2, x2)
+            moving = not tryMove(turn, main_board, y1, x1, y2, x2)
+        print(afterMove(turn, main_board, y1, x1, y2, x2))
+        whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
         if whatAfter == "promotion":
             main_board.print_board()
             choiceOfPromotion = input(f"""Pionek w kolumnie {xForPromotion} dotarł do końca planszy. Wpisz:
@@ -39,7 +40,7 @@ def main():
     3 - Aby zmienić go w Wieżę
     4 - Aby zmienić go w Królową
                     """)
-            engine.promotion(turn, yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+            promotion(turn, yForPromotion, xForPromotion, main_board, choiceOfPromotion)
         if whatAfter == "checkmate":
             print("Szach Mat!")
             break
