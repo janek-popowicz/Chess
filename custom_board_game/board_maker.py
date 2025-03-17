@@ -176,7 +176,6 @@ def main():
                             fen = board_to_fen(board_state)
                             with open("custom_board.fen", "w") as file:
                                 file.write(fen)
-                            pygame.quit()
                             import custom_board_game.normal_game_custom_board
                             custom_board_game.normal_game_custom_board.main()
                             return
