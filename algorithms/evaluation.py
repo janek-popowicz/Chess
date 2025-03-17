@@ -1,19 +1,16 @@
 import sys
 import os
 
-# Dodajemy ścieżki do sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'engine')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'board')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'figures')))
 
-from engine import engine
-from engine import board_and_fields
+import engine.engine as engine
+import engine.board_and_fields as board_and_fields
+import engine.figures as figures
 
 def rotate_pst(white_pst):
-    """
-    Obraca tablicę 8x8 pionowo (odwraca kolejność rzędów).
-    Dzięki temu uzyskujemy PST dla czarnych na podstawie PST dla białych.
-    """
+   #obraca szachownice o 180 stopni zeby anazlizowac ją również dla czarnych      
     return white_pst[::-1]
 
 # PST dla białych (wartości przeskalowane – oryginalne liczby dzielone przez 100)

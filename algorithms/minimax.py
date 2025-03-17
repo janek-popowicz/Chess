@@ -1,7 +1,14 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'engine')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'board')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'figures')))
 
 import evaluation
-from engine import engine
-from engine import board_and_fields
+import engine.engine as engine
+import engine.board_and_fields as board_and_fields
+import engine.figures as figures
 
 class AI:
     def __init__(self, depth):
@@ -59,3 +66,5 @@ class AI:
         """Wywołanie funkcji minimax na aktualnej planszy, zwraca najlepszy ruch w formacie [skąd_y, skąd_x, dokąd_y, dokąd_x]."""
         _, move = self.minimax(self.board, self.depth, self.alpha, self.beta, True)
         return move
+
+AI.get_best_move()
