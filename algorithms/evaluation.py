@@ -180,27 +180,40 @@ class Evaluation:
                     else:
                         black_pieces += 1
         return white_pieces+black_pieces
-    def king_to_edge(self):
-        
-        eval_white = 0
-        eval_black = 0
-        white_king_position = []
-        black_king_position = []
+    def king_to_edge(board):
+
+        evaluation_white = 0
+        evaluation_black = 0
+
+        # Znajdź pozycję króla białego i czarnego
+        white_king_position = None
+        black_king_position = None
         for i in range(8):
             for j in range(8):
-                piece = self.main_board.board_state[i][j]
+                piece = board.board_state[i][j]
                 if piece.figure is not None and piece.figure.type == 'K':
                     if piece.figure.color == 'w':
-                        white_king_position = [i, j]
+                        white_king_position = (i, j)
                     else:
-                        black_king_position = [i, j]
+                        black_king_position = (i, j)
 
         if white_king_position is not None:
-            kingw_kolumna = white_king_position[0]
-            kingw_wiersz = white_king_position[1]
-            kingw_to_edge = min(kingw_kolumna, 7-kingw_kolumna) + min(kingw_wiersz, 7-kingw_wiersz)
+            white_king_rank, white_king_file = white_king_position
+            # Oblicz dystans króla białego od krawędzi
+            white_king_dst_to_edge = min(white_king_rank, 7 - white_king_rank) + min(white_king_file, 7 - white_king_file)
+            evaluation_black += white_king_dst_to_edge
+
+        if black_king_position is not None:
+            black_king_rank, black_king_file = black_king_position
+            # Oblicz dystans króla czarnego od krawędzi
+            black_king_dst_to_edge = min(black_king_rank, 7 - black_king_rank) + min(black_king_file, 7 - black_king_file)
+            evaluation_white += black_king_dst_to_edge
+        return [evaluation_white, evaluation_black]
+        #return ale z wagą ze to zacyna barsziej działac kiedy jest mniej pozycji 
     def get_evaluation(self):
         material = self.ocena_materiału()
         bonus = self.bonus_squares()
-        return [material[0] + bonus[0], material[1] + bonus[1]]
+        king_bonus = self.king_to_edge(self.main_board)
+        #białe , czarne
+        return [material[0] + bonus[0] + king_bonus[0], material[1] + bonus[1] + king_bonus[1]] 
 
