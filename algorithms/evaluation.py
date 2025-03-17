@@ -137,7 +137,7 @@ class Evaluation:
                     
                 color = piece.figure.color
                 piece_type = piece.figure.type
-
+                #powiino być że czarne to jest to odgóry mimo to że graja tam białe np
                 if color == 'w':
                     if piece_type == 'p':
                         self.bonus_białych += PAWN_W_PST[i][j]
@@ -166,9 +166,54 @@ class Evaluation:
                         self.bonus_czarnych += KING_B_PST[i][j]
         #print(f"Final bonus - White: {self.bonus_białych}, Black: {self.bonus_czarnych}")  # Debugging print statement
         return [self.bonus_białych, self.bonus_czarnych]
-    
+    def count_pieces(self): #niezależne od koloru AI)
+        white_pieces = 0
+        black_pieces = 0
+        for i in range(8):
+            for j in range(8):
+                field = self.main_board.board_state[i][j]
+                if field.figure is None:
+                    continue
+                else:
+                    if field.figure.color == 'w':
+                        white_pieces += 1
+                    else:
+                        black_pieces += 1
+        return white_pieces+black_pieces
+    def king_to_edge(board):
+
+        evaluation_white = 0
+        evaluation_black = 0
+
+        # Znajdź pozycję króla białego i czarnego
+        white_king_position = None
+        black_king_position = None
+        for i in range(8):
+            for j in range(8):
+                piece = board.board_state[i][j]
+                if piece.figure is not None and piece.figure.type == 'K':
+                    if piece.figure.color == 'w':
+                        white_king_position = (i, j)
+                    else:
+                        black_king_position = (i, j)
+
+        if white_king_position is not None:
+            white_king_rank, white_king_file = white_king_position
+            # Oblicz dystans króla białego od krawędzi
+            white_king_dst_to_edge = min(white_king_rank, 7 - white_king_rank) + min(white_king_file, 7 - white_king_file)
+            evaluation_black += white_king_dst_to_edge
+
+        if black_king_position is not None:
+            black_king_rank, black_king_file = black_king_position
+            # Oblicz dystans króla czarnego od krawędzi
+            black_king_dst_to_edge = min(black_king_rank, 7 - black_king_rank) + min(black_king_file, 7 - black_king_file)
+            evaluation_white += black_king_dst_to_edge
+        return [evaluation_white, evaluation_black]
+        #return ale z wagą ze to zacyna barsziej działac kiedy jest mniej pozycji 
     def get_evaluation(self):
         material = self.ocena_materiału()
         bonus = self.bonus_squares()
-        return [material[0] + bonus[0], material[1] + bonus[1]]
+        king_bonus = self.king_to_edge(self.main_board)
+        #białe , czarne
+        return [material[0] + bonus[0] + king_bonus[0], material[1] + bonus[1] + king_bonus[1]] 
 

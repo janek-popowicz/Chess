@@ -1,0 +1,20 @@
+    def king_to_edge(board):
+    '''
+    Funkcja zwraca bonus za pozycję króla. Im bliżej krawędzi, tym większy bonus.
+
+    Argumenty:
+    board -- obiekt reprezentujący aktualny stan planszy. Zakłada się, że ma on atrybut 'board_state',
+             który jest 2-wymiarową listą reprezentującą pola na planszy. Każde pole zawiera obiekt
+             figury lub None, jeśli pole jest puste.
+
+    Zwraca:
+    evaluation_white -- ocena pozycji króla białego
+    evaluation_black -- ocena pozycji króla czarnego
+    '''
+    
+
+Evaluation 
+
+-nie ma testów na to 
+- nie ma dokończenia wag do końca (chodzi o mnozniki itp)
+- i pewnie czegoś jeszcze ale i tak to w miare dobra podstawa do minimaxa 

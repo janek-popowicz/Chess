@@ -11,6 +11,8 @@ import normal_games.normal_game
 import normal_games.test_mode_normal_game
 import custom_board_game.board_maker
 import custom_board_game.normal_game_custom_board
+import multiplayer.client
+import multiplayer.server
 import settings
 
 # Funkcja główna
@@ -41,7 +43,9 @@ def main():
         "Board maker",
         "Ustawienia",
         "Wyjście",
-        "Test mode"
+        "Test mode",
+        "Seerwer",
+        "klient"
     ]
 
     selected_option = 0
@@ -109,6 +113,10 @@ def do_an_action(selected_option):
         return False
     elif selected_option == 5:
         normal_games.test_mode_normal_game.main()
+    elif selected_option == 6:
+        multiplayer.server.main()
+    elif selected_option == 7:
+        multiplayer.client.main()
 
 # Funkcja do rysowania menu
 def draw_menu(selected_option:int, screen, menu_texts, text_white, text_gray,BLACK)->None:
