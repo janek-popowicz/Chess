@@ -15,6 +15,75 @@ Dzięki copilot za pomoc w pisaniu tego komentarza.
 import engine.figures as figures
 import engine.board_and_fields as board_and_fields
 
+def notation_to_cords(board, notation:str, turn):
+    moveschemes = {
+            'N':[(2,1,1),(-2,1,1),(2,-1,1),(-2,-1,1),(1,2,1),(1,-2,1),(-1,2,1),(-1,-2,1)],
+            'B':[(1,1,8),(1,-1,8),(-1,1,8),(-1,-1,8),],
+            'R':[(0, 1 ,8), (0, -1 ,8), (1, 0 ,8), (-1, 0 ,8)],
+            'Q':[(1,1,8),(1,-1,8),(-1,1,8),(-1,-1,8),(0, 1 ,8), (0, -1 ,8), (1, 0 ,8), (-1, 0 ,8)],
+            'K':[(1,1,1),(1,-1,1),(-1,1,1),(-1,-1,1),(0, 1 ,1), (0, -1 ,1), (1, 0 ,1), (-1, 0 ,1)],
+        }
+    if notation[0].isupper():
+        #Wykonanie roszady
+        if notation[0] == 'O':
+            if turn == 'w':
+                king_pos = (0,3)
+            else:
+                king_pos = (0,3)
+            if len(notation) == 3:
+                direction = -1
+            else:
+                direction = 1
+            return (king_pos[0],king_pos[1],king_pos[0],king_pos+2*direction)
+        #Ruch dla pozostałych figur
+        else:
+            directions_to_check = moveschemes[notation]    
+    #Ruch dla pionków
+    else:
+        notation = "p" + notation
+        if turn == 'w':
+            directions_to_check = [(1,0,1), (1,1,1), (1,-1,1), (2,0,1)]
+        else:
+            directions_to_check = [(-1,0,1), (-1,1,1), (-1,-1,1), (-2,0,1)]
+    #Dekodowanie koordynatów
+    for i in range(len(notation)):
+        if notation[i].isdigit():
+            target_field = board.board_state[(int(notation[i])-1)][7-(ord(notation[i-1]) - 97)]
+            break
+    #Szukanie figur określonych w notacji
+    candidate_figures = []
+    for row in range(0,8):
+        for col in range(0,8):
+            field = board.board_state[row][col]
+            if field.figure:
+                if field.figure.color == turn and field.figure.type == notation[0]:
+                    if notation[0] == 'p':
+                        if field.figure.has_moved:
+                            directions_to_check.pop(-1)
+                    #Sprawdzanie, czy pole docelowe jest w ruchach danej figury
+                    for direction in directions_to_check:
+                        for distance in range(1,direction[2]+1):
+                            field_to_check_x = field.x + direction[1] * distance
+                            field_to_check_y= field.y + direction[0] * distance
+                            #Sprawdzanie, czy koordynaty pola nie wyszły poza szachownicę
+                            if field_to_check_y > 7 or field_to_check_y < 0 or field_to_check_x > 7 or field_to_check_x < 0:
+                                break
+                            field_to_check = board.board_state[field_to_check_y][field_to_check_x]
+                            #Sprawdzanie czy na docelowym polu jest jakaś figura i czy zgadza się z notacją
+                            if field_to_check == target_field:
+                                if field_to_check.figure and "x" in notation:
+                                    candidate_figures.append((field.y,field.x))
+                                elif field_to_check.figure == None and "x" not in notation:
+                                    candidate_figures.append((field.y,field.x))
+                                    if notation[0] == 'p':
+                                        break
+    if len(candidate_figures) > 1:
+        return "Nie wykonano ruchu, potrzeba więcej informacji"
+    elif len(candidate_figures) == 1:
+        return (candidate_figures[0][0],candidate_figures[0][1],target_field.y,target_field.x)
+    elif len(candidate_figures) == 0:
+        return "Nie wykonano ruchu, nie ma figury zdolnej do tego ruchu"
+
 def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
     """ Próbuje zrobić ruch
 
