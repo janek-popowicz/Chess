@@ -4,7 +4,6 @@ import json
 import time
 import os
 import socket
-import threading
 
 #wygląda dziwnie ale musi działać
 from engine.board_and_fields import *
@@ -154,70 +153,16 @@ def end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, widt
                 if pos[0]> SQUARE_SIZE*8 and pos[1] >= height-80:
                     return
 
-def handle_client(conn, addr, main_board, turn, selected_piece, start_time, white_time, black_time, in_check):
-    print(f"[NEW CONNECTION] {addr} connected.")
-    connected = True
-    while connected:
-        try:
-            data = conn.recv(1024).decode()
-            if not data:
-                break
-            if data == "DISCONNECT":
-                connected = False
-            else:
-                move = json.loads(data)
-                if tryMove(turn, main_board, move['start_row'], move['start_col'], move['end_row'], move['end_col']):
-                    whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, move['start_row'], move['start_col'], move['end_row'], move['end_col'])
-                    if whatAfter == "promotion":
-                        choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
-                        promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
-                        whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, move['start_row'], move['start_col'], move['end_row'], move['end_col'])
-                    if whatAfter == "checkmate":
-                        result = "Szach Mat!"
-                        winner = "Białas" if turn == 'b' else "Czarnuch"
-                        connected = False
-                    elif whatAfter == "stalemate":
-                        result = "Pat"
-                        winner = "Remis"
-                        connected = False
-                    elif whatAfter == "check":
-                        in_check = turn
-                    else:
-                        in_check = None
-                    move_time = time.time() - start_time
-                    if turn == 'w':
-                        white_time += move_time
-                    else:
-                        black_time += move_time
-                    turn = 'w' if turn == 'b' else 'b'
-                    start_time = time.time()
-                    conn.send("VALID_MOVE".encode())
-                else:
-                    conn.send("INVALID_MOVE".encode())
-        except:
-            break
-    conn.close()
-
-def start_server():
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(("0.0.0.0", 5555))
-    server.listen()
-    print("[STARTING] Server is starting...")
-    main_board = Board()
-    turn = 'w'
-    selected_piece = None
-    start_time = time.time()
-    white_time = 0
-    black_time = 0
-    in_check = None
-    while True:
-        conn, addr = server.accept()
-        thread = threading.Thread(target=handle_client, args=(conn, addr, main_board, turn, selected_piece, start_time, white_time, black_time, in_check))
-        thread.start()
-        print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
-
 # Funkcja główna
 def main():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(("0.0.0.0", 5555))  # Listen on all network interfaces
+    server.listen(1)  # Allow 1 client
+    print("Waiting for opponent...")
+
+    conn, addr = server.accept()
+    print(f"Connected to {addr}")
+
     pygame.init()
     # Ładowanie konfiguracji
     config = load_config()
@@ -274,7 +219,44 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif turn=='b':
+                received = conn.recv(1024).decode()
+                received = received.split(' ')
+                selected_piece = (int(received[0]), int(received[1]))
+                row = int(received[2])
+                col = int(received[3])
+                if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
+                    draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
+                    draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+                    move_time = time.time() - start_time
+                    if turn == 'w':
+                        white_time += move_time
+                    else:
+                        black_time += move_time
+                    turn = 'w' if turn == 'b' else 'b'
+                    
+                    #sprawdzanie co po ruchu
+                    if selected_piece!=None:
+                        whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
+                        if whatAfter == "promotion":
+                            choiceOfPromotion = received[4]
+                            promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                        if whatAfter == "checkmate":
+                            result = "Szach Mat!"
+                            winner = "Białas" if turn == 'b' else "Czarnuch"
+                            running = False
+                        elif whatAfter == "stalemate":
+                            result = "Pat"
+                            winner = "Remis"
+                            running = False
+                        elif whatAfter == "check":
+                            in_check = turn
+                        else:
+                            in_check = None
+                    selected_piece = None
+                    start_time = time.time()
+            elif event.type == pygame.MOUSEBUTTONDOWN and turn=='w':
                 pos = pygame.mouse.get_pos()
                 print(pos)
                 col = 7 - (pos[0] // SQUARE_SIZE)
@@ -294,10 +276,13 @@ def main():
                             #sprawdzanie co po ruchu
                             if selected_piece!=None:
                                 whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
+                                to_send = str(selected_piece[0])+ " " + str(selected_piece[1]) + " " + str(row)+ " " +str(col)
                                 if whatAfter == "promotion":
                                     choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
                                     promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                                    to_send = to_send + " " + choiceOfPromotion
+                                conn.send(to_send)
                                 if whatAfter == "checkmate":
                                     result = "Szach Mat!"
                                     winner = "Białas" if turn == 'b' else "Czarnuch"
@@ -349,9 +334,9 @@ def main():
         clock.tick(60)
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
+    conn.close()
+    server.close()
     return
-
 if __name__ == "__main__":
-    server_thread = threading.Thread(target=start_server)
-    server_thread.start()
+
     main()

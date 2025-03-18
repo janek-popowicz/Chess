@@ -5,7 +5,7 @@ import time
 import os
 import socket
 
-# wygląda dziwnie ale musi działać
+#wygląda dziwnie ale musi działać
 from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
@@ -17,7 +17,7 @@ def load_config():
         with open(CONFIG_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return {"volume": 0.5, "resolution": "1260x960", "icons": "classic", "highlight": 0}
+        return {"volume": 0.5, "resolution": "1260x960", "icons": "classic","highlight":0}
 
 # Funkcja do rysowania szachownicy
 def draw_board(screen, SQUARE_SIZE, main_board, in_check):
@@ -35,9 +35,9 @@ def draw_pieces(screen, board, SQUARE_SIZE, pieces):
             piece = board.get_piece(r, c)
             if piece != "--":
                 screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-
+            
 # Funkcja do podświetlania możliwych ruchów
-def highlight_moves(screen, field, square_size:int, board, color_move, color_take):
+def highlight_moves(screen, field, square_size:int,board, color_move, color_take):
     try:
         cords = board.get_legal_moves(field, field.figure.color)
     except AttributeError:
@@ -51,7 +51,6 @@ def highlight_moves(screen, field, square_size:int, board, color_move, color_tak
         if field.figure.type == 'p' and (field.x - cord[1]) != 0:
             highlighted_tile.fill(color_take)
         screen.blit(highlighted_tile, (((7-cord[1]) * square_size),((7- cord[0]) * square_size)))
-
 # Funkcja do rysowania interfejsu
 def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text):
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
@@ -63,16 +62,17 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_che
     screen.blit(player_times[1][0], player_times[1][1])
     screen.blit(texts[2][0], texts[2][1])
     if in_check:
+        
         screen.blit(check_text, (8*SQUARE_SIZE+10, 150))
 
-# Formatowanie czasu z formatu time.time() na minuty i sekundy
+#formatuje czas z formatu time.time() na minuty i sekundy
 def format_time(seconds):
     minutes = int(seconds // 60)
     seconds = int(seconds % 60)
     return f"{minutes}:{seconds:02}"
 
 def promotion_dialog(screen, SQUARE_SIZE:int, color:str)->str:
-    """Okienko promocji
+    """okienko promocji
 
     Args:
         screen (pygame): pygame screen
@@ -84,10 +84,11 @@ def promotion_dialog(screen, SQUARE_SIZE:int, color:str)->str:
     """
     font = pygame.font.Font(None, 36)
 
-    dialog_text = "Pionek dotarł do końca planszy. Wybierz figurę do odzyskania."
+    dialog_text = "Pionek dotarł do końca planszy. Wybierz figurę do odzyskania."
     dialog = font.render(dialog_text, True, pygame.Color("white"))
 
     options = ["1. Koń", "2. Goniec", "3. Wieża", "4. Królowa"]
+    # Nie usuwać numeru przed opcjami, on ma znaczenie! Bierze się to z poprzedniości tego jako wybór terminalowy.
     option_rects = []
     for i, option in enumerate(options):
         text = font.render(option, True, pygame.Color("white"))
@@ -152,13 +153,11 @@ def end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, widt
                 if pos[0]> SQUARE_SIZE*8 and pos[1] >= height-80:
                     return
 
-def send_move(conn, move):
-    conn.send(json.dumps(move).encode())
-    response = conn.recv(1024).decode()
-    return response
-
 # Funkcja główna
 def main():
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect(("127.0.0.1", 5555))  # Connect to the server
+
     pygame.init()
     # Ładowanie konfiguracji
     config = load_config()
@@ -209,33 +208,58 @@ def main():
     result = ""
     winner = ""
     in_check = None
-
-    # Połączenie z serwerem
-    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    conn.connect(("127.0.0.1", 5555))
-
     while running:
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif turn=='w':
+                received = client.recv(1024).decode()
+                received = received.split(' ')
+                selected_piece = (int(received[0]), int(received[1]))
+                row = int(received[2])
+                col = int(received[3])
+                if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
+                    draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
+                    draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+                    move_time = time.time() - start_time
+                    if turn == 'w':
+                        white_time += move_time
+                    else:
+                        black_time += move_time
+                    turn = 'w' if turn == 'b' else 'b'
+                    
+                    #sprawdzanie co po ruchu
+                    if selected_piece!=None:
+                        whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
+                        if whatAfter == "promotion":
+                            choiceOfPromotion = received[4]
+                            promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                        if whatAfter == "checkmate":
+                            result = "Szach Mat!"
+                            winner = "Białas" if turn == 'b' else "Czarnuch"
+                            running = False
+                        elif whatAfter == "stalemate":
+                            result = "Pat"
+                            winner = "Remis"
+                            running = False
+                        elif whatAfter == "check":
+                            in_check = turn
+                        else:
+                            in_check = None
+                    selected_piece = None
+                    start_time = time.time()
+            elif event.type == pygame.MOUSEBUTTONDOWN and turn=='b':
                 pos = pygame.mouse.get_pos()
                 print(pos)
                 col = 7 - (pos[0] // SQUARE_SIZE)
                 row = 7 - (pos[1] // SQUARE_SIZE)
                 if col < 8 and row < 8:
                     if selected_piece:
-                        move = {
-                            'start_row': selected_piece[0],
-                            'start_col': selected_piece[1],
-                            'end_row': row,
-                            'end_col': col
-                        }
-                        response = send_move(conn, move)
-                        if response == "VALID_MOVE":
-                            draw_board(screen, SQUARE_SIZE, main_board, main_board.incheck)
+                        if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
+                            draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
                             draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
                             move_time = time.time() - start_time
                             if turn == 'w':
@@ -244,13 +268,16 @@ def main():
                                 black_time += move_time
                             turn = 'w' if turn == 'b' else 'b'
                             
-                            # Sprawdzanie co po ruchu
-                            if selected_piece != None:
-                                whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                            #sprawdzanie co po ruchu
+                            if selected_piece!=None:
+                                whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
+                                to_send = str(selected_piece[0])+ " " + str(selected_piece[1]) + " " + str(row)+ " " +str(col)
                                 if whatAfter == "promotion":
                                     choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
                                     promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                                    to_send = to_send + " " + choiceOfPromotion
+                                client.send(to_send)
                                 if whatAfter == "checkmate":
                                     result = "Szach Mat!"
                                     winner = "Białas" if turn == 'b' else "Czarnuch"
@@ -302,7 +329,8 @@ def main():
         clock.tick(60)
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
+    client.close()
     return
-
 if __name__ == "__main__":
+
     main()
