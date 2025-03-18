@@ -5,10 +5,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'e
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'board')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'figures')))
 
-import evaluation
+from engine.board_and_fields import *
+from engine.engine import *
+from engine.figures import *
+
 import engine.engine as engine
 import engine.board_and_fields as board_and_fields
 import engine.figures as figures
+import evaluation
 
 class AI:
     def __init__(self, depth):
