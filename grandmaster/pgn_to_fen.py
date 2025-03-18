@@ -4,11 +4,6 @@
 
 import os
 
-PIECE_SYMBOLS = {
-    'K': 'K', 'Q': 'Q', 'R': 'R', 'B': 'B', 'N': 'N', 'P': 'P',
-    'k': 'k', 'q': 'q', 'r': 'r', 'b': 'b', 'n': 'n', 'p': 'p'
-}
-
 def parse_pgn(pgn_file):
     with open(pgn_file, "r") as file:
         lines = file.readlines()
@@ -72,7 +67,7 @@ def save_fens(fens, output_file):
             file.write(fen + "\n")
 
 def main():
-    pgn_file = "/home/janek/Projects/Chess/grandmaster/kasparov_all_games.pgn"  # Zmień na ścieżkę do swojego pliku PGN
+    pgn_file = r"C:\Users\bened\Pulpit\Chess\grandmaster\kasparov_all_games.pgn"  # Zmień na ścieżkę do swojego pliku PGN
     output_file_white = "arcymistrz_białe.fen"
     output_file_black = "arcymistrz_czarne.fen"
     
