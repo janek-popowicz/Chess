@@ -9,23 +9,24 @@ import engine.engine as engine
 import engine.board_and_fields as board_and_fields
 import engine.figures as figures
 
+player_color = "white"
 def rotate_pst(white_pst):
    #obraca szachownice o 180 stopni zeby anazlizowac ją również dla czarnych      
     return white_pst[::-1]
 
 # PST dla białych (wartości przeskalowane – oryginalne liczby dzielone przez 100)
-PAWN_W_PST = [
+PAWN_DOWN = [
     [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-    [0.05, 0.10, 0.10, -0.20, -0.20, 0.10, 0.10, 0.05],
-    [0.05, -0.05, -0.10, 0.0,   0.0,  -0.10, -0.05, 0.05],
-    [0.0,  0.0,  0.0,  0.20,  0.20,  0.0,   0.0,  0.0],
-    [0.05, 0.05, 0.10, 0.25,  0.25,  0.10,  0.05, 0.05],
+    [0.2, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20],
+    [0.5, -0.05, -0.10, 0.0,   0.0,  -0.10, -0.05, 0.05],
+    [0.10,  0.10,  0.10,  0.20,  0.20,  0.10,   0.1,  0.10],
+    [0.1, 0.1, 0.10, 0.25,  0.25,  0.10,  0.1, 0.1],
     [0.10, 0.10, 0.20, 0.30,  0.30,  0.20,  0.10, 0.10],
-    [0.50, 0.50, 0.50, 0.50,  0.50,  0.50,  0.50, 0.50],
+    [0.2, 0.25, 0.25, 0.15,  0.15,  0.25,  0.25, 0.2],
     [0.0,  0.0,  0.0,  0.0,   0.0,   0.0,   0.0,  0.0]
-]
+] 
 
-KNIGHT_W_PST = [
+KNIGHT = [
     [-0.50, -0.40, -0.30, -0.30, -0.30, -0.30, -0.40, -0.50],
     [-0.40, -0.20,  0.00,  0.05,  0.05,  0.00, -0.20, -0.40],
     [-0.30,  0.05,  0.10,  0.15,  0.15,  0.10,  0.05, -0.30],
@@ -36,7 +37,7 @@ KNIGHT_W_PST = [
     [-0.50, -0.40, -0.30, -0.30, -0.30, -0.30, -0.40, -0.50]
 ]
 
-BISHOP_W_PST = [
+BISHOP = [ #mnożnik razy 3 
     [-0.20, -0.10, -0.10, -0.10, -0.10, -0.10, -0.10, -0.20],
     [-0.10,  0.05,  0.00,  0.00,  0.00,  0.00,  0.05, -0.10],
     [-0.10,  0.10,  0.10,  0.10,  0.10,  0.10,  0.10, -0.10],
@@ -47,7 +48,7 @@ BISHOP_W_PST = [
     [-0.20, -0.10, -0.10, -0.10, -0.10, -0.10, -0.10, -0.20]
 ]
 
-ROOK_W_PST = [
+ROOK = [ #mnożnik razy 4
     [ 0.00,  0.00,  0.05,  0.10,  0.10,  0.05,  0.00,  0.00],
     [-0.05,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.05],
     [-0.05,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.05],
@@ -58,7 +59,7 @@ ROOK_W_PST = [
     [ 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00]
 ]
 
-QUEEN_W_PST = [
+QUEEN = [ #mnożnik razyy 10
     [-0.20, -0.10, -0.10, -0.05, -0.05, -0.10, -0.10, -0.20],
     [-0.10,  0.00,  0.05,  0.00,  0.00,  0.00,  0.00, -0.10],
     [-0.10,  0.05,  0.05,  0.05,  0.05,  0.05,  0.00, -0.10],
@@ -69,7 +70,7 @@ QUEEN_W_PST = [
     [-0.20, -0.10, -0.10, -0.05, -0.05, -0.10, -0.10, -0.20]
 ]
 
-KING_W_PST = [
+KING_UP = [ #razy 20 
     [ 0.20,  0.30,  0.10,  0.00,  0.00,  0.10,  0.30,  0.20],
     [ 0.20,  0.20,  0.00,  0.00,  0.00,  0.00,  0.20,  0.20],
     [-0.10, -0.20, -0.20, -0.20, -0.20, -0.20, -0.20, -0.10],
@@ -81,16 +82,13 @@ KING_W_PST = [
 ]
 
 # Generujemy PST dla czarnych przez obrócenie tablic białych:
-PAWN_B_PST   = rotate_pst(PAWN_W_PST)
-KNIGHT_B_PST = rotate_pst(KNIGHT_W_PST)
-BISHOP_B_PST = rotate_pst(BISHOP_W_PST)
-ROOK_B_PST   = rotate_pst(ROOK_W_PST)
-QUEEN_B_PST  = rotate_pst(QUEEN_W_PST)
-KING_B_PST   = rotate_pst(KING_W_PST)
+PAWN_UP = rotate_pst(PAWN_DOWN)
+KING_DOWN = rotate_pst(KING_UP)
 
 class Evaluation:
     def __init__(self, main_board):
         self.main_board = main_board
+        self.palyer_color = player_color
         self.waga_czarnych = 0
         self.waga_białych = 0
         self.bonus_białych = 0
@@ -101,7 +99,7 @@ class Evaluation:
             'B': 3,
             'R': 5,
             'Q': 9,
-            'K': 1000
+            'K': 0
         }
 
     def ocena_materiału(self): 
@@ -128,7 +126,7 @@ class Evaluation:
         #print(f"Final weights - White: {self.waga_białych}, Black: {self.waga_czarnych}")  # Debugging print statement
         return [self.waga_białych, self.waga_czarnych]
     
-    def bonus_squares(self):
+    def bonus_squares(self): #dla białych
         for i in range(8):
             for j in range(8):
                 piece  = self.main_board.board_state[i][j]
@@ -137,33 +135,63 @@ class Evaluation:
                     
                 color = piece.figure.color
                 piece_type = piece.figure.type
-                #powiino być że czarne to jest to odgóry mimo to że graja tam białe np
-                if color == 'w':
-                    if piece_type == 'p':
-                        self.bonus_białych += PAWN_W_PST[i][j]
-                    elif piece_type == 'N':
-                        self.bonus_białych += KNIGHT_W_PST[i][j]
-                    elif piece_type == 'B':
-                        self.bonus_białych += BISHOP_W_PST[i][j]
-                    elif piece_type == 'R':
-                        self.bonus_białych += ROOK_W_PST[i][j]
-                    elif piece_type == 'Q':
-                        self.bonus_białych += QUEEN_W_PST[i][j]
-                    elif piece_type == 'K':
-                        self.bonus_białych += KING_W_PST[i][j]
-                elif color == 'b':
-                    if piece_type == 'p':
-                        self.bonus_czarnych += PAWN_B_PST[i][j]
-                    elif piece_type == 'N':
-                        self.bonus_czarnych += KNIGHT_B_PST[i][j]
-                    elif piece_type == 'B':
-                        self.bonus_czarnych += BISHOP_B_PST[i][j]
-                    elif piece_type == 'R':
-                        self.bonus_czarnych += ROOK_B_PST[i][j]
-                    elif piece_type == 'Q':
-                        self.bonus_czarnych += QUEEN_B_PST[i][j]
-                    elif piece_type == 'K':
-                        self.bonus_czarnych += KING_B_PST[i][j]
+                
+                if player_color == 'white':
+                    if color == 'w':
+                        if piece_type == 'p':
+                            self.bonus_białych += PAWN_DOWN[i][j]
+                        elif piece_type == 'N':
+                            self.bonus_białych += KNIGHT[i][j]
+                        elif piece_type == 'B':
+                            self.bonus_białych += (BISHOP[i][j] * 3)
+                        elif piece_type == 'R':
+                            self.bonus_białych += ROOK[i][j] * 4
+                        elif piece_type == 'Q':
+                            self.bonus_białych += QUEEN[i][j] * 10
+                        elif piece_type == 'K':
+                            self.bonus_białych += KING_DOWN[i][j] * 20
+                    else:
+                        if color == 'b':
+                            if piece_type == 'p':
+                                self.bonus_czarnych += PAWN_UP[i][j]
+                            elif piece_type == 'N':
+                                self.bonus_czarnych += KNIGHT[i][j] 
+                            elif piece_type == 'B':
+                                self.bonus_czarnych += BISHOP[i][j] * 3
+                            elif piece_type == 'R':
+                                self.bonus_czarnych += ROOK[i][j] * 4
+                            elif piece_type == 'Q':
+                                self.bonus_czarnych += QUEEN[i][j] * 10
+                            elif piece_type == 'K':
+                                self.bonus_czarnych += KING_UP[i][j] * 20
+                else:
+                    if color == 'b':
+                        if piece_type == 'p':
+                            self.bonus_białych += PAWN_DOWN[i][j]
+                        elif piece_type == 'N':
+                            self.bonus_białych += KNIGHT[i][j]
+                        elif piece_type == 'B':
+                            self.bonus_białych += BISHOP[i][j] * 3
+                        elif piece_type == 'R': 
+                            self.bonus_białych += ROOK[i][j] * 4
+                        elif piece_type == 'Q':
+                            self.bonus_białych += QUEEN[i][j] * 10
+                        elif piece_type == 'K':
+                            self.bonus_białych += KING_DOWN[i][j] * 20
+                    else:
+                        if color == 'w':
+                            if piece_type == 'p':
+                                self.bonus_czarnych += PAWN_UP[i][j]
+                            elif piece_type == 'N':
+                                self.bonus_czarnych += KNIGHT[i][j]
+                            elif piece_type == 'B':
+                                self.bonus_czarnych += BISHOP[i][j] * 3
+                            elif piece_type == 'R':
+                                self.bonus_czarnych += ROOK[i][j] * 4
+                            elif piece_type == 'Q':
+                                self.bonus_czarnych += QUEEN[i][j] * 10
+                            elif piece_type == 'K':
+                                self.bonus_czarnych += KING_UP[i][j] * 20
         #print(f"Final bonus - White: {self.bonus_białych}, Black: {self.bonus_czarnych}")  # Debugging print statement
         return [self.bonus_białych, self.bonus_czarnych]
     def count_pieces(self): #niezależne od koloru AI)
@@ -214,6 +242,14 @@ class Evaluation:
         material = self.ocena_materiału()
         bonus = self.bonus_squares()
         king_bonus = self.king_to_edge(self.main_board)
+
+        wasd = 1
+        wasd += (32 - self.count_pieces()) / 100
+        king_bonus_white = king_bonus[0] * wasd
+        king_bonus_black = king_bonus[1] * wasd
+
+        #zakładanie wag tyko do king_bonus  waga 1.(32 - pieces)  
+
         #białe , czarne
-        return [material[0] + bonus[0] + king_bonus[0], material[1] + bonus[1] + king_bonus[1]] 
+        return [material[0] + bonus[0] + king_bonus_white, material[1] + bonus[1] + king_bonus_black]
 
