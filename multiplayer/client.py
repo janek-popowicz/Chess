@@ -156,7 +156,7 @@ def end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, widt
 # Funkcja główna
 def main():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(("127.0.0.1", 5555))  # Connect to the server
+    client.connect((input("podaj adres ip serwera"), 5555))  # Connect to the server
 
     pygame.init()
     # Ładowanie konfiguracji
@@ -277,7 +277,7 @@ def main():
                                     promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                     to_send = to_send + " " + choiceOfPromotion
-                                client.send(to_send.encode)
+                                client.send(to_send.encode())
                                 if whatAfter == "checkmate":
                                     result = "Szach Mat!"
                                     winner = "Białas" if turn == 'b' else "Czarnuch"
