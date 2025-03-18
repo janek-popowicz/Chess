@@ -85,7 +85,7 @@ def notation_to_cords(board, notation:str, turn):
         return "Nie wykonano ruchu, nie ma figury zdolnej do tego ruchu"
 
 def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
-    """ Próbuje zrobić ruch
+    """ Próbuje zrobić ruch
 
     Args:
         turn (str): 'w' lub 'b'
@@ -119,11 +119,8 @@ def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
             elif destination_tile.figure == None and start_tile.figure.type == 'p':
                 if main_board.board_state[start_tile.y][destination_tile.x].figure != None:
                     if main_board.board_state[start_tile.y][destination_tile.x].figure.type == 'p':
-                        if start_tile.figure.can_enpassant_l:
-                            start_tile.figure.can_enpassant_l = False
-                            main_board.board_state[start_tile.y][destination_tile.x].figure = None
-                        elif start_tile.figure.can_enpassant_r:
-                            start_tile.figure.can_enpassant_r = False
+                        if start_tile.figure.can_enpassant:
+                            start_tile.figure.can_enpassant = False
                             main_board.board_state[start_tile.y][destination_tile.x].figure = None
             main_board.make_move(y1, x1, y2, x2)
             if destination_tile.figure != None:
@@ -158,27 +155,20 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
                     available_moves+=main_board.get_legal_moves(main_board.board_state[y][x],turn)
                 if main_board.board_state[y][x].figure.type == 'p':
                     #Sprawdzanie flag enpassant
-                    if main_board.board_state[y][x].figure.can_enpassant_l == True:
-                        main_board.board_state[y][x].figure.can_enpassant_l = False
-                    if main_board.board_state[y][x].figure.can_enpassant_r == True:
-                        main_board.board_state[y][x].figure.can_enpassant_r = False
+                    if main_board.board_state[y][x].figure.can_enpassant == True:
+                        main_board.board_state[y][x].figure.can_enpassant = False
     #Sprawdzanie enpassant
     if destination_tile.figure != None:
         if destination_tile.figure.type == 'p' :
-            direction = 1 if destination_tile.figure.color == 'w' else -1
-            if (destination_tile.y - start_tile.y) * direction == 2:
-                b = 1
-                for a in [0,-7]:
-                    if (destination_tile.x+direction )*b>= a:
-                        if main_board.board_state[destination_tile.y][destination_tile.x +direction].figure != None:
-                            if (main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.type == 'p' 
-                            and main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.color != destination_tile.figure.color):
-                                if b == 1:
-                                    main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.can_enpassant_l = True
-                                else:
-                                    main_board.board_state[destination_tile.y][destination_tile.x+direction].figure.can_enpassant_r = True
-                    b = -1
-                    direction *= -1
+            if (destination_tile.y - start_tile.y) in [2,-2]:
+                direction_x = -1
+                for i in range(2):
+                    if destination_tile.x + direction_x >= 0 and destination_tile.x + direction_x <= 7:
+                        if main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure:
+                            if (main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.type == 'p' 
+                            and main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.color != destination_tile.figure.color):
+                                main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.can_enpassant = True
+                    direction_x = 1
            #Sprawdzanie promocji pionków
             if destination_tile.y in [0,7]:
                 return("promotion", destination_tile.y, destination_tile.x)
