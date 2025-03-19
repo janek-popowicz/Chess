@@ -20,18 +20,18 @@ import algorithms.evaluation as evaluation
 class Minimax:
     def __init__(self):
         self.depth = 3 # głębokość przeszukiwania drzewa gry
-        self.board = board_and_fields.Board()
-        self.evaluation = evaluation.Evaluation(self.board)  
+        self.board = board_and_fields.Board() #dobrze na pewno
+        self.evaluation = evaluation.Evaluation(self.board)   
         self.alpha = -1000000  # minus nieskończoność
         self.beta = 1000000    # plus nieskończoność
         self.color = "black"        # kolor naszej AI ("white" lub "black")
-        self.all_moves = board_and_fields.get_all_legal_moves(self.board, self.color)
-        self.best_move = None
+        self.all_moves = self.board.get_legal_moves(self.board, self.color)
+        self.best_move = None 
 
     def minimax(self, board, depth, alpha, beta, isMaximizing):
         # Określamy kolor ruchu w zależności od gałęzi
         current_color = self.color if isMaximizing else ("black" if self.color == "white" else "white")
-        legal_moves = board_and_fields.get_all_legal_moves(board, current_color)
+        legal_moves = board_and_fields.get_legal_moves(board, current_color)
         
         # Warunek zakończenia: głębokość 0 lub brak ruchów (np. szach-mat/stalemate)
         if depth == 0 or not legal_moves:
@@ -45,8 +45,7 @@ class Minimax:
                 # Utwórz kopię planszy i symuluj ruch
                 new_board = copy.deepcopy(board)
                 board_and_fields.make_move(new_board, move, current_color)
-                
-                eval_value, _ = self.minimax(new_board, depth - 1, alpha, beta, False)
+                 
                 if eval_value > max_eval:
                     max_eval = eval_value
                     best_move = move

@@ -245,6 +245,7 @@ class Evaluation:
 
         wasd = 1
         wasd += (32 - self.count_pieces()) / 100
+        wasd *=2
         king_bonus_white = king_bonus[0] * wasd
         king_bonus_black = king_bonus[1] * wasd
 
