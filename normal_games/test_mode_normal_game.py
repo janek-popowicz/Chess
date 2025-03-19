@@ -29,6 +29,7 @@ def main():
             moving = not tryMove(turn, main_board, y1, x1, y2, x2)
         print(afterMove(turn, main_board, y1, x1, y2, x2))
         print(board_to_fen(main_board.board_state))
+        print(main_board.moves_algebraic)
         whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
         if whatAfter == "promotion":
             main_board.print_board()
