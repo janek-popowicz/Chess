@@ -66,7 +66,19 @@ class Board:
         """
         self.board_state[y2][x2].figure = self.board_state[y1][x1].figure
         self.board_state[y1][x1].figure = None
+    def make_move_new_board(board, y1: int, x1: int, y2: int, x2: int) -> None:
+        """
+        Wykonuje ruch na planszy.
 
+        Args:
+            y1 (int): Współrzędna wiersza początkowego.
+            x1 (int): Współrzędna kolumny początkowej.
+            y2 (int): Współrzędna wiersza docelowego.
+            x2 (int): Współrzędna kolumny docelowej.
+        """
+        board[y2][x2].figure = board[y1][x1].figure
+        board[y1][x1].figure = None
+        return board
     def get_regular_moves(self, field):
         """
         Generuje możliwe ruchy dla figury na danym polu (bez uwzględnienia ataków).

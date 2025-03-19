@@ -25,7 +25,7 @@ class Minimax:
         self.alpha = -1000000  # minus nieskończoność
         self.beta = 1000000    # plus nieskończoność
         self.color = 'b'        # kolor naszej AI ("white" lub "black")
-        self.all_moves = self.board.get_legal_moves(self.board, self.color) 
+        self.all_moves = self.board.get_all_moves(self.board, self.color) 
         self.best_move = None 
 
     
@@ -36,7 +36,7 @@ class Minimax:
         else:
             current_color = 'w' if self.color == 'b' else 'b'
         
-        legal_moves = self.board.get_legal_moves(board, current_color)
+        legal_moves = self.board.get_all_moves(board, current_color)
         
         if depth == 0 or self.all_moves == []:
             score = evaluation.Evaluation(board)
@@ -50,7 +50,8 @@ class Minimax:
             for move in self.all_moves:
                 new_board = copy.deepcopy(board)
                 #tu jest funckcja że on gra ten ruch na nowej planszy
-
+                a,b,c,d = move
+                new_board = self.board.make_move(new_board, a, b, c, d)
                 eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, False)
                 max_eval = max(max_eval, eval_value)
                 alfa = max(alfa, eval_value)
@@ -64,6 +65,8 @@ class Minimax:
             best_move = None
             for move in self.all_moves:
                 new_board = copy.deepcopy(board)
+                a,b,c,d = move
+                new_board = self.board.make_move(new_board, a, b, c, d)
                 #tu jest funckcja że on gra ten ruch na nowej planszy
 
                 eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, True)
