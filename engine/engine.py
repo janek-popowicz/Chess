@@ -1,21 +1,19 @@
-"""
-Tu jest silnik, obsługujący ruchy. Obsługa imputu usera i pętle gry mają być w osobnych plikach:
-- test-mode-normal-game.py
-- test-mode-random-ai.py
-- test-mode-minimax-ai.py
-- test-mode-monte-carlo-ai.py
-- test-mode-server.py
-- test-mode-client.py
-Finalnie będą to podobne pliki, ale bez test-mode w nazwie, i to one będą w sobie też miały pygame moduły szachownicy.
-Dlaczego w nich będzie pygame, i będzie się dużo razy powtarzał? Bo i gra szachowa i pygame gui wymagają pętli gry, więc będą miały one wspólne pętle.
-Jeżeli jest to głupie i (Benedykt) masz lepszy plan, to daj znać.
-Dzięki copilot za pomoc w pisaniu tego komentarza.
-"""
-
 import engine.figures as figures
 import engine.board_and_fields as board_and_fields
 
-def notation_to_cords(board, notation:str, turn):
+def notation_to_cords(board, notation: str, turn: str):
+    """
+    Konwertuje notację szachową na współrzędne na planszy.
+
+    Args:
+        board (Board): Obiekt planszy szachowej.
+        notation (str): Ruch w standardowej notacji szachowej (np. "e4", "Nf3").
+        turn (str): Tura gracza ('w' dla białych, 'b' dla czarnych).
+
+    Returns:
+        tuple: Krotka współrzędnych (start_y, start_x, target_y, target_x), jeśli ruch jest poprawny.
+        str: Komunikat o błędzie, jeśli ruch nie może zostać określony.
+    """
     moveschemes = {
             'N':[(2,1,1),(-2,1,1),(2,-1,1),(-2,-1,1),(1,2,1),(1,-2,1),(-1,2,1),(-1,-2,1)],
             'B':[(1,1,8),(1,-1,8),(-1,1,8),(-1,-1,8),],
@@ -84,19 +82,20 @@ def notation_to_cords(board, notation:str, turn):
     elif len(candidate_figures) == 0:
         return "Nie wykonano ruchu, nie ma figury zdolnej do tego ruchu"
 
-def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
-    """ Próbuje zrobić ruch
+def tryMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> bool:
+    """
+    Próbuje wykonać ruch na planszy szachowej.
 
     Args:
-        turn (str): 'w' lub 'b'
-        main_board (_type_): board object
-        y1 (int): coordinate
-        x1 (int): coordinate
-        y2 (int): coordinate
-        x2 (int): coordinate
+        turn (str): Tura gracza ('w' lub 'b').
+        main_board (Board): Obiekt planszy szachowej.
+        y1 (int): Współrzędna wiersza początkowego.
+        x1 (int): Współrzędna kolumny początkowej.
+        y2 (int): Współrzędna wiersza docelowego.
+        x2 (int): Współrzędna kolumny docelowej.
 
     Returns:
-        bool: True when move was done, False when not
+        bool: True, jeśli ruch jest poprawny i został wykonany, False w przeciwnym razie.
     """
     start_tile = main_board.board_state[y1][x1] 
     destination_tile = main_board.board_state[y2][x2]
@@ -131,19 +130,20 @@ def tryMove(turn:str,main_board,y1:int, x1:int, y2:int, x2:int)->bool:
         print("Nielegalny ruch!")
         return False
 
-def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
-    """To jest potrzebne, aby sprawdzać szachmata, enpassant
+def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
+    """
+    Sprawdza stan planszy po wykonaniu ruchu.
 
     Args:
-        turn (str): 'w' or 'b'
-        main_board (_type_): board object
-        y1 (int): coordinate
-        x1 (int): coordinate
-        y2 (int): coordinate
-        x2 (int): coordinate
+        turn (str): Tura gracza ('w' lub 'b').
+        main_board (Board): Obiekt planszy szachowej.
+        y1 (int): Współrzędna wiersza początkowego.
+        x1 (int): Współrzędna kolumny początkowej.
+        y2 (int): Współrzędna wiersza docelowego.
+        x2 (int): Współrzędna kolumny docelowej.
 
     Returns:
-        str: returns action to do
+        str: Komunikat wskazujący wynik ruchu (np. "checkmate", "stalemate", "check").
     """
     start_tile = main_board.board_state[y1][x1]
     destination_tile = main_board.board_state[y2][x2]
@@ -190,15 +190,18 @@ def afterMove(turn:str, main_board, y1:int, x1:int, y2:int, x2:int)->str:
 
     
     
-def promotion(y:int,x:int,main_board, choice:str)->None:
-    """ Robi promocję na podstawie wybranego wyboru
-    
+def promotion(y: int, x: int, main_board, choice: str) -> None:
+    """
+    Obsługuje promocję pionka.
+
     Args:
-        turn (str): 'w' or 'b'
-        y (int): earlier y from afterMove
-        x (int): earlier x from afterMove
-        main_board (): board object
-        choice (str): '1', '2', '3', '4'; knight, bishop, rook,queen
+        y (int): Współrzędna wiersza pionka.
+        x (int): Współrzędna kolumny pionka.
+        main_board (Board): Obiekt planszy szachowej.
+        choice (str): Wybór promocji ('1' dla skoczka, '2' dla gońca, '3' dla wieży, '4' dla królowej).
+
+    Returns:
+        None
     """
     color = main_board.board_state[y][x].figure.color 
     if choice == "1":

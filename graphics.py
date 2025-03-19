@@ -1,19 +1,38 @@
+"""
+Moduł zawiera funkcje odpowiedzialne za grafikę i interfejs użytkownika w grze szachowej.
+
+Funkcje te obejmują rysowanie szachownicy, figur, podświetlanie możliwych ruchów, wyświetlanie interfejsu oraz obsługę okien dialogowych.
+"""
+
 import pygame
 import json
 import sys
 
 CONFIG_FILE = "config.json"
 
-
 def load_config():
+    """
+    Ładuje konfigurację gry z pliku JSON.
+
+    Returns:
+        dict: Słownik zawierający ustawienia gry (np. głośność, rozdzielczość, ikony, podświetlanie).
+    """
     try:
         with open(CONFIG_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return {"volume": 0.5, "resolution": "1260x960", "icons": "classic","highlight":0}
+        return {"volume": 0.5, "resolution": "1260x960", "icons": "classic", "highlight": 0}
 
-# Funkcja do rysowania szachownicy
 def draw_board(screen, SQUARE_SIZE, main_board, in_check):
+    """
+    Rysuje szachownicę na ekranie.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+        main_board (Board): Obiekt planszy szachowej.
+        in_check (str): Kolor gracza, którego król jest szachowany ('w' lub 'b').
+    """
     colors = [pygame.Color("white"), pygame.Color("gray")]
     for r in range(8):
         for c in range(8):
@@ -23,14 +42,33 @@ def draw_board(screen, SQUARE_SIZE, main_board, in_check):
             pygame.draw.rect(screen, color, pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
 def draw_pieces(screen, board, SQUARE_SIZE, pieces):
+    """
+    Rysuje figury na szachownicy.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        board (Board): Obiekt planszy szachowej.
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+        pieces (dict): Słownik zawierający obrazy figur.
+    """
     for r in range(8):
         for c in range(8):
             piece = board.get_piece(r, c)
             if piece != "--":
                 screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-            
-# Funkcja do podświetlania możliwych ruchów
-def highlight_moves(screen, field, square_size:int,board, color_move, color_take):
+
+def highlight_moves(screen, field, square_size: int, board, color_move, color_take):
+    """
+    Podświetla możliwe ruchy dla wybranej figury.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        field (Field): Pole, na którym znajduje się wybrana figura.
+        square_size (int): Rozmiar pojedynczego pola na szachownicy.
+        board (Board): Obiekt planszy szachowej.
+        color_move (tuple): Kolor podświetlenia dla możliwych ruchów.
+        color_take (tuple): Kolor podświetlenia dla możliwych bić.
+    """
     try:
         cords = board.get_legal_moves(field, field.figure.color)
     except AttributeError:
@@ -38,14 +76,27 @@ def highlight_moves(screen, field, square_size:int,board, color_move, color_take
     for cord in cords:
         highlighted_tile = pygame.Surface((square_size, square_size))
         highlighted_tile.fill(color_move)
-        if board.board_state[cord[0]][cord[1]].figure != None:
+        if board.board_state[cord[0]][cord[1]].figure is not None:
             if field.figure.color != board.board_state[cord[0]][cord[1]].figure.color:
                 highlighted_tile.fill(color_take)
         if field.figure.type == 'p' and (field.x - cord[1]) != 0:
             highlighted_tile.fill(color_take)
-        screen.blit(highlighted_tile, (((7-cord[1]) * square_size),((7- cord[0]) * square_size)))
-# Funkcja do rysowania interfejsu
+        screen.blit(highlighted_tile, (((7-cord[1]) * square_size), ((7-cord[0]) * square_size)))
+
 def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text):
+    """
+    Rysuje interfejs użytkownika obok szachownicy.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        turn (str): Aktualna tura ('w' dla białych, 'b' dla czarnych).
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+        BLACK (tuple): Kolor tła interfejsu.
+        texts (tuple): Teksty wyświetlane w interfejsie.
+        player_times (tuple): Czas gry dla obu graczy.
+        in_check (str): Kolor gracza, którego król jest szachowany ('w' lub 'b').
+        check_text (pygame.Surface): Tekst informujący o szachu.
+    """
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
     if turn == 'w':
         screen.blit(texts[0][0], texts[0][1])
@@ -55,25 +106,33 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_che
     screen.blit(player_times[1][0], player_times[1][1])
     screen.blit(texts[2][0], texts[2][1])
     if in_check:
-        
         screen.blit(check_text, (8*SQUARE_SIZE+10, 150))
 
-#formatuje czas z formatu time.time() na minuty i sekundy
 def format_time(seconds):
+    """
+    Formatuje czas gry na minuty i sekundy.
+
+    Args:
+        seconds (float): Czas w sekundach.
+
+    Returns:
+        str: Sformatowany czas w formacie "MM:SS".
+    """
     minutes = int(seconds // 60)
     seconds = int(seconds % 60)
     return f"{minutes}:{seconds:02}"
 
-def promotion_dialog(screen, SQUARE_SIZE:int, color:str)->str:
-    """okienko promocji
+def promotion_dialog(screen, SQUARE_SIZE: int, color: str) -> str:
+    """
+    Wyświetla okno dialogowe do wyboru figury przy promocji pionka.
 
     Args:
-        screen (pygame): pygame screen
-        SQUARE_SIZE (int): size of a square
-        color (str): 'w' or 'b'
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+        color (str): Kolor gracza ('w' dla białych, 'b' dla czarnych).
 
     Returns:
-        str: '1', '2', '3' or '4'
+        str: Wybrana figura ('1' dla skoczka, '2' dla gońca, '3' dla wieży, '4' dla królowej).
     """
     font = pygame.font.Font(None, 36)
 
@@ -81,7 +140,6 @@ def promotion_dialog(screen, SQUARE_SIZE:int, color:str)->str:
     dialog = font.render(dialog_text, True, pygame.Color("white"))
 
     options = ["1. Koń", "2. Goniec", "3. Wieża", "4. Królowa"]
-    # Nie usuwać numeru przed opcjami, on ma znaczenie! Bierze się to z poprzedniości tego jako wybór terminalowy.
     option_rects = []
     for i, option in enumerate(options):
         text = font.render(option, True, pygame.Color("white"))
@@ -106,7 +164,7 @@ def promotion_dialog(screen, SQUARE_SIZE:int, color:str)->str:
                 pos = pygame.mouse.get_pos()
                 for i, (text, rect) in enumerate(option_rects):
                     if rect.collidepoint(pos):
-                        return options[i][0]  # zwraca pierwszą literę opcji (1, 2, 3, 4)
+                        return options[i][0]  # Zwraca pierwszą literę opcji (1, 2, 3, 4)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     return '1'
@@ -118,6 +176,21 @@ def promotion_dialog(screen, SQUARE_SIZE:int, color:str)->str:
                     return '4'
 
 def end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK):
+    """
+    Wyświetla ekran końcowy z wynikami gry.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        result (str): Wynik gry (np. "Szach Mat!", "Pat").
+        winner (str): Zwycięzca gry.
+        white_time (float): Czas gry białego gracza.
+        black_time (float): Czas gry czarnego gracza.
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+        width (int): Szerokość ekranu.
+        height (int): Wysokość ekranu.
+        WHITE (tuple): Kolor tekstu.
+        BLACK (tuple): Kolor tła.
+    """
     font = pygame.font.Font(None, 36)
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
     result_text = font.render(result, True, WHITE)
@@ -143,5 +216,5 @@ def end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, widt
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                if pos[0]> SQUARE_SIZE*8 and pos[1] >= height-80:
+                if pos[0] > SQUARE_SIZE*8 and pos[1] >= height-80:
                     return

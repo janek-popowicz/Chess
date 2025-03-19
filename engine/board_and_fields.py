@@ -1,59 +1,81 @@
 """
-This is gonna be chess game. Here are gonna be classes for figures and board.
+Moduł zawiera klasy reprezentujące pola i planszę szachową.
 """
 import engine.figures as figures
+
 class Field:
-    def __init__(self, x, y,  figure=None):
+    """
+    Klasa reprezentująca pojedyncze pole na planszy szachowej.
+    """
+    def __init__(self, x, y, figure=None):
+        """
+        Inicjalizuje pole na planszy.
+
+        Args:
+            x (int): Współrzędna kolumny pola.
+            y (int): Współrzędna wiersza pola.
+            figure (Figure, opcjonalnie): Figura znajdująca się na polu (domyślnie None).
+        """
         self.x = x
         self.y = y
         self.figure = figure
 
     def remove_figure(self):
+        """
+        Usuwa figurę z pola.
+        """
         self.figure = None
+
+
 class Board:
-    def __init__(self, board_state=[[Field(0, 0, figures.Rook('w')), Field(1, 0, figures.Knight('w')), Field(2, 0, figures.Bishop('w')), Field(3, 0, figures.King('w')), Field(4, 0, figures.Queen('w')), Field(5, 0, figures.Bishop('w')), Field(6, 0, figures.Knight('w')), Field(7, 0, figures.Rook('w'))],
+    """
+    Klasa reprezentująca planszę szachową.
+    """
+    def __init__(self, board_state=None):
+        """
+        Inicjalizuje planszę szachową z domyślnym ustawieniem figur.
+
+        Args:
+            board_state (list, opcjonalnie): Stan planszy jako lista pól (domyślnie ustawienie początkowe).
+        """
+        if board_state is None:
+            board_state = [
+                [Field(0, 0, figures.Rook('w')), Field(1, 0, figures.Knight('w')), Field(2, 0, figures.Bishop('w')), Field(3, 0, figures.King('w')), Field(4, 0, figures.Queen('w')), Field(5, 0, figures.Bishop('w')), Field(6, 0, figures.Knight('w')), Field(7, 0, figures.Rook('w'))],
                 [Field(0, 1, figures.Pawn('w')), Field(1, 1, figures.Pawn('w')), Field(2, 1, figures.Pawn('w')), Field(3, 1, figures.Pawn('w')), Field(4, 1, figures.Pawn('w')), Field(5, 1, figures.Pawn('w')), Field(6, 1, figures.Pawn('w')), Field(7, 1, figures.Pawn('w'))],
                 [Field(0, 2), Field(1, 2), Field(2, 2), Field(3, 2), Field(4, 2), Field(5, 2), Field(6, 2), Field(7, 2)],
                 [Field(0, 3), Field(1, 3), Field(2, 3), Field(3, 3), Field(4, 3), Field(5, 3), Field(6, 3), Field(7, 3)],
                 [Field(0, 4), Field(1, 4), Field(2, 4), Field(3, 4), Field(4, 4), Field(5, 4), Field(6, 4), Field(7, 4)],
                 [Field(0, 5), Field(1, 5), Field(2, 5), Field(3, 5), Field(4, 5), Field(5, 5), Field(6, 5), Field(7, 5)],
                 [Field(0, 6, figures.Pawn('b')), Field(1, 6, figures.Pawn('b')), Field(2, 6, figures.Pawn('b')), Field(3, 6, figures.Pawn('b')), Field(4, 6, figures.Pawn('b')), Field(5, 6, figures.Pawn('b')), Field(6, 6, figures.Pawn('b')), Field(7, 6, figures.Pawn('b'))],
-                [Field(0, 7, figures.Rook('b')), Field(1, 7, figures.Knight('b')), Field(2, 7, figures.Bishop('b')), Field(3, 7, figures.King('b')), Field(4, 7, figures.Queen('b')), Field(5, 7, figures.Bishop('b')), Field(6, 7, figures.Knight('b')), Field(7, 7, figures.Rook('b'))]]):
+                [Field(0, 7, figures.Rook('b')), Field(1, 7, figures.Knight('b')), Field(2, 7, figures.Bishop('b')), Field(3, 7, figures.King('b')), Field(4, 7, figures.Queen('b')), Field(5, 7, figures.Bishop('b')), Field(6, 7, figures.Knight('b')), Field(7, 7, figures.Rook('b'))]
+            ]
         self.board_state = board_state
         self.incheck = False
-        self.moves_numeric=[]
-        self.moves_algebraic=[]
+        self.moves_numeric = []
+        self.moves_algebraic = []
 
-
-    def make_move(self, y1:int, x1:int, y2:int, x2:int)->None:
-        """robienie ruchu
+    def make_move(self, y1: int, x1: int, y2: int, x2: int) -> None:
+        """
+        Wykonuje ruch na planszy.
 
         Args:
-            y1 (int): cord
-            x1 (int): cord
-            y2 (int): cord
-            x2 (int): cord
+            y1 (int): Współrzędna wiersza początkowego.
+            x1 (int): Współrzędna kolumny początkowej.
+            y2 (int): Współrzędna wiersza docelowego.
+            x2 (int): Współrzędna kolumny docelowej.
         """
-        # self.moves_numeric.append((y1,x1,y2,x2))
-        # algebraic_x = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e',5:'f',6:'g',7:'h'}
-        # if self.board_state[y1][x1].figure.type!='p':
-        #     algebraic_figure = self.board_state[y1][x1].figure.type
-        # else:
-        #     algebraic_figure = ""
-        # self.moves_algebraic.append(algebraic_figure+algebraic_x[x2]+str(y2+1))
-        # print(self.moves_algebraic)
         self.board_state[y2][x2].figure = self.board_state[y1][x1].figure
         self.board_state[y1][x1].figure = None
 
-
-    def get_regular_moves(self,field):
-        """_summary_
+    def get_regular_moves(self, field):
+        """
+        Generuje możliwe ruchy dla figury na danym polu (bez uwzględnienia ataków).
 
         Args:
-            field (_type_): _description_
+            field (Field): Pole, dla którego generowane są ruchy.
 
         Returns:
-            _type_: _description_
+            list: Lista możliwych współrzędnych ruchów.
         """
         possible_cords = [] 
         if field.figure == None:
@@ -82,14 +104,16 @@ class Board:
                 possible_cords.append((field_to_check.y,field_to_check.x))
 
         return possible_cords   
-    def get_attack_moves(self,field):
-        """_summary_
+
+    def get_attack_moves(self, field):
+        """
+        Generuje możliwe ruchy ataku dla figury na danym polu.
 
         Args:
-            field (_type_): _description_
+            field (Field): Pole, dla którego generowane są ruchy ataku.
 
         Returns:
-            _type_: _description_
+            list: Lista możliwych współrzędnych ataków.
         """
         possible_cords = [] 
         try:
@@ -117,7 +141,18 @@ class Board:
                             possible_cords.append((field_to_check.y,field_to_check.x)) 
                     break
         return possible_cords
-    def is_attacked(self,field,color=None):
+
+    def is_attacked(self, field, color=None):
+        """
+        Sprawdza, czy dane pole jest atakowane przez przeciwnika.
+
+        Args:
+            field (Field): Pole do sprawdzenia.
+            color (str, opcjonalnie): Kolor gracza, który atakuje (domyślnie przeciwnik).
+
+        Returns:
+            bool: True, jeśli pole jest atakowane, False w przeciwnym razie.
+        """
         if color==None:
             color = field.figure.color
         attackschemes = {
@@ -149,11 +184,13 @@ class Board:
                                 return True
                             break
         return False
-    def is_in_check(self,color): 
-        """ Sprawdza czy któryś z królów jest szachowany
+
+    def is_in_check(self, color):
+        """
+        Sprawdza, czy król danego koloru jest szachowany.
 
         Args:
-            color (str): Kolor króla, którego sprawdzamy
+            color (str): Kolor króla do sprawdzenia.
         """
         for y in range(0,8):
             for x in range(0,8):
@@ -166,15 +203,17 @@ class Board:
                 self.incheck = True
         else:
             self.incheck = False   
+
     def get_legal_moves(self, field, turn):
-        """Generuje legalne ruchy 
+        """
+        Generuje legalne ruchy dla figury na danym polu.
 
         Args:
-            field (obiekt Field): Pole figury, dla której generowane są ruchy
-            turn (str): Aktualna tura
+            field (Field): Pole figury, dla której generowane są ruchy.
+            turn (str): Aktualna tura ('w' lub 'b').
 
         Returns:
-            list: Lista legalnych ruchów
+            list: Lista legalnych ruchów.
         """
         if field.figure == None:
             print("Na tym polu nie ma figury!",end=" ")
@@ -221,7 +260,8 @@ class Board:
             return legal_cords
         
     def print_board(self):
-        """printuje siebie w danym formacie terminalowym
+        """
+        Wyświetla aktualny stan planszy w terminalu.
         """
         print("+" + "----+" *8 )
         for x in range(7,-1,-1):
@@ -235,10 +275,19 @@ class Board:
             print(x)
             print("+" + "----+" *8 )
         print("  7    6    5    4    3    2    1    0")
-    def get_piece(self,row:int,col:int):
-        
+
+    def get_piece(self, row: int, col: int):
+        """
+        Zwraca figurę znajdującą się na danym polu.
+
+        Args:
+            row (int): Wiersz pola.
+            col (int): Kolumna pola.
+
+        Returns:
+            str: Reprezentacja figury lub "--", jeśli pole jest puste.
+        """
         if self.board_state[row][col].figure == None:
             return "--"
         else:
             return self.board_state[row][col].figure.return_figure()
-    
