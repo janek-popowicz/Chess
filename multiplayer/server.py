@@ -76,9 +76,14 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                to_send = "disconnect"
+                conn.send(to_send.encode())
                 pygame.quit()
             elif turn=='b':
                 received = conn.recv(1024).decode()
+                if received == "disconnect":
+                    running = False
+                    break
                 received = received.split(' ')
                 selected_piece = (int(received[0]), int(received[1]))
                 row = int(received[2])
@@ -161,10 +166,11 @@ def main():
                         selected_piece = (row, col)
                 if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
                     running = False
+                    to_send = "disconnect"
+                    conn.send(to_send.encode())
+                    conn.close()
+                    server.close()
                     return
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
 
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
