@@ -5,44 +5,19 @@ import time
 import os
 
 #wygląda dziwnie ale musi działać
+from engine.fen_operations import *
 from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from graphics import *
+
 
 def load_custom_board(fen_file):
     with open(fen_file, "r") as file:
         fen = file.read().strip()
     return fen
 
-def fen_to_board_state(fen):
-    rows = fen.split(" ")[0].split("/")
-    board_state = []
-    for r, row in enumerate(rows):
-        board_row = []
-        c = 0
-        for char in row:
-            if char.isdigit():
-                for _ in range(int(char)):
-                    board_row.append(board_and_fields.Field(7-c,7-r))
-                    c += 1
-            else:
-                color = 'w' if char.isupper() else 'b'
-                piece_type = char.lower()
-                piece_class = {
-                    'r': figures.Rook,
-                    'n': figures.Knight,
-                    'b': figures.Bishop,
-                    'q': figures.Queen,
-                    'k': figures.King,
-                    'p': figures.Pawn
-                }[piece_type]
-                board_row.append(board_and_fields.Field(7-c, 7-r, piece_class(color)))
-                c += 1
-        board_row.reverse()
-        board_state.append(board_row)
-    board_state.reverse()
-    return board_state
+
 
 
 # Funkcja główna
@@ -80,6 +55,7 @@ def main():
     
     running = True
     fen = load_custom_board("custom_board.fen")
+    print(fen)
     board_state = fen_to_board_state(fen)
     main_board = board_and_fields.Board(board_state)
     turn = 'w'

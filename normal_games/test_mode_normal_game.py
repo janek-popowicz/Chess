@@ -6,6 +6,7 @@ from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from algorithms import evaluation
+from engine.fen_operations import *
 
 def main():
     running = True
@@ -27,6 +28,7 @@ def main():
             x2 = int(input("Wprowadź kolumnę, na którą chcesz przesunąć figurę: "))
             moving = not tryMove(turn, main_board, y1, x1, y2, x2)
         print(afterMove(turn, main_board, y1, x1, y2, x2))
+        print(board_to_fen(main_board.board_state))
         whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
         if whatAfter == "promotion":
             main_board.print_board()

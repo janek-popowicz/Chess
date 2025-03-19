@@ -1,13 +1,11 @@
 import pygame
-import sys
 import json
-import time
-import os
 
 #wygląda dziwnie ale musi działać
 from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
+from engine.fen_operations import *
 
 CONFIG_FILE = "config.json"
 
@@ -46,28 +44,6 @@ def draw_pieces_selection(screen, SQUARE_SIZE, pieces, config, selected_piece):
                 pygame.draw.rect(screen, pygame.Color("yellow"), pygame.Rect(x-5, y-5, SQUARE_SIZE, SQUARE_SIZE), 3)
             screen.blit(piece_image, (x, y))
 
-def board_to_fen(board_state):
-    fen = ""
-    for row in board_state:
-        empty_count = 0
-        for field in row:
-            if field.figure is None:
-                empty_count += 1
-            else:
-                if empty_count > 0:
-                    fen += str(empty_count)
-                    empty_count = 0
-                piece = field.figure
-                piece_char = piece.type[0].upper() if piece.type != 'pawn' else 'P'
-                if piece.color == 'b':
-                    piece_char = piece_char.lower()
-                fen += piece_char
-        if empty_count > 0:
-            fen += str(empty_count)
-        fen += "/"
-    fen = fen[:-1]  # Remove the trailing slash
-    fen += " w - - 0 1"  # Add default FEN suffix
-    return fen
 
 def main():
     pygame.init()
@@ -214,6 +190,3 @@ def main():
         pygame.display.flip()
 
     return
-
-if __name__ == "__main__":
-    main()
