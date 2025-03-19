@@ -203,7 +203,24 @@ class Board:
                 self.incheck = True
         else:
             self.incheck = False   
+    def get_all_moves(self, turn):
+        """
+        Generuje wszystkie możliwe ruchy dla danego koloru.
 
+        Args:
+            turn (str): Aktualna tura ('w' lub 'b').
+
+        Returns:
+            list: Lista wszystkich możliwych ruchów.
+        """
+        all_moves = []
+        for y in range(0,8):
+            for x in range(0,8):
+                field = self.board_state[y][x]
+                if field.figure != None:
+                    if field.figure.color == turn:
+                        all_moves += self.get_legal_moves(field,turn)
+        return all_moves
     def get_legal_moves(self, field, turn):
         """
         Generuje legalne ruchy dla figury na danym polu.
