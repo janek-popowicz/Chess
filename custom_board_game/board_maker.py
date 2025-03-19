@@ -41,8 +41,8 @@ def draw_pieces_selection(screen, SQUARE_SIZE, pieces, config, selected_piece):
             x = 8*SQUARE_SIZE + col * (SQUARE_SIZE + 10)
             y = (i * 3 + row) * SQUARE_SIZE + 10
             if selected_piece == (color, piece_type):
-                pygame.draw.rect(screen, pygame.Color("yellow"), pygame.Rect(x-5, y-5, SQUARE_SIZE, SQUARE_SIZE), 3)
-            screen.blit(piece_image, (x, y))
+                pygame.draw.rect(screen, pygame.Color("yellow"), pygame.Rect(x, y-10, SQUARE_SIZE, SQUARE_SIZE), 3)
+            screen.blit(piece_image, (x+3, y-3))
 
 
 def main():
@@ -169,11 +169,11 @@ def main():
         draw_board(screen, SQUARE_SIZE, board_state, pieces)
         draw_pieces_selection(screen, SQUARE_SIZE, pieces, config, selected_piece)
         # Rysowanie przycisku "Zapisz i wyjdź"
-        pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, height-80, width-SQUARE_SIZE*8-20, 60))
+        pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, height-80, width-SQUARE_SIZE*8, 80))
         exit_text = font.render("Zapisz i graj", True, WHITE)
         screen.blit(exit_text, (SQUARE_SIZE*8+10, height-70))
         # Rysowanie przycisku "Wyjdź bez zapisywania"
-        pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, height-140, width-SQUARE_SIZE*8-20, 60))
+        pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, height-140, width-SQUARE_SIZE*8, 60))
         exit_without_save_text = font.render("Wyjdź bez zapisywania", True, WHITE)
         screen.blit(exit_without_save_text, (SQUARE_SIZE*8+10, height-130))
         # Wyświetlanie komunikatu o błędzie

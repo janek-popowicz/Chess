@@ -97,45 +97,45 @@ Returns:
     """
     start_tile = main_board.board_state[y1][x1] 
     destination_tile = main_board.board_state[y2][x2]
-    color_to_check = 'b' if start_tile.figure.color == 'w' else 'b'
     if(y2,x2) in main_board.get_legal_moves(start_tile,turn):
-            main_board.moves_algebraic += [chr(104 - x2) + str(y2+1)]
-            if destination_tile.figure:
-                main_board.moves_algebraic[-1] = 'x' + main_board.moves_algebraic[-1]
-            #Wykonanie roszady
-            if destination_tile.figure:
-                if destination_tile.figure.type == 'R' and  destination_tile.figure.color == start_tile.figure.color:
-                    #Zmiana flag roszady
-                    start_tile.figure.has_moved = True
-                    destination_tile.figure.has_moved = True
-                    #Zmiana pozycji króla
-                    direction =  -1 if destination_tile.x - start_tile.x < 0 else 1
-                    main_board.board_state[start_tile.y][start_tile.x + 2*direction].figure = start_tile.figure
-                    #Zmiana pozycji wieży
-                    main_board.board_state[start_tile.y][start_tile.x + direction].figure = destination_tile.figure
-                    destination_tile.figure = None
-                    start_tile.figure = None
-                    if start_tile.y - destination_tile.y == 3:
-                        main_board.moves_algebraic[-1] = "O-O"
-                    else:
-                        main_board.moves_algebraic[-1] = "O-O-O"
-                    return True
-            #Wykonanie enpassant
-            elif destination_tile.figure == None and start_tile.figure.type == 'p':
-                if main_board.board_state[start_tile.y][destination_tile.x].figure:
-                    if main_board.board_state[start_tile.y][destination_tile.x].figure.type == 'p':
-                        if start_tile.figure.can_enpassant:
-                            start_tile.figure.can_enpassant = False
-                            main_board.board_state[start_tile.y][destination_tile.x].figure = None
-                            main_board.moves_algebraic[-1] = start_tile.x + main_board.moves_algebraic[-1]
-            main_board.make_move(y1, x1, y2, x2)
-            if destination_tile.figure:
-                if destination_tile.figure.type in ['p','K','R']:
-                    destination_tile.figure.has_moved = True
-            main_board.is_in_check(color_to_check)
-            if main_board.incheck:
-                main_board.moves_algebraic[-1] += '+'
-            return True
+        color_to_check = 'b' if start_tile.figure.color == 'w' else 'b'
+        main_board.moves_algebraic += [chr(104 - x2) + str(y2+1)]
+        if destination_tile.figure:
+            main_board.moves_algebraic[-1] = 'x' + main_board.moves_algebraic[-1]
+        #Wykonanie roszady
+        if destination_tile.figure:
+            if destination_tile.figure.type == 'R' and  destination_tile.figure.color == start_tile.figure.color:
+                #Zmiana flag roszady
+                start_tile.figure.has_moved = True
+                destination_tile.figure.has_moved = True
+                #Zmiana pozycji króla
+                direction =  -1 if destination_tile.x - start_tile.x < 0 else 1
+                main_board.board_state[start_tile.y][start_tile.x + 2*direction].figure = start_tile.figure
+                #Zmiana pozycji wieży
+                main_board.board_state[start_tile.y][start_tile.x + direction].figure = destination_tile.figure
+                destination_tile.figure = None
+                start_tile.figure = None
+                if start_tile.y - destination_tile.y == 3:
+                    main_board.moves_algebraic[-1] = "O-O"
+                else:
+                    main_board.moves_algebraic[-1] = "O-O-O"
+                return True
+        #Wykonanie enpassant
+        elif destination_tile.figure == None and start_tile.figure.type == 'p':
+            if main_board.board_state[start_tile.y][destination_tile.x].figure:
+                if main_board.board_state[start_tile.y][destination_tile.x].figure.type == 'p':
+                    if start_tile.figure.can_enpassant:
+                        start_tile.figure.can_enpassant = False
+                        main_board.board_state[start_tile.y][destination_tile.x].figure = None
+                        main_board.moves_algebraic[-1] = start_tile.x + main_board.moves_algebraic[-1]
+        main_board.make_move(y1, x1, y2, x2)
+        if destination_tile.figure:
+            if destination_tile.figure.type in ['p','K','R']:
+                destination_tile.figure.has_moved = True
+        main_board.is_in_check(color_to_check)
+        if main_board.incheck:
+            main_board.moves_algebraic[-1] += '+'
+        return True
     else: 
         print("Nielegalny ruch!")
         return False
