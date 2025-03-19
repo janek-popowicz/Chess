@@ -21,51 +21,58 @@ class Minimax:
     def __init__(self):
         self.depth = 3 # głębokość przeszukiwania drzewa gry
         self.board = board_and_fields.Board() #dobrze na pewno
-        self.evaluation = evaluation.Evaluation(self.board)   
+        #self.evaluation = evaluation.Evaluation(self.board)   
         self.alpha = -1000000  # minus nieskończoność
         self.beta = 1000000    # plus nieskończoność
-        self.color = "black"        # kolor naszej AI ("white" lub "black")
-        self.all_moves = self.board.get_legal_moves(self.board, self.color)
+        self.color = 'b'        # kolor naszej AI ("white" lub "black")
+        self.all_moves = self.board.get_legal_moves(self.board, self.color) 
         self.best_move = None 
 
-    def minimax(self, board, depth, alpha, beta, isMaximizing):
-        # Określamy kolor ruchu w zależności od gałęzi
-        current_color = self.color if isMaximizing else ("black" if self.color == "white" else "white")
-        legal_moves = board_and_fields.get_legal_moves(board, current_color)
+    
+    def minimax(self, board, depth, alfa, beta, is_maximizing):
+        # Określamy aktualny kolor (AI vs przeciwnik)
+        if is_maximizing:
+            current_color = self.color
+        else:
+            current_color = 'w' if self.color == 'b' else 'b'
         
-        # Warunek zakończenia: głębokość 0 lub brak ruchów (np. szach-mat/stalemate)
-        if depth == 0 or not legal_moves:
-            return self.evaluation.evaluate(board), None
+        legal_moves = self.board.get_legal_moves(board, current_color)
+        
+        if depth == 0 or self.all_moves == []:
+            score = evaluation.Evaluation(board)
+            return score, None
+            #return evaluation.Evaluation(board), None
+        
 
-        best_move = None
-
-        if isMaximizing:
+        if is_maximizing:
             max_eval = -float('inf')
-            for move in legal_moves:
-                # Utwórz kopię planszy i symuluj ruch
+            best_move = None
+            for move in self.all_moves:
                 new_board = copy.deepcopy(board)
-                board_and_fields.make_move(new_board, move, current_color)
-                 
-                if eval_value > max_eval:
-                    max_eval = eval_value
+                #tu jest funckcja że on gra ten ruch na nowej planszy
+
+                eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, False)
+                max_eval = max(max_eval, eval_value)
+                alfa = max(alfa, eval_value)
+                if beta <= alfa:
+                    break
+                if eval_value == max_eval:
                     best_move = move
-                alpha = max(alpha, eval_value)
-                if beta <= alpha:
-                    break  # Pruning – dalsze ruchy nie zmienią wyniku
             return max_eval, best_move
         else:
             min_eval = float('inf')
-            for move in legal_moves:
-                new_board = board.copy()
-                board_and_fields.make_move(new_board, move, current_color)
-                
-                eval_value, _ = self.minimax(new_board, depth - 1, alpha, beta, True)
-                if eval_value < min_eval:
-                    min_eval = eval_value
-                    best_move = move
+            best_move = None
+            for move in self.all_moves:
+                new_board = copy.deepcopy(board)
+                #tu jest funckcja że on gra ten ruch na nowej planszy
+
+                eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, True)
+                min_eval = min(min_eval, eval_value)
                 beta = min(beta, eval_value)
-                if beta <= alpha:
+                if beta <= alfa:
                     break
+                if eval_value == min_eval:
+                    best_move = move
             return min_eval, best_move
 
     def get_best_move(self):
