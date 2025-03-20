@@ -97,7 +97,7 @@ def main():
                             turn = 'w' if turn == 'b' else 'b'
                             
                             #sprawdzanie co po ruchu
-                            if selected_piece!=None:
+                            if selected_piece:
                                 whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "promotion":
                                     choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
@@ -142,7 +142,7 @@ def main():
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
         try:
-            highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+            highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, config["highlight"])
         except TypeError:
             pass
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
