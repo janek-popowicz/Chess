@@ -1,20 +1,11 @@
-import sys
-import os
-import copy
+import sys 
+import copy 
+import os 
 
-'''
-from engine.board_and_fields import *
-from engine.engine import *
-from engine.figures import *
-
-import engine.engine as engine
-import engine.board_and_fields as board_and_fields
-import engine.figures as figures
-import evaluation 
-'''
-import engine.board_and_fields as board_and_fields
-import engine.figures as figures
 import algorithms.evaluation as evaluation
+import engine.board_and_fields as board_and_fields
+import engine.engine as engine
+
 
 
 class Minimax:
@@ -51,7 +42,7 @@ class Minimax:
                 new_board = copy.deepcopy(board)
                 #tu jest funckcja że on gra ten ruch na nowej planszy
                 a,b,c,d = move
-                new_board = self.board.make_move(new_board, a, b, c, d)
+                new_board = self.board.make_move_new_board(new_board, a, b, c, d)
                 eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, False)
                 max_eval = max(max_eval, eval_value)
                 alfa = max(alfa, eval_value)
@@ -66,7 +57,7 @@ class Minimax:
             for move in self.all_moves:
                 new_board = copy.deepcopy(board)
                 a,b,c,d = move
-                new_board = self.board.make_move(new_board, a, b, c, d)
+                new_board = self.board.make_move_new_board(new_board, a, b, c, d)
                 #tu jest funckcja że on gra ten ruch na nowej planszy
 
                 eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, True)
