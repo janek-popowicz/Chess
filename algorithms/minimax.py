@@ -56,10 +56,11 @@ class Minimax:
         else:
             min_eval = float('inf')
             best_move = None
-            for move in self.all_moves:
-                new_board = copy.deepcopy(board)
-                a,b = move
-                c,d = move[1]
+            for figure in legal_moves:
+                for move in legal_moves[figure]:
+                    new_board = copy.deepcopy(board)
+                    #tu jest funckcja że on gra ten ruch na nowej planszy
+                    (a,b) = figure
                 new_board = self.board.make_move_new_board(new_board, a, b, c, d)
                 #tu jest funckcja że on gra ten ruch na nowej planszy
 
