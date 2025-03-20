@@ -215,7 +215,7 @@ class Board:
                 self.incheck = True
         else:
             self.incheck = False   
-    def get_all_moves(self, turn):
+    def get_all_moves(self, board, turn):
         """
         Generuje wszystkie możliwe ruchy dla danego koloru.
 
@@ -228,7 +228,7 @@ class Board:
         all_moves = []
         for y in range(0,8):
             for x in range(0,8):
-                field = self.board_state[y][x]
+                field = board.board_state[y][x]
                 if field.figure:
                     if field.figure.color == turn:
                         all_moves += self.get_legal_moves(field,turn)
