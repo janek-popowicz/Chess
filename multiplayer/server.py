@@ -78,29 +78,28 @@ def get_server_ip_and_port():
     port = 5555  # Default port
     return ip_address, port
 
-def server_communication(conn, main_board, turn_data, running_flag):
+def server_communication(conn, communication_data, running_flag):
     """
     Obsługuje komunikację serwera w osobnym wątku.
     
     Args:
         conn: Obiekt połączenia z klientem.
-        main_board: Obiekt planszy gry.
-        turn_data: Słownik przechowujący informacje o turze.
+        communication_data: Słownik przechowujący dane komunikacji.
         running_flag: Obiekt threading.Event do kontrolowania stanu gry.
     """
     while running_flag.is_set():
         try:
-            if turn_data["turn"] == 'b':  # Oczekiwanie na ruch przeciwnika
+            if communication_data["to_receive"]:  # Oczekiwanie na ruch przeciwnika
                 received = conn.recv(1024).decode()
                 if received == "disconnect":
                     running_flag.clear()
                     break
-                move = received.split(' ')
-                selected_piece = (int(move[0]), int(move[1]))
-                row, col = int(move[2]), int(move[3])
-                if tryMove('b', main_board, selected_piece[0], selected_piece[1], row, col):
-                    turn_data["last_move"] = (selected_piece, row, col)
-                    turn_data["turn"] = 'w'
+                communication_data["received"] = received
+                communication_data["to_receive"] = False
+            elif communication_data["to_send"]:  # Wysyłanie ruchu do klienta
+                conn.send(communication_data["to_send"].encode())
+                communication_data["to_send"] = None
+                communication_data["to_receive"] = True
         except (ConnectionResetError, OSError):
             running_flag.clear()
             break
@@ -147,14 +146,13 @@ def main():
     running = True
     running_flag = threading.Event()
     running_flag.set()
-    turn_data = {"turn": 'w', "last_move": None}
-    main_board = Board()
+    communication_data = {"to_send": None, "received": None, "to_receive": True}
 
     # Uruchomienie wątku komunikacji serwera
-    communication_thread = threading.Thread(target=server_communication, args=(conn, main_board, turn_data, running_flag))
+    communication_thread = threading.Thread(target=server_communication, args=(conn, communication_data, running_flag))
     communication_thread.start()
 
-    turn = 'w'
+    main_board = Board()
     selected_piece = None
     clock = pygame.time.Clock()
 
@@ -181,56 +179,76 @@ def main():
                 handle_disconnect(conn, server)
                 pygame.quit()
                 return
-            elif event.type == pygame.MOUSEBUTTONDOWN and turn_data["turn"] == 'w':
+            elif event.type == pygame.MOUSEBUTTONDOWN and communication_data["to_receive"]:
                 pos = pygame.mouse.get_pos()
-                print(pos)
                 col = 7 - (pos[0] // SQUARE_SIZE)
                 row = 7 - (pos[1] // SQUARE_SIZE)
                 if col < 8 and row < 8:
                     if selected_piece:
                         if tryMove('w', main_board, selected_piece[0], selected_piece[1], row, col):
                             to_send = f"{selected_piece[0]} {selected_piece[1]} {row} {col}"
-                            conn.send(to_send.encode())
-                            turn_data["turn"] = 'b'
+                            communication_data["to_send"] = to_send
                             selected_piece = None
                         else:
                             selected_piece = (row, col)
                     else:
                         selected_piece = (row, col)
-                if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and pos[1] >= height - 80:
+                if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
                     running = False
                     running_flag.clear()
                     communication_thread.join()
                     handle_disconnect(conn, server)
                     return
 
-        # Aktualizacja planszy po ruchu przeciwnika
-        if turn_data["last_move"] and turn_data["turn"] == 'w':
-            selected_piece, row, col = turn_data["last_move"]
-            draw_board(screen, SQUARE_SIZE, main_board, main_board.incheck)
-            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
-            turn_data["last_move"] = None
+        if communication_data["received"] and not communication_data["to_receive"]:
+            received = communication_data["received"].split(' ')
+            selected_piece = (int(received[0]), int(received[1]))
+            row, col = int(received[2]), int(received[3])
+            if tryMove('b', main_board, selected_piece[0], selected_piece[1], row, col):
+                # sprawdzanie co po ruchu
+                if selected_piece is not None:
+                    whatAfter, yForPromotion, xForPromotion = afterMove('b', main_board, selected_piece[0], selected_piece[1], row, col)
+                    if whatAfter == "promotion":
+                        choiceOfPromotion = received[4]
+                        promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+                        whatAfter, yForPromotion, xForPromotion = afterMove('b', main_board, selected_piece[0], selected_piece[1], row, col)
+                    if whatAfter == "checkmate":
+                        result = "Szach Mat!"
+                        winner = "Białas"
+                        running = False
+                    elif whatAfter == "stalemate":
+                        result = "Pat"
+                        winner = "Remis"
+                        running = False
+                    elif whatAfter == "check":
+                        in_check = 'b'
+                    else:
+                        in_check = None
+                selected_piece = None
+                start_time = time.time()
+            communication_data["received"] = None
 
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
-        if turn == 'w':
+        if communication_data["to_receive"]:
             current_white_time = white_time + (current_time - start_time)
             current_black_time = black_time
         else:
             current_black_time = black_time + (current_time - start_time)
             current_white_time = white_time
 
-        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn=='w' else GRAY),(8*SQUARE_SIZE+10,height - 150)),
-                             (font.render(format_time(current_black_time), True, YELLOW if turn=='b' else GRAY),(8*SQUARE_SIZE+10,80)))
+        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if communication_data["to_receive"] else GRAY),
+                              (8 * SQUARE_SIZE + 10, height - 150)),
+                             (font.render(format_time(current_black_time), True, YELLOW if not communication_data["to_receive"] else GRAY),
+                              (8 * SQUARE_SIZE + 10, 80)))
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
-        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
+        draw_interface(screen, 'w' if communication_data["to_receive"] else 'b', SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
         try:
-            if config["highlight"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
-                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
-        except TypeError:
-            pass
-        except AttributeError:
+            if config["highlight"] or main_board.get_piece(selected_piece[0], selected_piece[1])[0] == 'w':
+                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]], SQUARE_SIZE,
+                                main_board, HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+        except (TypeError, AttributeError):
             pass
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
         pygame.display.flip()
