@@ -13,26 +13,88 @@ from graphics import *
 
 
 def setup_client():
+    """
+    Tworzy i konfiguruje klienta, który łączy się z serwerem na porcie 5555.
+    
+    Returns:
+        Obiekt klienta po pomyślnym połączeniu z serwerem.
+    """
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((input("podaj adres ip serwera"), 5555))  # Connect to the server
     return client
 
 def handle_disconnect(client):
+    """
+    Obsługuje rozłączenie klienta z serwerem.
+    
+    Args:
+        client: Obiekt klienta.
+    """
     to_send = "disconnect"
     client.send(to_send.encode())
     client.close()
 
 def receive_move(client):
+    """
+    Odbiera ruch od serwera.
+    
+    Args:
+        client: Obiekt klienta.
+    
+    Returns:
+        Lista zawierająca dane ruchu lub None, jeśli serwer się rozłączył.
+    """
     received = client.recv(1024).decode()
     if received == "disconnect":
         return None
     return received.split(' ')
 
 def send_move(client, move_data):
+    """
+    Wysyła dane ruchu do serwera.
+    
+    Args:
+        client: Obiekt klienta.
+        move_data: Dane ruchu w formacie tekstowym.
+    """
     client.send(move_data.encode())
+
+def get_client_ip_and_port():
+    """
+    Pobiera adres IP i port klienta.
+    
+    Returns:
+        Tuple zawierający adres IP i port klienta.
+    """
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+    port = 5555  # Default port
+    return ip_address, port
+
+def discover_servers():
+    """
+    Wyszukuje dostępne serwery w lokalnej sieci na porcie 5555.
+    
+    Returns:
+        Lista adresów IP dostępnych serwerów.
+    """
+    print("Searching for available servers...")
+    servers = []
+    for i in range(1, 255):  # Scan local network (192.168.1.x)
+        ip = f"192.168.1.{i}"
+        try:
+            with socket.create_connection((ip, 5555), timeout=1) as conn:
+                servers.append(ip)
+        except (socket.timeout, ConnectionRefusedError):
+            continue
+    return servers
 
 # Funkcja główna
 def main():
+    """
+    Główna funkcja gry klienta. Inicjalizuje klienta, obsługuje logikę gry
+    oraz interfejs graficzny.
+    """
     client = setup_client()
 
     pygame.init()
@@ -210,5 +272,11 @@ def main():
     handle_disconnect(client)
     return
 if __name__ == "__main__":
-
+    ip, port = get_client_ip_and_port()
+    print(f"Client running on IP: {ip}, Port: {port}")
+    available_servers = discover_servers()
+    if available_servers:
+        print("Available servers:", available_servers)
+    else:
+        print("No servers found.")
     main()

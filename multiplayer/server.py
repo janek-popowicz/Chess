@@ -15,6 +15,10 @@ from graphics import *
 
 
 def setup_server():
+    """
+    Tworzy i konfiguruje serwer nasłuchujący na porcie 5555.
+    Oczekuje na połączenie klienta i zwraca obiekt serwera oraz połączenie.
+    """
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(("0.0.0.0", 5555))  # Listen on all network interfaces
     server.listen(1)  # Allow 1 client
@@ -24,22 +28,61 @@ def setup_server():
     return server, conn
 
 def handle_disconnect(conn, server):
+    """
+    Obsługuje rozłączenie klienta i zamyka serwer.
+    
+    Args:
+        conn: Obiekt połączenia z klientem.
+        server: Obiekt serwera.
+    """
     to_send = "disconnect"
     conn.send(to_send.encode())
     conn.close()
     server.close()
 
 def receive_move(conn):
+    """
+    Odbiera ruch od klienta.
+    
+    Args:
+        conn: Obiekt połączenia z klientem.
+    
+    Returns:
+        Lista zawierająca dane ruchu lub None, jeśli klient się rozłączył.
+    """
     received = conn.recv(1024).decode()
     if received == "disconnect":
         return None
     return received.split(' ')
 
 def send_move(conn, move_data):
+    """
+    Wysyła dane ruchu do klienta.
+    
+    Args:
+        conn: Obiekt połączenia z klientem.
+        move_data: Dane ruchu w formacie tekstowym.
+    """
     conn.send(move_data.encode())
+
+def get_server_ip_and_port():
+    """
+    Pobiera adres IP i port serwera.
+    
+    Returns:
+        Tuple zawierający adres IP i port serwera.
+    """
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+    port = 5555  # Default port
+    return ip_address, port
 
 # Funkcja główna
 def main():
+    """
+    Główna funkcja gry serwera. Inicjalizuje serwer, obsługuje logikę gry
+    oraz interfejs graficzny.
+    """
     server, conn = setup_server()
 
     pygame.init()
@@ -217,5 +260,6 @@ def main():
     handle_disconnect(conn, server)
     return
 if __name__ == "__main__":
-
+    ip, port = get_server_ip_and_port()
+    print(f"Server running on IP: {ip}, Port: {port}")
     main()
