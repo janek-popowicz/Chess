@@ -11,29 +11,29 @@ from engine.engine import *
 from engine.figures import *
 from graphics import *
 
-def measure_ping(sock: socket.socket) -> float:
-    """Measures ping using an already open socket.
 
-    Args:
-        sock (socket.socket): The existing connected socket.
-
-    Returns:
-        float: Ping in milliseconds, or -1 if the connection fails.
-    """
-    try:
-        start = time.time()
-        sock.sendall(b"ping")  # Send a small test packet
-        sock.recv(1024)  # Wait for a response
-        end = time.time()
-
-        return (end - start) * 1000  # Convert to milliseconds
-
-    except (socket.timeout, ConnectionResetError):
-        return -1  # Return -1 if something goes wrong
-# Funkcja główna
-def main():
+def setup_client():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((input("podaj adres ip serwera"), 5555))  # Connect to the server
+    return client
+
+def handle_disconnect(client):
+    to_send = "disconnect"
+    client.send(to_send.encode())
+    client.close()
+
+def receive_move(client):
+    received = client.recv(1024).decode()
+    if received == "disconnect":
+        return None
+    return received.split(' ')
+
+def send_move(client, move_data):
+    client.send(move_data.encode())
+
+# Funkcja główna
+def main():
+    client = setup_client()
 
     pygame.init()
     # Ładowanie konfiguracji
@@ -90,15 +90,13 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                to_send = "disconnect"
-                client.send(to_send.encode())
+                handle_disconnect(client)
                 pygame.quit()
             elif turn=='w':
-                received = client.recv(1024).decode()
-                if received == "disconnect":
+                received = receive_move(client)
+                if not received:
                     running = False
                     break
-                received = received.split(' ')
                 selected_piece = (int(received[0]), int(received[1]))
                 row = int(received[2])
                 col = int(received[3])
@@ -159,7 +157,7 @@ def main():
                                     promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                     to_send = to_send + " " + choiceOfPromotion
-                                client.send(to_send.encode())
+                                send_move(client, to_send)
                                 if whatAfter == "checkmate":
                                     result = "Szach Mat!"
                                     winner = "Białas" if turn == 'b' else "Czarnuch"
@@ -180,9 +178,7 @@ def main():
                         selected_piece = (row, col)
                 if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
                     running = False
-                    to_send = "disconnect"
-                    client.send(to_send.encode())
-                    client.close()
+                    handle_disconnect(client)
                     return
 
         # Aktualizacja czasu gracza na żywo
@@ -211,7 +207,7 @@ def main():
         clock.tick(60)
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
-    client.close()
+    handle_disconnect(client)
     return
 if __name__ == "__main__":
 
