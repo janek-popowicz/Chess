@@ -4,6 +4,7 @@ import json
 import time
 import os
 import socket
+import threading
 
 #wygląda dziwnie ale musi działać
 from engine.board_and_fields import *
@@ -13,88 +14,53 @@ from graphics import *
 
 
 def setup_client():
-    """
-    Tworzy i konfiguruje klienta, który łączy się z serwerem na porcie 5555.
-    
-    Returns:
-        Obiekt klienta po pomyślnym połączeniu z serwerem.
-    """
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((input("podaj adres ip serwera"), 5555))  # Connect to the server
     return client
 
 def handle_disconnect(client):
-    """
-    Obsługuje rozłączenie klienta z serwerem.
-    
-    Args:
-        client: Obiekt klienta.
-    """
     to_send = "disconnect"
     client.send(to_send.encode())
     client.close()
 
 def receive_move(client):
-    """
-    Odbiera ruch od serwera.
-    
-    Args:
-        client: Obiekt klienta.
-    
-    Returns:
-        Lista zawierająca dane ruchu lub None, jeśli serwer się rozłączył.
-    """
     received = client.recv(1024).decode()
     if received == "disconnect":
         return None
     return received.split(' ')
 
 def send_move(client, move_data):
+    client.send(move_data.encode())
+
+def client_communication(client, main_board, turn_data, running_flag):
     """
-    Wysyła dane ruchu do serwera.
+    Obsługuje komunikację klienta w osobnym wątku.
     
     Args:
         client: Obiekt klienta.
-        move_data: Dane ruchu w formacie tekstowym.
+        main_board: Obiekt planszy gry.
+        turn_data: Słownik przechowujący informacje o turze.
+        running_flag: Obiekt threading.Event do kontrolowania stanu gry.
     """
-    client.send(move_data.encode())
-
-def get_client_ip_and_port():
-    """
-    Pobiera adres IP i port klienta.
-    
-    Returns:
-        Tuple zawierający adres IP i port klienta.
-    """
-    hostname = socket.gethostname()
-    ip_address = socket.gethostbyname(hostname)
-    port = 5555  # Default port
-    return ip_address, port
-
-def discover_servers():
-    """
-    Wyszukuje dostępne serwery w lokalnej sieci na porcie 5555.
-    
-    Returns:
-        Lista adresów IP dostępnych serwerów.
-    """
-    print("Searching for available servers...")
-    servers = []
-    for i in range(1, 255):  # Scan local network (192.168.1.x)
-        ip = f"192.168.1.{i}"
+    while running_flag.is_set():
         try:
-            with socket.create_connection((ip, 5555), timeout=1) as conn:
-                servers.append(ip)
-        except (socket.timeout, ConnectionRefusedError):
-            continue
-    return servers
+            if turn_data["turn"] == 'w':  # Oczekiwanie na ruch przeciwnika
+                received = client.recv(1024).decode()
+                if received == "disconnect":
+                    running_flag.clear()
+                    break
+                move = received.split(' ')
+                selected_piece = (int(move[0]), int(move[1]))
+                row, col = int(move[2]), int(move[3])
+                if tryMove('w', main_board, selected_piece[0], selected_piece[1], row, col):
+                    turn_data["last_move"] = (selected_piece, row, col)
+                    turn_data["turn"] = 'b'
+        except (ConnectionResetError, OSError):
+            running_flag.clear()
+            break
 
 # Funkcja główna
 def main():
-    """
-    Główna funkcja gry klienta. Inicjalizuje klienta, obsługuje logikę gry
-    oraz interfejs graficzny.
-    """
     client = setup_client()
 
     pygame.init()
@@ -129,8 +95,16 @@ def main():
         pieces[piece] = pygame.transform.scale(pygame.image.load("pieces/" + icon_type + "/" + piece + ".png"), (SQUARE_SIZE-10, SQUARE_SIZE-10))
     
     running = True
+    running_flag = threading.Event()
+    running_flag.set()
+    turn_data = {"turn": 'b', "last_move": None}
     main_board = Board()
-    turn = 'w'
+
+    # Uruchomienie wątku komunikacji klienta
+    communication_thread = threading.Thread(target=client_communication, args=(client, main_board, turn_data, running_flag))
+    communication_thread.start()
+
+    turn = 'b'
     selected_piece = None
     clock = pygame.time.Clock()
 
@@ -152,96 +126,40 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                running_flag.clear()
+                communication_thread.join()
                 handle_disconnect(client)
                 pygame.quit()
-            elif turn=='w':
-                received = receive_move(client)
-                if not received:
-                    running = False
-                    break
-                selected_piece = (int(received[0]), int(received[1]))
-                row = int(received[2])
-                col = int(received[3])
-                if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                    draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
-                    draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
-                    move_time = time.time() - start_time
-                    if turn == 'w':
-                        white_time += move_time
-                    else:
-                        black_time += move_time
-                    turn = 'w' if turn == 'b' else 'b'
-                    
-                    #sprawdzanie co po ruchu
-                    if selected_piece!=None:
-                        whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
-                        if whatAfter == "promotion":
-                            choiceOfPromotion = received[4]
-                            promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
-                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
-                        if whatAfter == "checkmate":
-                            result = "Szach Mat!"
-                            winner = "Białas" if turn == 'b' else "Czarnuch"
-                            running = False
-                        elif whatAfter == "stalemate":
-                            result = "Pat"
-                            winner = "Remis"
-                            running = False
-                        elif whatAfter == "check":
-                            in_check = turn
-                        else:
-                            in_check = None
-                    selected_piece = None
-                    start_time = time.time()
-            elif event.type == pygame.MOUSEBUTTONDOWN and turn=='b':
+                return
+            elif event.type == pygame.MOUSEBUTTONDOWN and turn_data["turn"] == 'b':
                 pos = pygame.mouse.get_pos()
                 print(pos)
                 col = 7 - (pos[0] // SQUARE_SIZE)
                 row = 7 - (pos[1] // SQUARE_SIZE)
                 if col < 8 and row < 8:
                     if selected_piece:
-                        if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                            draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
-                            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
-                            move_time = time.time() - start_time
-                            if turn == 'w':
-                                white_time += move_time
-                            else:
-                                black_time += move_time
-                            turn = 'w' if turn == 'b' else 'b'
-                            
-                            #sprawdzanie co po ruchu
-                            if selected_piece!=None:
-                                whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
-                                to_send = str(selected_piece[0])+ " " + str(selected_piece[1]) + " " + str(row)+ " " +str(col)
-                                if whatAfter == "promotion":
-                                    choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
-                                    promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
-                                    whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
-                                    to_send = to_send + " " + choiceOfPromotion
-                                send_move(client, to_send)
-                                if whatAfter == "checkmate":
-                                    result = "Szach Mat!"
-                                    winner = "Białas" if turn == 'b' else "Czarnuch"
-                                    running = False
-                                elif whatAfter == "stalemate":
-                                    result = "Pat"
-                                    winner = "Remis"
-                                    running = False
-                                elif whatAfter == "check":
-                                    in_check = turn
-                                else:
-                                    in_check = None
+                        if tryMove('b', main_board, selected_piece[0], selected_piece[1], row, col):
+                            to_send = f"{selected_piece[0]} {selected_piece[1]} {row} {col}"
+                            client.send(to_send.encode())
+                            turn_data["turn"] = 'w'
                             selected_piece = None
-                            start_time = time.time()
                         else:
                             selected_piece = (row, col)
                     else:
                         selected_piece = (row, col)
-                if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
+                if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and pos[1] >= height - 80:
                     running = False
+                    running_flag.clear()
+                    communication_thread.join()
                     handle_disconnect(client)
                     return
+
+        # Aktualizacja planszy po ruchu przeciwnika
+        if turn_data["last_move"] and turn_data["turn"] == 'b':
+            selected_piece, row, col = turn_data["last_move"]
+            draw_board(screen, SQUARE_SIZE, main_board, main_board.incheck)
+            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+            turn_data["last_move"] = None
 
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
@@ -259,7 +177,7 @@ def main():
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
         try:
             if config["highlight"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
-                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES,config["highlight"])
         except TypeError:
             pass
         except AttributeError:
@@ -272,11 +190,4 @@ def main():
     handle_disconnect(client)
     return
 if __name__ == "__main__":
-    ip, port = get_client_ip_and_port()
-    print(f"Client running on IP: {ip}, Port: {port}")
-    available_servers = discover_servers()
-    if available_servers:
-        print("Available servers:", available_servers)
-    else:
-        print("No servers found.")
     main()
