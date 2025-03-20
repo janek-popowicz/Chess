@@ -1,6 +1,6 @@
 import sys
 import os
-import copy 
+import copy
 
 '''
 from engine.board_and_fields import *
@@ -13,9 +13,9 @@ import engine.figures as figures
 import evaluation 
 '''
 import engine.board_and_fields as board_and_fields
-from engine.engine import *
 import engine.figures as figures
 import algorithms.evaluation as evaluation
+
 
 class Minimax:
     def __init__(self):
