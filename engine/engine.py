@@ -39,9 +39,9 @@ def notation_to_cords(board, notation: str, turn: str):
     else:
         notation = "p" + notation
         if turn == 'w':
-            directions_to_check = [(1,0,1), (1,1,1), (1,-1,1), (2,0,1)]
+            directions_to_check = [(1,0,1), (2,0,1),(1,1,1), (1,-1,1)]
         else:
-            directions_to_check = [(-1,0,1), (-1,1,1), (-1,-1,1), (-2,0,1)]
+            directions_to_check = [(-1,0,1), (-2,0,1),(-1,1,1), (-1,-1,1)]
     #Dekodowanie koordynatów
     for i in range(len(notation)):
         if notation[i].isdigit():
@@ -54,9 +54,16 @@ def notation_to_cords(board, notation: str, turn: str):
             field = board.board_state[row][col]
             if field.figure:
                 if field.figure.color == turn and field.figure.type == notation[0]:
+                    #Dostosowanie pól do sprawdzenia dla pionków
                     if notation[0] == 'p':
                         if field.figure.has_moved:
-                            directions_to_check.pop(-1)
+                            directions_to_check[2] = (0,0,0) #zamiast usuwać ten kierunek, ustawiamy go na (0,0,0), aby zachować spójność indeksów
+                        if "x" in notation:
+                            directions_to_check[1] = (0,0,0)
+                            directions_to_check[2] = (0,0,0)
+                        else:
+                            directions_to_check[3] = (0,0,0)
+                            directions_to_check[4] = (0,0,0)
                     #Sprawdzanie, czy pole docelowe jest w ruchach danej figury
                     for direction in directions_to_check:
                         for distance in range(1,direction[2]+1):
@@ -68,12 +75,15 @@ def notation_to_cords(board, notation: str, turn: str):
                             field_to_check = board.board_state[field_to_check_y][field_to_check_x]
                             #Sprawdzanie czy na docelowym polu jest jakaś figura i czy zgadza się z notacją
                             if field_to_check == target_field:
-                                if field_to_check.figure and "x" in notation:
-                                    candidate_figures.append((field.y,field.x))
-                                elif field_to_check.figure == None and "x" not in notation:
-                                    candidate_figures.append((field.y,field.x))
-                                    if notation[0] == 'p':
-                                        break 
+                                if notation[2] == "x" and notation[0] == "p":
+                                    #sprawdzamy specjalny przypadek - en passant
+                                    if target_field.figure != None and field.figure.can_enpassant == True:
+                                        candidate_figures.append((field.y,field.x))
+                                else:
+                                    if field_to_check.figure and "x" in notation:
+                                        candidate_figures.append((field.y,field.x))
+                                    elif field_to_check.figure == None and "x" not in notation:
+                                        candidate_figures.append((field.y,field.x))
     if len(candidate_figures) > 1:
         return "Nie wykonano ruchu, potrzeba więcej informacji"
     elif len(candidate_figures) == 1:
@@ -127,7 +137,7 @@ Returns:
                     if start_tile.figure.can_enpassant:
                         start_tile.figure.can_enpassant = False
                         main_board.board_state[start_tile.y][destination_tile.x].figure = None
-                        main_board.moves_algebraic[-1] = start_tile.x + main_board.moves_algebraic[-1]
+                        main_board.moves_algebraic[-1] = str(start_tile.x) + main_board.moves_algebraic[-1]
         main_board.make_move(y1, x1, y2, x2)
         if destination_tile.figure:
             if destination_tile.figure.type in ['p','K','R']:
