@@ -225,13 +225,13 @@ class Board:
         Returns:
             list: Lista wszystkich możliwych ruchów.
         """
-        all_moves = []
+        all_moves = {}
         for y in range(0,8):
             for x in range(0,8):
                 field = board.board_state[y][x]
                 if field.figure:
                     if field.figure.color == turn:
-                        all_moves += self.get_legal_moves(field,turn)
+                            all_moves[(y,x)] += self.get_legal_moves(field,turn)
         return all_moves
     def get_legal_moves(self, field, turn):
         """

@@ -38,19 +38,21 @@ class Minimax:
         if is_maximizing:
             max_eval = -float('inf')
             best_move = None
-            for move in legal_moves:
-                new_board = copy.deepcopy(board)
-                #tu jest funckcja że on gra ten ruch na nowej planszy
-                (a,b),(c,d) = move 
-                new_board = self.board.make_move_new_board(new_board, a, b, c, d)
-                eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, False)
-                max_eval = max(max_eval, eval_value)
-                alfa = max(alfa, eval_value)
-                if beta <= alfa:
-                    break
-                if eval_value == max_eval:
-                    best_move = move
-            return max_eval, best_move
+            for figure in legal_moves:
+                for move in legal_moves[figure]:
+                    new_board = copy.deepcopy(board)
+                    #tu jest funckcja że on gra ten ruch na nowej planszy
+                    (a,b) = figure
+                    (c,d) = move
+                    new_board = self.board.make_move_new_board(new_board, a, b, c, d)
+                    eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, False)
+                    max_eval = max(max_eval, eval_value)
+                    alfa = max(alfa, eval_value)
+                    if beta <= alfa:
+                        break
+                    if eval_value == max_eval:
+                        best_move = move
+                return max_eval, best_move
         else:
             min_eval = float('inf')
             best_move = None
