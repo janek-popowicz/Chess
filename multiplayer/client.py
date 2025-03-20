@@ -11,6 +11,25 @@ from engine.engine import *
 from engine.figures import *
 from graphics import *
 
+def measure_ping(sock: socket.socket) -> float:
+    """Measures ping using an already open socket.
+
+    Args:
+        sock (socket.socket): The existing connected socket.
+
+    Returns:
+        float: Ping in milliseconds, or -1 if the connection fails.
+    """
+    try:
+        start = time.time()
+        sock.sendall(b"ping")  # Send a small test packet
+        sock.recv(1024)  # Wait for a response
+        end = time.time()
+
+        return (end - start) * 1000  # Convert to milliseconds
+
+    except (socket.timeout, ConnectionResetError):
+        return -1  # Return -1 if something goes wrong
 # Funkcja główna
 def main():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
