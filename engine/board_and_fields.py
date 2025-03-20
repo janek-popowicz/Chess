@@ -111,7 +111,7 @@ class Board:
                     break 
                 field_to_check = self.board_state[field_to_check_y][field_to_check_x]
                 #Sprawdzanie, czy na danym polu jest jakaś figura
-                if field_to_check.figure != None:
+                if field_to_check.figure:
                     break    
                 possible_cords.append((field_to_check.y,field_to_check.x))
 
@@ -148,7 +148,7 @@ class Board:
                             else:
                                 possible_cords.append((field.y + field.figure.attack_scheme[1][1],field.x + field.figure.attack_scheme[1][0]))
                 #Sprawdzanie, czy na polu do zbicia jest król
-                if field_to_check.figure != None: 
+                if field_to_check.figure: 
                     if field_to_check.figure.color != field.figure.color:
                             possible_cords.append((field_to_check.y,field_to_check.x)) 
                     break
@@ -188,7 +188,7 @@ class Board:
                     if field_to_check_y > 7 or field_to_check_y < 0 or field_to_check_x > 7 or field_to_check_x < 0:
                         break 
                     field_to_check = self.board_state[field_to_check_y][field_to_check_x]
-                    if field_to_check.figure != None:
+                    if field_to_check.figure:
                         if field_to_check.figure.color == color:
                             break
                         else:
@@ -207,7 +207,7 @@ class Board:
         for y in range(0,8):
             for x in range(0,8):
                 tile = self.board_state[y][x]
-                if tile.figure != None:
+                if tile.figure:
                     if tile.figure.type == 'K' and tile.figure.color == color:
                         king_position = tile
         if self.is_attacked(king_position):
@@ -229,7 +229,7 @@ class Board:
         for y in range(0,8):
             for x in range(0,8):
                 field = self.board_state[y][x]
-                if field.figure != None:
+                if field.figure:
                     if field.figure.color == turn:
                         all_moves += self.get_legal_moves(field,turn)
         return all_moves
@@ -256,7 +256,7 @@ class Board:
             for move in possible_moves:
                         figure1 = self.board_state[field.y][field.x].figure
                         figure2 = self.board_state[move[0]][move[1]].figure
-                        if figure2 != None:
+                        if figure2:
                             if figure2.type == 'K':
                                 self.incheck = True
                                 continue
@@ -272,7 +272,7 @@ class Board:
                 if not self.incheck:
                     j =-1
                     for x_to_check in [0,7]:
-                        if self.board_state[field.y][x_to_check].figure != None:
+                        if self.board_state[field.y][x_to_check].figure:
                             if self.board_state[field.y][x_to_check].figure.type == 'R' and self.board_state[field.y][x_to_check].figure.color == field.figure.color:
                                 if field.figure.has_moved == False and self.board_state[field.y][x_to_check].figure.has_moved == False:
                                     space_free = False
@@ -280,7 +280,7 @@ class Board:
                                     for i in range (1,(field.x - x_to_check)*(-j)):
                                         tile_to_check_x = field.x + i * j
                                         space_free = True
-                                        if self.board_state[tile_to_check_y][tile_to_check_x].figure != None or self.is_attacked(self.board_state[tile_to_check_y][tile_to_check_x],turn):
+                                        if self.board_state[tile_to_check_y][tile_to_check_x].figure or self.is_attacked(self.board_state[tile_to_check_y][tile_to_check_x],turn):
                                             space_free = False
                                             break
                                     if space_free:

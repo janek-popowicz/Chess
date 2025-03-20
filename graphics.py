@@ -57,7 +57,7 @@ def draw_pieces(screen, board, SQUARE_SIZE, pieces):
             if piece != "--":
                 screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-def highlight_moves(screen, field, square_size: int, board, color_move, color_take):
+def highlight_moves(screen, field, square_size: int, board, color_move, color_take, highlight):
     """
     Podświetla możliwe ruchy dla wybranej figury.
 
@@ -73,15 +73,16 @@ def highlight_moves(screen, field, square_size: int, board, color_move, color_ta
         cords = board.get_legal_moves(field, field.figure.color)
     except AttributeError:
         return None
-    for cord in cords:
-        highlighted_tile = pygame.Surface((square_size, square_size))
-        highlighted_tile.fill(color_move)
-        if board.board_state[cord[0]][cord[1]].figure is not None:
-            if field.figure.color != board.board_state[cord[0]][cord[1]].figure.color:
+    if highlight or field.figure:
+        for cord in cords:
+            highlighted_tile = pygame.Surface((square_size, square_size))
+            highlighted_tile.fill(color_move)
+            if board.board_state[cord[0]][cord[1]].figure:
+                if field.figure.color != board.board_state[cord[0]][cord[1]].figure.color:
+                    highlighted_tile.fill(color_take)
+            if field.figure.type == 'p' and (field.x - cord[1]) != 0:
                 highlighted_tile.fill(color_take)
-        if field.figure.type == 'p' and (field.x - cord[1]) != 0:
-            highlighted_tile.fill(color_take)
-        screen.blit(highlighted_tile, (((7-cord[1]) * square_size), ((7-cord[0]) * square_size)))
+            screen.blit(highlighted_tile, (((7-cord[1]) * square_size), ((7-cord[0]) * square_size)))
 
 def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text):
     """
