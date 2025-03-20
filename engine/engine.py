@@ -127,7 +127,7 @@ Returns:
                     if start_tile.figure.can_enpassant:
                         start_tile.figure.can_enpassant = False
                         main_board.board_state[start_tile.y][destination_tile.x].figure = None
-                        main_board.moves_algebraic[-1] = start_tile.x + main_board.moves_algebraic[-1]
+                        main_board.moves_algebraic[-1] = str(start_tile.x) + main_board.moves_algebraic[-1]
         main_board.make_move(y1, x1, y2, x2)
         if destination_tile.figure:
             if destination_tile.figure.type in ['p','K','R']:

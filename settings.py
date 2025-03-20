@@ -41,7 +41,7 @@ def main():
 
     # Podświetlenie figur przeciwnika
     highlight_enemy = tk.BooleanVar(value=config["highlight_enemy"])
-    tk.Checkbutton(root, variable=highlight_enemy, text="Czy podświetlać figury przeciwnika?",onvalue=True,offvalue=False).grid(row=3, column=1, padx=10, pady=10)
+    tk.Checkbutton(root, variable=highlight_enemy, text="Czy podświetlać figury przeciwnika?",onvalue=1,offvalue=0).grid(row=3, column=1, padx=10, pady=10)
     
 
     # Zapisz i Zastosuj
