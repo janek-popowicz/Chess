@@ -87,7 +87,7 @@ KING_DOWN = rotate_pst(KING_UP)
 
 class Evaluation:
     def __init__(self, main_board):
-        self.main_board = main_board
+        self.main_board = board_and_fields.Board()
         self.palyer_color = player_color
         self.waga_czarnych = 0
         self.waga_białych = 0
@@ -208,7 +208,7 @@ class Evaluation:
                     else:
                         black_pieces += 1
         return white_pieces+black_pieces
-    def king_to_edge(board):
+    def king_to_edge(self):
 
         evaluation_white = 0
         evaluation_black = 0
@@ -218,7 +218,7 @@ class Evaluation:
         black_king_position = None
         for i in range(8):
             for j in range(8):
-                piece = board.board_state[i][j]
+                piece = self.main_board.board_state[i][j]
                 if piece.figure is not None and piece.figure.type == 'K':
                     if piece.figure.color == 'w':
                         white_king_position = (i, j)
