@@ -9,10 +9,6 @@ from engine.figures import *
 from graphics import *
 
 
-HOST = '127.0.0.1'  # Tutaj wpisz IP serwera
-PORT = 12345
-client = None
-server_connected = False
 
 def connect_to_server():
     """Próbuje połączyć się z serwerem i kończy działanie wątku po sukcesie."""
@@ -28,9 +24,6 @@ def connect_to_server():
         except (socket.error, ConnectionRefusedError):
             time.sleep(1)  # Czekamy 1 sekundę przed kolejną próbą
 
-# Tworzymy wątek klienta (próbuje się połączyć w tle)
-client_thread = threading.Thread(target=connect_to_server, daemon=True)
-client_thread.start()
 
 def waiting_screen(screen, font):
     """Animacja łączenia się z serwerem."""
@@ -44,11 +37,22 @@ def waiting_screen(screen, font):
 
         dots = "." * ((len(dots) + 1) % 4)
         time.sleep(0.5)
-        clock.tick(10)
+        clock.tick(0.1)
 
 
 # Funkcja główna
 def main():
+    global HOST, PORT, client, server_connected
+    HOST = '127.0.0.1'  # Tutaj wpisz IP serwera
+    PORT = 12345
+    client = None
+    server_connected = False
+
+    # Tworzymy wątek klienta (próbuje się połączyć w tle)
+    client_thread = threading.Thread(target=connect_to_server, daemon=True)
+    client_thread.start()
+
+
     pygame.init()
     # Ładowanie konfiguracji
     config = load_config()

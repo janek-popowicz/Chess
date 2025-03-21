@@ -112,7 +112,7 @@ def main():
     waiting_screen(screen, font)
 
     # Po podłączeniu klienta ustawiamy timeout
-    conn.settimeout(10)
+    conn.settimeout(0.1)
 
     while running:
         
