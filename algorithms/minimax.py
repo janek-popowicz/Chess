@@ -75,10 +75,10 @@ class Minimax:
 
     def get_best_move(self):
         """Wywołanie funkcji minimax na aktualnej planszy, zwraca najlepszy ruch w formacie [skąd_y, skąd_x, dokąd_y, dokąd_x]."""
-        cokolwiek, move = self.minimax(self.board, self.depth, self.alpha, self.beta, True)
+        _, move = self.minimax(self.board,self.depth,self.alpha,self.beta, True)
         return move
 
-def main():
+'''def main():
     minimax = Minimax()
     move = minimax.get_best_move()
-    print(move)
+    print(move)'''
