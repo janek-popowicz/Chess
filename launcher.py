@@ -21,12 +21,14 @@ def main():
     pygame.init()
     icon_logo = pygame.image.load('program_logo.png')
     pygame.display.set_icon(icon_logo)
+    
     # Ustawienia ekranu
     screen = pygame.display.set_mode((1600, 1000))
     pygame.display.set_caption("Chess Game Launcher")
     config = load_config()
     volume = config["volume"]
-    volume = volume/100
+    volume = volume / 100
+    
     # Kolory
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
@@ -63,6 +65,10 @@ def main():
     pygame.mixer.music.play(start=5)
     pygame.mixer.music.set_volume(volume)
 
+    # Load the background image
+    background = pygame.image.load("background.png")
+    background = pygame.transform.scale(background, (1600, 1000))  # Ensure the image fits the screen size
+
     while running:
         mouse_pos = pygame.mouse.get_pos()
         for event in pygame.event.get():
@@ -90,7 +96,8 @@ def main():
             if text_rect.collidepoint(mouse_pos):
                 selected_option = i
 
-        draw_menu(selected_option, screen, menu_texts, text_white, text_gray, BLACK)
+        # Draw background and menu
+        draw_menu(selected_option, screen, menu_texts, background, text_white, text_gray, BLACK)
 
     pygame.mixer.music.stop()
     pygame.quit()
@@ -118,19 +125,21 @@ def do_an_action(selected_option):
     elif selected_option == 7:
         multiplayer.client.main()
 
+
 # Funkcja do rysowania menu
-def draw_menu(selected_option:int, screen, menu_texts, text_white, text_gray,BLACK)->None:
+def draw_menu(selected_option:int, screen, menu_texts, background, text_white, text_gray, BLACK)->None:
     """rysuje menu i renderuje tekst
 
     Args:
         selected_option (int): numer wybranej opcji z listy menu_options
     """
-    screen.fill(BLACK)
+    screen.blit(background, (0, 0))  # Draw the background image first
     for i, (text_white, text_gray) in enumerate(menu_texts):
         text = text_white if i == selected_option else text_gray
         text_rect = text.get_rect(center=(800, 150 + i * 100))
         screen.blit(text, text_rect)
     pygame.display.flip()
+
 
 def load_config():
     try:
