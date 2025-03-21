@@ -152,8 +152,8 @@ def main():
                                     choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
                                     promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                     message = message + " " + choiceOfPromotion
-                                    conn.sendall(message.encode('utf-8'))
                                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                                conn.sendall(message.encode('utf-8'))
                                 if whatAfter == "checkmate":
                                     result = "Szach Mat!"
                                     winner = "Białas" if turn == 'b' else "Czarnuch"
