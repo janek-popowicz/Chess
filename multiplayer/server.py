@@ -12,12 +12,6 @@ from engine.fen_operations import *
 from graphics import *
 
 
-HOST = '0.0.0.0'
-PORT = 12345
-server = None
-conn = None
-addr = None
-client_connected = False
 
 def start_server():
     """Tworzy serwer, akceptuje jedno połączenie i kończy działanie wątku."""
@@ -32,9 +26,7 @@ def start_server():
     client_connected = True  # Informujemy główną pętlę, że można rozpocząć grę
 
 
-# Tworzymy wątek serwera (działa w tle)
-server_thread = threading.Thread(target=start_server, daemon=True)
-server_thread.start()
+
 
 def waiting_screen(screen, font):
     """Animacja oczekiwania na klienta"""
@@ -57,6 +49,18 @@ def waiting_screen(screen, font):
 # Funkcja główna
 def main():
     global conn
+    global HOST, PORT, server, conn, addr, client_connected
+    HOST = '0.0.0.0'
+    PORT = 12345
+    server = None
+    conn = None
+    addr = None
+    client_connected = False
+
+    # Tworzymy wątek serwera (działa w tle)
+    server_thread = threading.Thread(target=start_server, daemon=True)
+    server_thread.start()
+
     pygame.init()
     # Ładowanie konfiguracji
     config = load_config()
