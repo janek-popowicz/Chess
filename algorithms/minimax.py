@@ -44,7 +44,7 @@ class Minimax:
                     #tu jest funckcja że on gra ten ruch na nowej planszy
                     (a,b) = figure
                     (c,d) = move
-                    new_board.make_move_new_board(a, b, c, d) #masz Ignacy naprawiłem ci wykonywanie ruchu ~ Benedykt 
+                    new_board = self.board.make_move_new_board(a,b,c,d) #masz Ignacy naprawiłem ci wykonywanie ruchu ~ Benedykt 
                     eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, False)
                     max_eval = max(max_eval, eval_value)
                     alfa = max(alfa, eval_value)
@@ -59,9 +59,9 @@ class Minimax:
             for figure in legal_moves:
                 for move in legal_moves[figure]:
                     new_board = copy.deepcopy(board)
-                    #tu jest funckcja że on gra ten ruch na nowej planszy
                     (a,b) = figure
-                new_board = self.board.make_move_new_board(new_board, a, b, c, d)
+                    (c,d) = move
+                    new_board = self.board.make_move_new_board(a,b,c,d) #masz Ignacy naprawiłem ci wykonywanie ruchu ~ Benedykt
                 #tu jest funckcja że on gra ten ruch na nowej planszy
 
                 eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, True)

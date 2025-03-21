@@ -2,7 +2,7 @@
 Moduł zawiera klasy reprezentujące pola i planszę szachową.
 """
 import engine.figures as figures
-
+import copy
 class Field:
     """
     Klasa reprezentująca pojedyncze pole na planszy szachowej.
@@ -66,7 +66,8 @@ class Board:
         """
         self.board_state[y2][x2].figure = self.board_state[y1][x1].figure
         self.board_state[y1][x1].figure = None
-    def make_move_new_board(board, y1: int, x1: int, y2: int, x2: int) -> None:
+
+    def make_move_new_board(self, y1: int, x1: int, y2: int, x2: int) -> None:
         """
         Wykonuje ruch na planszy.
 
@@ -76,9 +77,11 @@ class Board:
             y2 (int): Współrzędna wiersza docelowego.
             x2 (int): Współrzędna kolumny docelowej.
         """
-        board[y2][x2].figure = board[y1][x1].figure
-        board[y1][x1].figure = None
-        return board
+        new_board_state = copy.deepcopy(self.board_state)
+        new_board_state[y2][x2].figure = new_board_state[y1][x1].figure
+        new_board_state[y1][x1].figure = None
+        return new_board_state
+
     def get_regular_moves(self, field):
         """
         Generuje możliwe ruchy dla figury na danym polu (bez uwzględnienia ataków).
