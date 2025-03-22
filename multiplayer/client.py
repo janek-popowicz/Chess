@@ -8,7 +8,10 @@ from engine.engine import *
 from engine.figures import *
 from graphics import *
 
-
+def disconnect():
+    global client
+    client.sendall("exit".encode('utf-8'))
+    client.close()
 
 def connect_to_server():
     """Próbuje połączyć się z serwerem i kończy działanie wątku po sukcesie."""
@@ -112,7 +115,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                client.close()
+                disconnect()
                 pygame.quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
@@ -143,7 +146,7 @@ def main():
                                 client.sendall(message.encode('utf-8'))
                                 if whatAfter == "checkmate":
                                     result = "Szach Mat!"
-                                    winner = "Białas" if turn == 'b' else "Czarnuch"
+                                    winner = "Ty" if turn == 'b' else "Przeciwnik"
                                     running = False
                                 elif whatAfter == "stalemate":
                                     result = "Pat"
@@ -168,6 +171,10 @@ def main():
         try:
             data = client.recv(1024).decode('utf-8')
             if data:
+                if data == "exit":
+                    running = False
+                    result = "Rozłączono"
+                    winner = "Ty"
                 print(f"📩 Otrzymano ruch: {data}")
                 data = data.split()
                 selected_piece = (int(data[0]), int(data[1]))
@@ -234,7 +241,7 @@ def main():
         clock.tick(60)
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
-    client.close()
+    disconnect()
     return
 if __name__ == "__main__":
 

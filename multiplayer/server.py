@@ -25,7 +25,12 @@ def start_server():
     print(f"🟢 Połączono z {addr}")
     client_connected = True  # Informujemy główną pętlę, że można rozpocząć grę
 
-
+def disconnect():
+    global server, conn, addr, client_connected
+    conn.sendall("exit".encode('utf-8'))
+    conn.close()
+    server.close()
+    client_connected = False
 
 
 def waiting_screen(screen, font):
@@ -124,9 +129,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-                pygame.quit()
-                conn.close()
-                server.close()
+                disconnect()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 print(pos)
@@ -180,9 +183,11 @@ def main():
                     running = False
         try:
             data = conn.recv(1024).decode('utf-8')
-            print("i passed data")
             if data:
-                print("Otrzymano ruch! : {data}")
+                if data == "exit":
+                    running = False
+                    result = "Disconnected"
+                    winner = "You"
                 data = data.split()
                 selected_piece = (int(data[0]), int(data[1]))
                 row = int(data[2])
@@ -248,8 +253,7 @@ def main():
         clock.tick(60)
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
-    conn.close()
-    server.close()
+    disconnect()
     return
 if __name__ == "__main__":
 
