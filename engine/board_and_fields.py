@@ -53,6 +53,7 @@ class Board:
         self.incheck = False
         self.moves_numeric = []
         self.moves_algebraic = []
+        self.fen_history = []
 
     def make_move(self, y1: int, x1: int, y2: int, x2: int) -> None:
         """

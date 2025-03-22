@@ -1,5 +1,6 @@
 import engine.figures as figures
 import engine.board_and_fields as board_and_fields
+import engine.fen_operations as fen_operations
 def notation_to_cords(board, notation: str, turn: str):
     """
     Konwertuje notację szachową na współrzędne na planszy.
@@ -112,6 +113,9 @@ Returns:
         main_board.moves_algebraic += [chr(104 - x2) + str(y2+1)]
         if destination_tile.figure:
             main_board.moves_algebraic[-1] = 'x' + main_board.moves_algebraic[-1]
+        main_board.fen_history.append(fen_operations.board_to_fen(main_board.board_state))
+        print(main_board.moves_algebraic)
+        print(main_board.fen_history)
         #Wykonanie roszady
         if destination_tile.figure:
             if destination_tile.figure.type == 'R' and  destination_tile.figure.color == start_tile.figure.color:
@@ -149,6 +153,17 @@ Returns:
     else: 
         print("Nielegalny ruch!")
         return False
+    
+def undoMove(main_board):
+    """Cofa ruch, bazując na fenach zapisanych w historii.
+    """
+    if len(main_board.fen_history) > 1:
+        main_board.board_state = fen_operations.fen_to_board_state(main_board.fen_history[-2])
+        main_board.fen_history.pop()
+        main_board.moves_algebraic.pop()
+        main_board.print_board()
+    else:
+        print("Nie można cofnąć ruchu")
 
 def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
     """

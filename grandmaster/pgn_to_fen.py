@@ -1,5 +1,5 @@
 import re
-
+import engine.engine as engine
 def parse_pgn(pgn_text):
     games = pgn_text.strip().split("\n\n")  # Podział na gry
     extracted_games = []
@@ -28,12 +28,8 @@ def parse_pgn(pgn_text):
         moves = re.findall(r'\d+\.\s*([^\s]+)\s*([^\s]+)?', move_section)
         move_list = [move for pair in moves for move in pair if move]
         
-        extracted_games.append({
-            "grandmaster": grandmaster_color,
-            "moves": move_list
-        })
     
-    return extracted_games
+    return grandmaster_color, move_list
 
 # Przykładowe użycie
 pgn_data = """[Event "Match (active)"]
@@ -54,7 +50,56 @@ bxc6 14.Qb6 Qe7 15.Bd3 Bg6 16.Bxg6 fxg6 17.f3 Ne4 18.fxe4 Qh4+
 Rxd2+ 25.Kc3 Rdxb2 0-1
 """
 
-result = parse_pgn(pgn_data)
-for game in result:
-    print(f"Arcymistrz grał kolorem: {game['grandmaster']}")
-    print("Ruchy:", " ".join(game["moves"]))
+color, list = parse_pgn(pgn_data)
+
+
+import sys
+import os
+
+#wygląda dziwnie ale musi działać
+from engine.board_and_fields import *
+from engine.engine import *
+from engine.figures import *
+from algorithms import evaluation
+from engine.fen_operations import *
+
+def main():
+    running = True
+    main_board = board_and_fields.Board()
+    turn = 'b'
+
+    while running:
+        turn = 'w' if turn == 'b' else 'b'
+        main_board.print_board()
+        main_board.is_in_check(turn)
+        if main_board.incheck:
+            print("Szach!", end=" ")
+        moving = True
+        while moving:
+            print(evaluation.Evaluation(main_board).ocena_materiału())
+            y1,x1,x2,y2 = engine.notation_to_cords(main_board, input("ruch: "), turn)
+            moving = not tryMove(turn, main_board, y1, x1, y2, x2)
+        print(afterMove(turn, main_board, y1, x1, y2, x2))
+        print(board_to_fen(main_board.board_state))
+        print(main_board.moves_algebraic)
+        whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
+        if whatAfter == "promotion":
+            main_board.print_board()
+            choiceOfPromotion = input(f"""Pionek w kolumnie {xForPromotion} dotarł do końca planszy. Wpisz:
+    1 - Aby zmienić go w Skoczka
+    2 - Aby zmienić go w Gońca
+    3 - Aby zmienić go w Wieżę
+    4 - Aby zmienić go w Królową
+                    """)
+            promotion(turn, yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+        if whatAfter == "checkmate":
+            print("Szach Mat!")
+            break
+        elif whatAfter == "stalemate":
+            print("Pat")
+            break
+        else:
+            continue
+    return
+if __name__ == "__main__":
+    main()
