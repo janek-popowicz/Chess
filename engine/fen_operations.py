@@ -34,6 +34,18 @@ main_board = board_and_fields.Board(board_state)
                     'p': figures.Pawn
                 }[piece_type]
                 board_row.append(board_and_fields.Field(7-c, 7-r, piece_class(color)))
+                if piece_type == 'p':
+                    if board_row[-1].figure.color == "w" and 7-r != 1:
+                        board_row[-1].figure.has_moved = True
+                    if board_row[-1].figure.color == "b" and 7-r != 6:
+                        board_row[-1].figure.has_moved = True
+                if piece_type == 'k' and 7-r != 3:
+                    if board_row[-1].figure.color == "w" and 7-r != 0:
+                        board_row[-1].figure.has_moved = True
+                    if board_row[-1].figure.color == "b" and 7-r != 7:
+                        board_row[-1].figure.has_moved = True
+                if piece_type == "r" and board_row[-1].x not in [0,7] and board_row[-1].x not in [0,7]:
+                    board_row[-1].figure.has_moved = True
                 c += 1
         board_row.reverse()
         board_state.append(board_row)
