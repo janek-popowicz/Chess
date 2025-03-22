@@ -114,7 +114,7 @@ Returns:
         main_board.moves_algebraic += [chr(104 - x2) + str(y2+1)]
         if destination_tile.figure:
             main_board.moves_algebraic[-1] = 'x' + main_board.moves_algebraic[-1]
-        main_board.fen_history.append(fen_operations.board_to_fen(main_board.board_state))
+        main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board.board_state))
         print(main_board.moves_algebraic)
         print(main_board.fen_history)
         #Wykonanie roszady
@@ -155,16 +155,18 @@ Returns:
         print("Nielegalny ruch!")
         return False
     
-def undoMove(main_board):
+def undoMove(main_board: board_and_fields.Board) -> bool:
     """Cofa ruch, bazując na fenach zapisanych w historii. Należy zmieniać turn po cofnięciu ruchu!
+    Zwraca True jeżeli operacja się powiodła, False w przeciwnym razie.
     """
     if len(main_board.fen_history) > 1:
         main_board.board_state = fen_operations.fen_to_board_state(main_board.fen_history[-2])
         main_board.fen_history.pop()
         main_board.moves_algebraic.pop()
         main_board.print_board()
+        return True
     else:
-        print("Nie można cofnąć ruchu")
+        return False
 
 def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
     """

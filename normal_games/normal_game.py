@@ -49,9 +49,12 @@ def main():
     clock = pygame.time.Clock()
 
     # Teksty interfejsu
-    texts = ((font.render(f"Kolejka: białe", True, WHITE),(8*SQUARE_SIZE+10, 10)),
-            (font.render(f"Kolejka: czarne", True, WHITE), (8*SQUARE_SIZE+10, 10)),
-            (font.render(f"Wyjście", True, GRAY), (8*SQUARE_SIZE+10, height-50)))
+    texts = (
+        (font.render(f"Kolejka: białe", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"Kolejka: czarne", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"Wyjście", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
+        (font.render(f"Cofnij ruch", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Dodano przycisk "Cofnij ruch"
+    )
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
     # Czasy graczy
@@ -61,8 +64,8 @@ def main():
     result = ""
     winner = ""
     in_check = None
+
     while running:
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -93,7 +96,7 @@ def main():
                                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "checkmate":
                                     result = "Szach Mat!"
-                                    winner = "Białas" if turn == 'b' else "Czarnuch"
+                                    winner = "Białe" if turn == 'b' else "Czarne"
                                     running = False
                                 elif whatAfter == "stalemate":
                                     result = "Pat"
@@ -109,9 +112,15 @@ def main():
                             selected_piece = (row, col)
                     else:
                         selected_piece = (row, col)
+                # Obsługa przycisku "Wyjście"
                 if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
                     running = False
                     return
+                # Obsługa przycisku "Cofnij ruch"
+                if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and height - 100 <= pos[1] < height - 80:
+                    if undoMove(main_board):  # Cofnięcie ruchu
+                        turn = 'w' if turn == 'b' else 'b'  # Zmiana tury
+                        start_time = time.time()  # Reset czasu tury
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False

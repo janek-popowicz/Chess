@@ -97,16 +97,28 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_che
         in_check (str): Kolor gracza, którego król jest szachowany ('w' lub 'b').
         check_text (pygame.Surface): Tekst informujący o szachu.
     """
-    pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
+    # Rysowanie tła interfejsu
+    pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE * 8, 0, 200, SQUARE_SIZE * 8))
+
+    # Wyświetlanie informacji o aktualnej turze
     if turn == 'w':
         screen.blit(texts[0][0], texts[0][1])
     else:
         screen.blit(texts[1][0], texts[1][1])
-    screen.blit(player_times[0][0], player_times[0][1])
-    screen.blit(player_times[1][0], player_times[1][1])
+
+    # Wyświetlanie czasów graczy
+    screen.blit(player_times[0][0], player_times[0][1])  # Czas białego gracza
+    screen.blit(player_times[1][0], player_times[1][1])  # Czas czarnego gracza
+
+    # Wyświetlanie przycisku "Wyjście"
     screen.blit(texts[2][0], texts[2][1])
+
+    # Wyświetlanie przycisku "Cofnij ruch"
+    screen.blit(texts[3][0], texts[3][1])
+
+    # Wyświetlanie informacji o szachu
     if in_check:
-        screen.blit(check_text, (8*SQUARE_SIZE+10, 150))
+        screen.blit(check_text, (8 * SQUARE_SIZE + 10, 150))
 
 def format_time(seconds):
     """

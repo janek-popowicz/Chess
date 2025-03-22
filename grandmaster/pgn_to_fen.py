@@ -77,7 +77,10 @@ def main():
         moving = True
         while moving:
             print(evaluation.Evaluation(main_board).ocena_materiału())
-            y1,x1,x2,y2 = engine.notation_to_cords(main_board, input("ruch: "), turn)
+            try:
+                y1,x1,y2,x2 = engine.notation_to_cords(main_board, input("ruch: "), turn)
+            except:
+                print("Niepoprawny ruch")
             moving = not tryMove(turn, main_board, y1, x1, y2, x2)
         print(afterMove(turn, main_board, y1, x1, y2, x2))
         print(board_to_fen(main_board.board_state))

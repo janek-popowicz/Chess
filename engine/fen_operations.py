@@ -41,7 +41,8 @@ main_board = board_and_fields.Board(board_state)
     return board_state
 
 def board_to_fen(board_state:list)->str:
-    """Z listy obiektów zwraca fena.
+    """Z listy obiektów zwraca fena. Zastosowanie: tylko dla board_makera, nie dla czegokolwiek innego, bo:
+    jest normalnie, a w normalnych trybach gry board jest odwrócony
 
     Args:
         board_state (list): board state
@@ -69,4 +70,38 @@ def board_to_fen(board_state:list)->str:
         fen += "/"
     fen = fen[:-1]  # Remove the trailing slash
     fen += " w - - 0 1"  # Add default FEN suffix
+    return fen
+
+
+def board_to_fen_inverted(board_state: list) -> str:
+    """Z listy obiektów zwraca FEN, uwzględniając odwrócenie planszy.
+    Stosować dla trybów gry, gdzie plansza jest odwrócona,
+    czyli wszystkich poza custom board makerem.
+
+    Args:
+        board_state (list): board state
+
+    Returns:
+        str: FEN
+    """
+    fen = ""
+    for row in reversed(board_state):  # Odwracamy kolejność wierszy
+        empty_count = 0
+        for field in reversed(row):  # Odwracamy kolejność pól w wierszu
+            if field.figure is None:
+                empty_count += 1
+            else:
+                if empty_count > 0:
+                    fen += str(empty_count)
+                    empty_count = 0
+                piece = field.figure
+                piece_char = piece.type[0].upper() if piece.type != 'pawn' else 'P'
+                if piece.color == 'b':
+                    piece_char = piece_char.lower()
+                fen += piece_char
+        if empty_count > 0:
+            fen += str(empty_count)
+        fen += "/"
+    fen = fen[:-1]  # Usuwamy końcowy ukośnik
+    fen += " w - - 0 1"  # Dodajemy domyślny FEN suffix
     return fen
