@@ -119,7 +119,7 @@ def main():
                 # Obsługa przycisku "Cofnij ruch"
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and height - 100 <= pos[1] < height - 80:
                     if undoMove(main_board):  # Cofnięcie ruchu
-                        #turn = 'w' if turn == 'b' else 'b'  # Zmiana tury
+                        turn = 'w' if turn == 'b' else 'b'  # Zmiana tury
                         start_time = time.time()  # Reset czasu tury
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
