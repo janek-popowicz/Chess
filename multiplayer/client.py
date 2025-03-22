@@ -80,6 +80,19 @@ def waiting_screen(screen, font):
         dots = "." * ((len(dots) + 1) % 4)
         clock.tick(30)  # Ograniczamy liczbę odświeżeń do 30 FPS
 
+def request_undo(screen, SQUARE_SIZE):
+    """
+    Wyświetla okno dialogowe z pytaniem, czy gracz chce cofnąć ruch.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+
+    Returns:
+        bool: True, jeśli gracz chce cofnąć ruch, False w przeciwnym razie.
+    """
+    return confirm_undo_dialog(screen, SQUARE_SIZE)
+
 # Funkcja główna
 def main():
     global HOST, PORT, client
@@ -136,9 +149,12 @@ def main():
     clock = pygame.time.Clock()
 
     # Teksty interfejsu
-    texts = ((font.render(f"Kolejka: białe", True, WHITE),(8*SQUARE_SIZE+10, 10)),
-            (font.render(f"Kolejka: czarne", True, WHITE), (8*SQUARE_SIZE+10, 10)),
-            (font.render(f"Wyjście", True, GRAY), (8*SQUARE_SIZE+10, height-50)))
+    texts = (
+        (font.render(f"Kolejka: białe", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"Kolejka: czarne", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"Wyjście", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
+        (font.render(f"Cofnij ruch", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Dodano przycisk "Cofnij ruch"
+    )
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
     # Czasy graczy
@@ -200,6 +216,11 @@ def main():
                             selected_piece = (row, col)
                     else:
                         selected_piece = (row, col)
+                # Obsługa przycisku "Cofnij ruch"
+                if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and height - 100 <= pos[1] < height - 80:
+                    if request_undo(screen, SQUARE_SIZE):
+                        client.sendall("undo_request".encode('utf-8'))
+                        print("📤 Wysłano żądanie cofnięcia ruchu.")
                 if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80: #kliknięcie wyjścia
                     disconnect()
                     running = False
@@ -215,42 +236,60 @@ def main():
                     result = "Rozłączono"
                     winner = "Ty"
                     break
-                print(f"📩 Otrzymano ruch: {data}")
-                data = data.split()
-                selected_piece = (int(data[0]), int(data[1]))
-                row = int(data[2])
-                col = int(data[3])
-                if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                    draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
-                    draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
-                    move_time = time.time() - start_time
-                    if turn == 'w':
-                        white_time += move_time
+                elif data == "undo_request":
+                    if confirm_undo_dialog(screen, SQUARE_SIZE):
+                        client.sendall("undo_confirm".encode('utf-8'))
+                        undoMove(main_board)
+                        turn = 'w' if turn == 'b' else 'b'
+                        print("✅ Cofnięto ruch.")
+                        start_time = time.time()
                     else:
-                        black_time += move_time
+                        client.sendall("undo_reject".encode('utf-8'))
+                elif data == "undo_confirm":
+                    undoMove(main_board)
                     turn = 'w' if turn == 'b' else 'b'
-                    
-                    #sprawdzanie co po ruchu
-                    if selected_piece!=None:
-                        whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
-                        if whatAfter == "promotion":
-                            choiceOfPromotion = data[4]
-                            promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
-                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
-                        if whatAfter == "checkmate":
-                            result = "Szach Mat!"
-                            winner = "Białas" if turn == 'b' else "Czarnuch"
-                            running = False
-                        elif whatAfter == "stalemate":
-                            result = "Pat"
-                            winner = "Remis"
-                            running = False
-                        elif whatAfter == "check":
-                            in_check = turn
-                        else:
-                            in_check = None
-                    selected_piece = None
+                    print("✅ Cofnięto ruch.")
                     start_time = time.time()
+                elif data == "undo_reject":
+                    print("❌ Cofnięcie ruchu zostało odrzucone.")
+                else:
+                    print(f"📩 Otrzymano ruch: {data}")
+                    data = data.split()
+                    selected_piece = (int(data[0]), int(data[1]))
+                    row = int(data[2])
+                    col = int(data[3])
+                    if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
+                        draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
+                        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+                        move_time = time.time() - start_time
+                        if turn == 'w':
+                            white_time += move_time
+                        else:
+                            black_time += move_time
+                        turn = 'w' if turn == 'b' else 'b'
+                        
+                        #sprawdzanie co po ruchu
+                        if selected_piece!=None:
+                            whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
+                            if whatAfter == "promotion":
+                                choiceOfPromotion = data[4]
+                                promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+                                whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                            if whatAfter == "checkmate":
+                                result = "Szach Mat!"
+                                winner = "Białas" if turn == 'b' else "Czarnuch"
+                                running = False
+                            elif whatAfter == "stalemate":
+                                result = "Pat"
+                                winner = "Remis"
+                                running = False
+                            elif whatAfter == "check":
+                                in_check = turn
+                            else:
+                                in_check = None
+                        selected_piece = None
+                        start_time = time.time()
+                    
                 data = None
         except socket.timeout:
             pass
