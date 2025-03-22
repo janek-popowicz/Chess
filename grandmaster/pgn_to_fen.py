@@ -67,7 +67,7 @@ def main():
     running = True
     main_board = board_and_fields.Board()
     turn = 'b'
-
+    main_board.board_state = fen_to_board_state("1r4k1/2Q3pp/p1p1p1p1/3p4/N2P4/P2KP1P1/1P1B1rqP/2R4R w - - 0 1")
     while running:
         turn = 'w' if turn == 'b' else 'b'
         main_board.print_board()
@@ -78,10 +78,13 @@ def main():
         while moving:
             print(evaluation.Evaluation(main_board).ocena_materiału())
             try:
-                y1,x1,y2,x2 = engine.notation_to_cords(main_board, input("ruch: "), turn)
-            except:
-                print("Niepoprawny ruch")
-            moving = not tryMove(turn, main_board, y1, x1, y2, x2)
+                cords=engine.notation_to_cords(main_board, input("ruch: "), turn)
+                y1,x1,y2,x2 = cords
+                moving = not tryMove(turn, main_board, y1, x1, y2, x2)
+            except ValueError:
+                print("Niepoprawny ruch, ",cords)
+            # except IndexError:
+            #     print("Brak notacji")
         print(afterMove(turn, main_board, y1, x1, y2, x2))
         print(board_to_fen(main_board.board_state))
         print(main_board.moves_algebraic)

@@ -30,13 +30,13 @@ def notation_to_cords(board, notation: str, turn: str):
             else:
                 king_pos = (7,3)
             if len(notation) == 3:
-                direction = -1
+                rook_x = 0
             else:
-                direction = 1
-            return (king_pos[0],king_pos[1],king_pos[0],king_pos+2*direction)
+                rook_x = 7                
+            return (king_pos[0],king_pos[1],king_pos[0],rook_x)
         #Ruch dla pozostałych figur
         else:
-            movescheme = moveschemes[notation]    
+            movescheme = moveschemes[notation[0]]    
     #Ruch dla pionków
     else:
         notation = "p" + notation
@@ -82,15 +82,26 @@ def notation_to_cords(board, notation: str, turn: str):
                                     #sprawdzamy specjalny przypadek - en passant
                                     if target_field.figure and field.figure.can_enpassant:
                                         candidate_figures.append((field.y,field.x))
-                                else:
-                                    if field_to_check.figure and "x" in notation:
-                                        candidate_figures.append((field.y,field.x))
-                                    elif field_to_check.figure == None and "x" not in notation:
-                                        candidate_figures.append((field.y,field.x))
+                                if field_to_check.figure and "x" in notation:
+                                    candidate_figures.append((field.y,field.x))
+                                elif field_to_check.figure == None and "x" not in notation:
+                                    candidate_figures.append((field.y,field.x))
+                            if field_to_check.figure:
+                                break
     if len(candidate_figures) > 1:
-        return "Nie wykonano ruchu, potrzeba więcej informacji"
-    
-    elif len(candidate_figures) == 1:
+        if notation[1].isdigit():
+            spec = notation[1] -1
+            for figure in candidate_figures():
+                if figure[0] != spec:
+                    candidate_figures.remove(figure)
+        else:
+            spec = 7-(ord(notation[1]) - 97)
+            for figure in candidate_figures:
+                if figure[1] != spec:
+                    candidate_figures.remove(figure)
+        if len(candidate_figures) > 1:
+            return "Nie wykonano ruchu, potrzeba więcej informacji"
+    if len(candidate_figures) == 1:
         return (candidate_figures[0][0],candidate_figures[0][1],target_field.y,target_field.x)
     elif len(candidate_figures) == 0:
         return "Nie wykonano ruchu, nie ma figury zdolnej do tego ruchu"
@@ -115,7 +126,7 @@ Returns:
         color_to_check = 'b' if start_tile.figure.color == 'w' else 'b'
         main_board.moves_algebraic += [chr(104 - x2) + str(y2+1)]
         if destination_tile.figure:
-            main_board.moves_algebraic[-1] = 'x' + main_board.moves_algebraic[-1]
+            main_board.moves_algebraic[-1] = chr(104 - x2) +  'x' + main_board.moves_algebraic[-1]
         main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board.board_state))
         print(main_board.moves_algebraic)
         print(main_board.fen_history)
@@ -152,6 +163,8 @@ Returns:
         main_board.is_in_check(color_to_check)
         if main_board.incheck:
             main_board.moves_algebraic[-1] += '+'
+        if destination_tile.figure.type != 'p':
+            main_board.moves_algebraic[-1] = destination_tile.figure.type + main_board.moves_algebraic[-1]
         return True
     else: 
         print("Nielegalny ruch!")
@@ -223,7 +236,7 @@ def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
         main_board.is_in_check(turn)
         if main_board.incheck == True:
             return ("check",0,0)
-        return(1,1,1)
+    return(1,1,1)
 
 
 
