@@ -61,6 +61,7 @@ def notation_to_cords(board, notation: str, turn: str):
                         if "x" in notation:
                             directions_to_check[0] = (0,0,0)
                             directions_to_check[1] = (0,0,0)
+                        else:
                             directions_to_check[2] = (0,0,0)
                             directions_to_check[3] = (0,0,0)
                     #Sprawdzanie, czy pole docelowe jest w ruchach danej figury
@@ -85,6 +86,7 @@ def notation_to_cords(board, notation: str, turn: str):
                                         candidate_figures.append((field.y,field.x))
     if len(candidate_figures) > 1:
         return "Nie wykonano ruchu, potrzeba więcej informacji"
+    
     elif len(candidate_figures) == 1:
         return (candidate_figures[0][0],candidate_figures[0][1],target_field.y,target_field.x)
     elif len(candidate_figures) == 0:
