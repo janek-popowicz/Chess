@@ -156,7 +156,7 @@ Returns:
         return False
     
 def undoMove(main_board):
-    """Cofa ruch, bazując na fenach zapisanych w historii.
+    """Cofa ruch, bazując na fenach zapisanych w historii. Należy zmieniać turn po cofnięciu ruchu!
     """
     if len(main_board.fen_history) > 1:
         main_board.board_state = fen_operations.fen_to_board_state(main_board.fen_history[-2])
