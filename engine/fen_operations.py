@@ -34,6 +34,7 @@ main_board = board_and_fields.Board(board_state)
                     'p': figures.Pawn
                 }[piece_type]
                 board_row.append(board_and_fields.Field(7-c, 7-r, piece_class(color)))
+                #Do linii 49 włącznie jest do zamienienia
                 if piece_type == 'p':
                     if board_row[-1].figure.color == "w" and 7-r != 1:
                         board_row[-1].figure.has_moved = True
