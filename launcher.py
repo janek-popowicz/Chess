@@ -41,9 +41,9 @@ def main():
         "Board maker",
         "Ustawienia",
         "Wyjście",
-        "Test mode",
-        "Seerwer",
-        "klient"
+        "Tryb terminalowy",
+        "Serwer",
+        "Klient"
     ]
 
     selected_option = 0

@@ -78,7 +78,7 @@ def notation_to_cords(board, notation: str, turn: str):
                             if field_to_check == target_field:
                                 if notation[2] == "x" and notation[0] == "p":
                                     #sprawdzamy specjalny przypadek - en passant
-                                    if target_field.figure != None and field.figure.can_enpassant == True:
+                                    if target_field.figure and field.figure.can_enpassant:
                                         candidate_figures.append((field.y,field.x))
                                 else:
                                     if field_to_check.figure and "x" in notation:
@@ -140,7 +140,7 @@ Returns:
             if main_board.board_state[start_tile.y][destination_tile.x].figure:
                 if main_board.board_state[start_tile.y][destination_tile.x].figure.type == 'p':
                     if start_tile.figure.can_enpassant:
-                        start_tile.figure.can_enpassant = False
+                        start_tile.figure.can_enpassant = 0
                         main_board.board_state[start_tile.y][destination_tile.x].figure = None
                         main_board.moves_algebraic[-1] = str(start_tile.x) + main_board.moves_algebraic[-1]
         main_board.make_move(y1, x1, y2, x2)
@@ -191,8 +191,8 @@ def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
                     available_moves+=main_board.get_legal_moves(main_board.board_state[y][x],turn)
                 if main_board.board_state[y][x].figure.type == 'p':
                     #Sprawdzanie flag enpassant
-                    if main_board.board_state[y][x].figure.can_enpassant == True:
-                        main_board.board_state[y][x].figure.can_enpassant = False
+                    if main_board.board_state[y][x].figure.can_enpassant:
+                        main_board.board_state[y][x].figure.can_enpassant = 0
     #Sprawdzanie enpassant
     if destination_tile.figure:
         if destination_tile.figure.type == 'p' :
@@ -203,7 +203,7 @@ def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
                         if main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure:
                             if (main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.type == 'p' 
                             and main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.color != destination_tile.figure.color):
-                                main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.can_enpassant = True
+                                main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.can_enpassant = -direction_x
                     direction_x = 1
         #Sprawdzanie promocji pionków
             if destination_tile.y in [0,7]:

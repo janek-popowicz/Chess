@@ -146,11 +146,8 @@ class Board:
                 field_to_check = self.board_state[field_to_check_y][field_to_check_x]
                 #Uwzględnienie enpassant
                 if field.figure.type == 'p':
-                        if field.figure.can_enpassant == True:
-                            if self.board_state[field.y][field.x + field.figure.attack_scheme[0][0]].figure:
-                                possible_cords.append(((field.y + field.figure.attack_scheme[0][1],field.x + field.figure.attack_scheme[0][0])))
-                            else:
-                                possible_cords.append((field.y + field.figure.attack_scheme[1][1],field.x + field.figure.attack_scheme[1][0]))
+                        if field.figure.can_enpassant:
+                                possible_cords.append(((field.y+direction[1],field.x + field.figure.can_enpassant)))
                 #Sprawdzanie, czy na polu do zbicia jest król
                 if field_to_check.figure: 
                     if field_to_check.figure.color != field.figure.color:
