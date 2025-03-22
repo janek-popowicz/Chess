@@ -18,7 +18,7 @@ class Pawn():
         self.type = 'p'
         self.color = color
         self.has_moved = False
-        self.can_enpassant = 0
+        self.can_enpassant = 0 # Zmienna can_enpassant przechowuje kierunek możliwego enpassant na osi x dla danego pionka, 0 oznacza brak takiej możliwości
         if color == 'w': 
             self.move_scheme = [(0, 1, 1)]
             self.attack_scheme = [(1, 1, 1), (-1, 1, 1)]

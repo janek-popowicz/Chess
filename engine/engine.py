@@ -1,6 +1,7 @@
 import engine.figures as figures
 import engine.board_and_fields as board_and_fields
 import engine.fen_operations as fen_operations
+import copy
 def notation_to_cords(board, notation: str, turn: str):
     """
     Konwertuje notację szachową na współrzędne na planszy.
@@ -35,14 +36,14 @@ def notation_to_cords(board, notation: str, turn: str):
             return (king_pos[0],king_pos[1],king_pos[0],king_pos+2*direction)
         #Ruch dla pozostałych figur
         else:
-            directions_to_check = moveschemes[notation]    
+            movescheme = moveschemes[notation]    
     #Ruch dla pionków
     else:
         notation = "p" + notation
         if turn == 'w':
-            directions_to_check = [(1,0,1), (2,0,1),(1,1,1), (1,-1,1)]
+            movescheme = [(1,0,1), (2,0,1),(1,1,1), (1,-1,1)]
         else:
-            directions_to_check = [(-1,0,1), (-2,0,1),(-1,1,1), (-1,-1,1)]
+            movescheme = [(-1,0,1), (-2,0,1),(-1,1,1), (-1,-1,1)]
     #Dekodowanie koordynatów
     for i in range(len(notation)):
         if notation[i].isdigit():
@@ -56,6 +57,7 @@ def notation_to_cords(board, notation: str, turn: str):
             if field.figure:
                 if field.figure.color == turn and field.figure.type == notation[0]:
                     #Dostosowanie pól do sprawdzenia dla pionków
+                    directions_to_check = copy.copy(movescheme)
                     if notation[0] == 'p':
                         if field.figure.has_moved:
                             directions_to_check[1] = (0,0,0) #zamiast usuwać ten kierunek, ustawiamy go na (0,0,0), aby zachować spójność indeksów
