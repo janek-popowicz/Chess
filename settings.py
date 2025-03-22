@@ -37,7 +37,7 @@ def main():
     # Ikony figur
     tk.Label(root, text="Ikony figur").grid(row=2, column=0, padx=10, pady=10)
     icons = tk.StringVar(value=config["icons"])
-    ttk.Combobox(root, textvariable=icons, values=["classic", "modern", "classic_2"]).grid(row=2, column=1, padx=10, pady=10)
+    ttk.Combobox(root, textvariable=icons, values=["classic", "modern", "classic_2", "military_symbols"]).grid(row=2, column=1, padx=10, pady=10)
 
     # Podświetlenie figur przeciwnika
     highlight_enemy = tk.BooleanVar(value=config["highlight_enemy"])
