@@ -1,4 +1,3 @@
-
 # SERWER JEST CZARNY A KLIENT BIAŁY
 import pygame
 import time
@@ -33,12 +32,37 @@ def disconnect():
     client_connected = False
 
 
-def waiting_screen(screen, font):
-    """Animacja oczekiwania na klienta"""
+def get_server_ip():
+    """
+    Pobiera adres IP serwera.
+
+    Returns:
+        str: Adres IP serwera.
+    """
+    hostname = socket.gethostname()
+    server_ip = socket.gethostbyname(hostname)
+    return server_ip
+
+
+def waiting_screen(screen, font, server_ip):
+    """
+    Animacja oczekiwania na klienta z wyświetlaniem adresu IP serwera.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        font (pygame.Font): Czcionka do renderowania tekstu.
+        server_ip (str): Adres IP serwera.
+    """
+    global start_time  # Dodajemy globalną zmienną start_time
     dots = ""
     clock = pygame.time.Clock()
     while not client_connected:
         screen.fill((0, 0, 0))
+        # Wyświetlanie adresu IP serwera
+        ip_text = font.render(f"Adres IP serwera: {server_ip}", True, (255, 255, 255))
+        screen.blit(ip_text, (250, 200))
+
+        # Wyświetlanie animacji oczekiwania
         text = font.render(f"Oczekiwanie na gracza{dots}", True, (255, 255, 255))
         screen.blit(text, (250, 300))
         pygame.display.flip()
@@ -50,17 +74,21 @@ def waiting_screen(screen, font):
         time.sleep(0.5)
         clock.tick(10)
 
+    # Ustawiamy start_time po połączeniu klienta
+    start_time = time.time()
+
 
 # Funkcja główna
 def main():
     global conn
-    global HOST, PORT, server, conn, addr, client_connected
+    global HOST, PORT, server, conn, addr, client_connected, start_time
     HOST = '0.0.0.0'
     PORT = 12345
     server = None
     conn = None
     addr = None
     client_connected = False
+    start_time = None  # Inicjalizacja zmiennej start_time
 
     # Tworzymy wątek serwera (działa w tle)
     server_thread = threading.Thread(target=start_server, daemon=True)
@@ -110,18 +138,21 @@ def main():
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
     # Czasy graczy
-    start_time = time.time()
+    # start_time = time.time()
     black_time = 0
     white_time = 0
     result = ""
     winner = ""
     in_check = None
 
-    # Wyświetlamy animację oczekiwania
-    waiting_screen(screen, font)
+    # Pobieranie adresu IP serwera
+    server_ip = get_server_ip()
+
+    # Wyświetlamy animację oczekiwania z adresem IP
+    waiting_screen(screen, font, server_ip)
 
     # Po podłączeniu klienta ustawiamy timeout
-    conn.settimeout(0.1)
+    conn.settimeout(0.05)
 
     while running:
         
@@ -176,6 +207,7 @@ def main():
                     else:
                         selected_piece = (row, col)
                 if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
+                    disconnect()
                     running = False
                     return
             elif event.type == pygame.KEYDOWN:
@@ -188,6 +220,7 @@ def main():
                     running = False
                     result = "Disconnected"
                     winner = "You"
+                    break
                 data = data.split()
                 selected_piece = (int(data[0]), int(data[1]))
                 row = int(data[2])

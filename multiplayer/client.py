@@ -2,11 +2,12 @@ import pygame
 import time
 import socket
 import threading
-#wygląda dziwnie ale musi działać
 from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from graphics import *
+
+server_connected_event = threading.Event()  # Zamiast zmiennej server_connected
 
 def disconnect():
     global client
@@ -15,46 +16,75 @@ def disconnect():
 
 def connect_to_server():
     """Próbuje połączyć się z serwerem i kończy działanie wątku po sukcesie."""
-    global client, server_connected
+    global client
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
-    while not server_connected:
+    while not server_connected_event.is_set():  # Sprawdzamy, czy połączenie zostało nawiązane
         try:
             print("🔵 Próba połączenia z serwerem...")
             client.connect((HOST, PORT))
             print("🟢 Połączono z serwerem!")
-            server_connected = True
+            server_connected_event.set()  # Ustawiamy flagę, że połączenie zostało nawiązane
         except (socket.error, ConnectionRefusedError):
-            time.sleep(1)  # Czekamy 1 sekundę przed kolejną próbą
+            time.sleep(0.1)  # Skracamy czas oczekiwania na kolejną próbę
 
+def ip_input_screen(screen, font):
+    """
+    Wyświetla ekran wejściowy do wpisania adresu IP serwera.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        font (pygame.Font): Czcionka do renderowania tekstu.
+
+    Returns:
+        str: Wpisany adres IP.
+    """
+    input_active = True
+    ip_address = ""
+    clock = pygame.time.Clock()
+
+    while input_active:
+        screen.fill((0, 0, 0))
+        prompt_text = font.render("Wpisz adres IP serwera:", True, (255, 255, 255))
+        input_text = font.render(ip_address, True, (255, 255, 255))
+        screen.blit(prompt_text, (250, 200))
+        screen.blit(input_text, (250, 300))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:  # Zatwierdzenie adresu IP
+                    input_active = False
+                elif event.key == pygame.K_BACKSPACE:  # Usuwanie znaków
+                    ip_address = ip_address[:-1]
+                else:
+                    ip_address += event.unicode  # Dodawanie znaków
+
+        clock.tick(30)
+
+    return ip_address
 
 def waiting_screen(screen, font):
     """Animacja łączenia się z serwerem."""
     dots = ""
     clock = pygame.time.Clock()
-    while not server_connected:
+    while not server_connected_event.is_set():  # Sprawdzamy flagę zamiast zmiennej
         screen.fill((0, 0, 0))
         text = font.render(f"Łączenie z serwerem{dots}", True, (255, 255, 255))
         screen.blit(text, (250, 300))
         pygame.display.flip()
 
         dots = "." * ((len(dots) + 1) % 4)
-        time.sleep(0.5)
-        clock.tick(0.1)
-
+        clock.tick(30)  # Ograniczamy liczbę odświeżeń do 30 FPS
 
 # Funkcja główna
 def main():
-    global HOST, PORT, client, server_connected
-    HOST = '127.0.0.1'  # Tutaj wpisz IP serwera
+    global HOST, PORT, client
     PORT = 12345
     client = None
-    server_connected = False
-
-    # Tworzymy wątek klienta (próbuje się połączyć w tle)
-    client_thread = threading.Thread(target=connect_to_server, daemon=True)
-    client_thread.start()
-
 
     pygame.init()
     # Ładowanie konfiguracji
@@ -69,6 +99,21 @@ def main():
     icon_logo = pygame.image.load('program_logo.png')
     pygame.display.set_icon(icon_logo)
 
+    # Czcionka
+    font = pygame.font.Font(None, 36)
+
+    # Wyświetlenie ekranu do wpisania adresu IP
+    HOST = ip_input_screen(screen, font)
+
+    # Tworzymy wątek klienta (próbuje się połączyć w tle)
+    client_thread = threading.Thread(target=connect_to_server, daemon=True)
+    client_thread.start()
+
+    # Wyświetlenie ekranu oczekiwania na połączenie
+    waiting_screen(screen, font)
+
+    client.settimeout(0.05)
+
     # Kolory
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
@@ -76,9 +121,6 @@ def main():
     YELLOW = pygame.Color("yellow")
     HIGHLIGHT_MOVES = (100, 200, 100)
     HIGHLIGHT_TAKES = (147, 168, 50)
-
-    # Czcionka
-    font = pygame.font.Font(None, 36)
 
     # Ładowanie ikon figur
     icon_type = config["icons"]
@@ -98,10 +140,6 @@ def main():
             (font.render(f"Kolejka: czarne", True, WHITE), (8*SQUARE_SIZE+10, 10)),
             (font.render(f"Wyjście", True, GRAY), (8*SQUARE_SIZE+10, height-50)))
     check_text = font.render("Szach!", True, pygame.Color("red"))
-
-    waiting_screen(screen, font)
-
-    client.settimeout(0.2)
 
     # Czasy graczy
     start_time = time.time()
@@ -162,7 +200,8 @@ def main():
                             selected_piece = (row, col)
                     else:
                         selected_piece = (row, col)
-                if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
+                if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80: #kliknięcie wyjścia
+                    disconnect()
                     running = False
                     return
             elif event.type == pygame.KEYDOWN:
@@ -175,6 +214,7 @@ def main():
                     running = False
                     result = "Rozłączono"
                     winner = "Ty"
+                    break
                 print(f"📩 Otrzymano ruch: {data}")
                 data = data.split()
                 selected_piece = (int(data[0]), int(data[1]))
@@ -243,6 +283,6 @@ def main():
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
     disconnect()
     return
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     main()
