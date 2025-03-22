@@ -1,4 +1,4 @@
 import algorithms.minimax as minimax
 
 
-minimax.main()
+move = minimax.Minimax.get_best_move()
