@@ -230,3 +230,58 @@ def end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, widt
                 pos = pygame.mouse.get_pos()
                 if pos[0] > SQUARE_SIZE*8 and pos[1] >= height-80:
                     return
+
+
+def confirm_undo_dialog(screen, SQUARE_SIZE: int) -> bool:
+    """
+    Wyświetla okno dialogowe z pytaniem, czy użytkownik zgadza się na cofnięcie ruchu.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+
+    Returns:
+        bool: True, jeśli użytkownik zaakceptuje cofnięcie ruchu, False w przeciwnym razie.
+    """
+    font = pygame.font.Font(None, 36)
+
+    # Tekst pytania
+    dialog_text = "Czy zgadzasz się na cofnięcie ruchu?"
+    dialog = font.render(dialog_text, True, pygame.Color("white"))
+
+    # Opcje
+    options = ["Tak", "Nie"]
+    option_rects = []
+    for i, option in enumerate(options):
+        text = font.render(option, True, pygame.Color("white"))
+        rect = text.get_rect(center=(SQUARE_SIZE * 4, SQUARE_SIZE * (3 + i)))
+        option_rects.append((text, rect))
+
+    while True:
+        screen.fill(pygame.Color("black"))
+        screen.blit(dialog, (SQUARE_SIZE * 2, SQUARE_SIZE * 2))
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Rysowanie opcji
+        for i, (text, rect) in enumerate(option_rects):
+            if rect.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, pygame.Color("yellow"), rect.inflate(10, 10), 2)
+            screen.blit(text, rect)
+
+        pygame.display.flip()
+
+        # Obsługa zdarzeń
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for i, (text, rect) in enumerate(option_rects):
+                    if rect.collidepoint(pos):
+                        return i == 0  # Zwraca True dla "Tak" (pierwsza opcja), False dla "Nie" (druga opcja)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_y:  # Klawisz "Y" dla "Tak"
+                    return True
+                elif event.key == pygame.K_n:  # Klawisz "N" dla "Nie"
+                    return False

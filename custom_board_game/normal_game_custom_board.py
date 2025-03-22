@@ -63,9 +63,12 @@ def main():
     clock = pygame.time.Clock()
 
     # Teksty interfejsu
-    texts = ((font.render(f"Kolejka: białe", True, WHITE),(8*SQUARE_SIZE+10, 10)),
-            (font.render(f"Kolejka: czarne", True, WHITE), (8*SQUARE_SIZE+10, 10)),
-            (font.render(f"Wyjście", True, GRAY), (8*SQUARE_SIZE+10, height-50)))
+    texts = (
+        (font.render(f"Kolejka: białe", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"Kolejka: czarne", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"Wyjście", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
+        (font.render(f"Cofnij ruch", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Dodano przycisk "Cofnij ruch"
+    )
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
     # Czasy graczy
@@ -76,7 +79,6 @@ def main():
     winner = ""
     in_check = None
     while running:
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -96,16 +98,16 @@ def main():
                                 black_time += move_time
                             turn = 'w' if turn == 'b' else 'b'
                             
-                            #sprawdzanie co po ruchu
+                            # Sprawdzanie co po ruchu
                             if selected_piece:
-                                whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
+                                whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "promotion":
                                     choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
                                     promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "checkmate":
                                     result = "Szach Mat!"
-                                    winner = "Białas" if turn == 'b' else "Czarnuch"
+                                    winner = "Białe" if turn == 'b' else "Czarne"
                                     running = False
                                 elif whatAfter == "stalemate":
                                     result = "Pat"
@@ -121,9 +123,16 @@ def main():
                             selected_piece = (row, col)
                     else:
                         selected_piece = (row, col)
-                if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
+                # Obsługa przycisku "Wyjście"
+                if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and pos[1] >= height - 80:
                     running = False
                     return
+                # Obsługa przycisku "Cofnij ruch"
+                if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and height - 100 <= pos[1] < height - 80:
+                    if confirm_undo_dialog(screen, SQUARE_SIZE):
+                        if undoMove(main_board):  # Cofnięcie ruchu
+                            turn = 'w' if turn == 'b' else 'b'  # Zmiana tury
+                            start_time = time.time()  # Reset czasu tury
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
@@ -136,14 +145,16 @@ def main():
             current_black_time = black_time + (current_time - start_time)
             current_white_time = white_time
 
-        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn=='w' else GRAY),(8*SQUARE_SIZE+10,height - 150)),
-                             (font.render(format_time(current_black_time), True, YELLOW if turn=='b' else GRAY),(8*SQUARE_SIZE+10,80)))
+        player_times_font = (
+            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), (8 * SQUARE_SIZE + 10, height - 150)),
+            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), (8 * SQUARE_SIZE + 10, 80)),
+        )
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
-        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
         try:
-            if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
-                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+            if config["highlight_enemy"] or main_board.get_piece(selected_piece[0], selected_piece[1])[0] == turn:
+                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]], SQUARE_SIZE, main_board, HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
         except TypeError:
             pass
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
