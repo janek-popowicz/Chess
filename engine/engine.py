@@ -27,7 +27,7 @@ def notation_to_cords(board, notation: str, turn: str):
             if turn == 'w':
                 king_pos = (0,3)
             else:
-                king_pos = (0,3)
+                king_pos = (7,3)
             if len(notation) == 3:
                 direction = -1
             else:
@@ -58,13 +58,13 @@ def notation_to_cords(board, notation: str, turn: str):
                     #Dostosowanie pól do sprawdzenia dla pionków
                     if notation[0] == 'p':
                         if field.figure.has_moved:
-                            directions_to_check[2] = (0,0,0) #zamiast usuwać ten kierunek, ustawiamy go na (0,0,0), aby zachować spójność indeksów
+                            directions_to_check[1] = (0,0,0) #zamiast usuwać ten kierunek, ustawiamy go na (0,0,0), aby zachować spójność indeksów
                         if "x" in notation:
+                            directions_to_check[0] = (0,0,0)
                             directions_to_check[1] = (0,0,0)
-                            directions_to_check[2] = (0,0,0)
                         else:
+                            directions_to_check[2] = (0,0,0)
                             directions_to_check[3] = (0,0,0)
-                            directions_to_check[4] = (0,0,0)
                     #Sprawdzanie, czy pole docelowe jest w ruchach danej figury
                     for direction in directions_to_check:
                         for distance in range(1,direction[2]+1):
@@ -87,6 +87,7 @@ def notation_to_cords(board, notation: str, turn: str):
                                         candidate_figures.append((field.y,field.x))
     if len(candidate_figures) > 1:
         return "Nie wykonano ruchu, potrzeba więcej informacji"
+    
     elif len(candidate_figures) == 1:
         return (candidate_figures[0][0],candidate_figures[0][1],target_field.y,target_field.x)
     elif len(candidate_figures) == 0:
