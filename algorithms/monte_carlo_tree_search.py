@@ -1,7 +1,6 @@
 import copy
 import math
 import algorithms.evaluation as evaluation
-import engine.board_and_fields as board_and_fields
 import engine.engine as engine
 import random
 import engine.fen_operations as fen_operations
@@ -34,11 +33,13 @@ class Mcts_optimized: #Niedokończone
             current_node = chosen_node
         new_board.make_move(*current_node.move)
         # Rozrost (expansion)
-        new_node = Node(0,0,current_node, random.sample(new_board.get_all_moves(self.color)))
+        moves=new_board.get_all_moves('b' if current_node.color == "w" else "w")
+        key = random.sample(moves)
+        new_node = Node(0,0,current_node, *key,*moves[key],)
         current_node.children += new_node
         # Symulacja (playout)
         old_score = evaluation.Evaluation(new_board) 
-        fen = fen_operations.board_to_fen_inverted(new_board)
+        fen = fen_operations.board_to_fen_inverted(new_board, self.color, )
         new_board.make_move(new_node.move)
         new_score = evaluation.Evaluation(new_board) 
         new_board.board_state = fen_operations.fen_to_board_state(fen)
@@ -79,7 +80,9 @@ class Mcts:
             current_node = chosen_node
         # Rozrost (expansion)
         for i in random.randint(1,4):
-            new_node = Node(0,0,current_node, random.sample(new_board.get_all_moves('b' if current_node.color == "w" else "w"), 'b' if current_node.color == "w" else "w"))
+            moves=new_board.get_all_moves('b' if current_node.color == "w" else "w")
+            key = random.sample(moves)
+            new_node = Node(0,0,current_node, *key,*moves[key],'b' if current_node.color == "w" else "w")
             current_node.children += new_node
         # Symulacja (playout)
         current_node = new_node
