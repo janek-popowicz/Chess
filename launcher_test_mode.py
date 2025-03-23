@@ -12,6 +12,6 @@ import normal_games.test_mode_normal_game
 import custom_board_game.board_maker
 import custom_board_game.normal_game_custom_board
 import settings
-import grandmaster.pgn_to_fen as pgn_to_fen
+import grandmaster.algebraic_moves_tester as algebraic_moves_tester
 
-pgn_to_fen.main()
+algebraic_moves_tester.main()
