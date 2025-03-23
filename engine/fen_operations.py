@@ -38,6 +38,7 @@ main_board = board_and_fields.Board(board_state)
         board_row.reverse()
         board_state.append(board_row)
     board_state.reverse()
+    board.board_state = board_state
     char = -5
     castling_str = ""
     while fen[char] != " ":
@@ -76,7 +77,12 @@ main_board = board_and_fields.Board(board_state)
                             if passed_over_tile[1] - col == -1:
                                 field.figure.can_enpassant = -1
                             elif passed_over_tile[1] - col == 1:
-                                field.figure.can_enpassant = 1                                
+                                field.figure.can_enpassant = 1  
+                    if field.figure.color == "w" and field.y != 1:
+                        field.figure.has_moved = True
+                    if field.figure.color == "b" and field.y != 6:
+                        field.figure.has_moved = True
+
 def board_to_fen(board_state:list)->str:
     """Z listy obiektów zwraca fena. Zastosowanie: tylko dla board_makera, nie dla czegokolwiek innego, bo:
     jest normalnie, a w normalnych trybach gry board jest odwrócony
@@ -170,7 +176,7 @@ def board_to_fen_inverted(board, turn:str, y1:int,x1:int,y2:int,x2:int) -> str:
     if len(castling_str) == "    ":           
         fen += " " + castling_str.strip() # Dodajemy informację o roszadzie (bez spacji)
     else:
-        fen += " - "
+        fen += " -"
     # Informacja o enpassant i zegarze połówek ruchów
     if start_field.figure:
         if start_field.figure.type == "p":
