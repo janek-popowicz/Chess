@@ -28,6 +28,27 @@ def connect_to_server():
         except (socket.error, ConnectionRefusedError):
             time.sleep(0.1)  # Skracamy czas oczekiwania na kolejną próbę
 
+def connect_to_server_with_timeout(host, port, timeout=3):
+    """
+    Próbuje połączyć się z serwerem w określonym czasie.
+
+    Args:
+        host (str): Adres IP serwera.
+        port (int): Port serwera.
+        timeout (int): Maksymalny czas oczekiwania na połączenie w sekundach.
+
+    Returns:
+        socket.socket: Połączone gniazdo, jeśli połączenie się powiedzie.
+        None: Jeśli połączenie nie zostanie nawiązane w określonym czasie.
+    """
+    try:
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.settimeout(timeout)
+        client_socket.connect((host, port))
+        return client_socket
+    except (socket.timeout, ConnectionRefusedError):
+        return None
+
 def ip_input_screen(screen, font):
     """
     Wyświetla ekran wejściowy do wpisania adresu IP serwera.
@@ -53,6 +74,7 @@ def ip_input_screen(screen, font):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                disconnect()
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
@@ -115,15 +137,20 @@ def main():
     # Czcionka
     font = pygame.font.Font(None, 36)
 
-    # Wyświetlenie ekranu do wpisania adresu IP
-    HOST = ip_input_screen(screen, font)
-
-    # Tworzymy wątek klienta (próbuje się połączyć w tle)
-    client_thread = threading.Thread(target=connect_to_server, daemon=True)
-    client_thread.start()
-
-    # Wyświetlenie ekranu oczekiwania na połączenie
-    waiting_screen(screen, font)
+    # Pętla do wpisywania adresu IP i próby połączenia
+    while True:
+        HOST = ip_input_screen(screen, font)
+        client = connect_to_server_with_timeout(HOST, PORT)
+        if client:
+            print("🟢 Połączono z serwerem!")
+            break
+        else:
+            # Wyświetlenie komunikatu o błędzie
+            error_text = font.render("Nie udało się połączyć z serwerem. Spróbuj ponownie.", True, (255, 0, 0))
+            screen.fill((0, 0, 0))
+            screen.blit(error_text, (250, 300))
+            pygame.display.flip()
+            pygame.time.wait(2000)  # Wyświetl komunikat przez 2 sekundy
 
     client.settimeout(0.05)
 
@@ -309,7 +336,7 @@ def main():
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
         try:
-            if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
+            if turn == 'w' and (config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn):
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
         except TypeError:
             pass
@@ -322,6 +349,8 @@ def main():
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
     disconnect()
     return
+
+
 
 if __name__ == "__main__":
     main()

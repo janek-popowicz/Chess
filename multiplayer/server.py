@@ -57,6 +57,12 @@ def waiting_screen(screen, font, server_ip):
     dots = ""
     clock = pygame.time.Clock()
     while not client_connected:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                disconnect()
+                return
         screen.fill((0, 0, 0))
         # Wyświetlanie adresu IP serwera
         ip_text = font.render(f"Adres IP serwera: {server_ip}", True, (255, 255, 255))
@@ -314,7 +320,7 @@ def main():
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
         try:
-            if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
+            if turn == 'b' and (config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn):
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
         except TypeError:
             pass
