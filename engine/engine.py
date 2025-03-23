@@ -127,7 +127,7 @@ Returns:
         main_board.moves_algebraic += [chr(104 - x2) + str(y2+1)]
         if destination_tile.figure:
             main_board.moves_algebraic[-1] = chr(104 - x2) +  'x' + main_board.moves_algebraic[-1]
-        main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board.board_state, turn, None, None, int(main_board.full_moves_count)))
+        main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board, turn, y1,x1,y2,x2))
         # print(main_board.moves_algebraic)
         print(main_board.fen_history)
         #Wykonanie roszady
@@ -165,7 +165,6 @@ Returns:
             main_board.moves_algebraic[-1] += '+'
         if destination_tile.figure.type != 'p':
             main_board.moves_algebraic[-1] = destination_tile.figure.type + main_board.moves_algebraic[-1]
-        main_board.full_moves_count += 0.5
         return True
     else: 
         print("Nielegalny ruch!")
@@ -180,7 +179,6 @@ def undoMove(main_board: board_and_fields.Board) -> bool:
         main_board.fen_history.pop()
         main_board.moves_algebraic.pop()
         main_board.print_board()
-        main_board.full_moves_count -= 0.5
         return True
     else:
         return False

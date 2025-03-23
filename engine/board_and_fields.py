@@ -54,8 +54,7 @@ class Board:
         self.moves_numeric = []
         self.moves_algebraic = []
         self.fen_history = []
-        self.full_moves_count = 0
-
+        self.halfmove_clock = "0"
     def make_move(self, y1: int, x1: int, y2: int, x2: int) -> None:
         """
         Wykonuje ruch na planszy.
