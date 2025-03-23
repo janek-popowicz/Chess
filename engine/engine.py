@@ -129,7 +129,7 @@ Returns:
             main_board.moves_algebraic[-1] = chr(104 - x2) +  'x' + main_board.moves_algebraic[-1]
         main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board, turn, y1,x1,y2,x2))
         # print(main_board.moves_algebraic)
-        print(main_board.fen_history)
+        #print(main_board.fen_history)
         #Wykonanie roszady
         if destination_tile.figure:
             if destination_tile.figure.type == 'R' and  destination_tile.figure.color == start_tile.figure.color:
