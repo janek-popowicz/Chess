@@ -12,6 +12,7 @@ import normal_games.test_mode_normal_game
 import custom_board_game.board_maker
 import custom_board_game.normal_game_custom_board
 import settings
+import graphics
 
 # Funkcja główna
 def main():
@@ -36,14 +37,14 @@ def main():
 
     # Opcje menu
     menu_options = [
-        "Zwykła gra",
-        "Tryb niestandardowy",
-        "Board maker",
-        "Ustawienia",
-        "Wyjście",
-        "Tryb terminalowy",
-        "Serwer",
-        "Klient"
+        "Graj z przyjacielem na tym komputerze", #0
+        "Graj z własną planszą",#1
+        "Kreator planszy",#2
+        "Graj z botem",#3
+        "Graj w sieci lokalnej",#4
+        "Ustawienia",#5
+        "Wyjście do systemu",#6
+        "Tryb terminalowy"#7
     ]
 
     selected_option = 0
@@ -79,7 +80,7 @@ def main():
                     text_rect = text_white.get_rect(center=(800, 150 + i * 100))
                     if text_rect.collidepoint(mouse_pos):
                         selected_option = i
-                        if do_an_action(selected_option) == False:
+                        if do_an_action(selected_option, screen) == False:
                             running = False
 
         # Sprawdzenie kolizji myszy z opcjami menu
@@ -95,28 +96,35 @@ def main():
     sys.exit()
 
 
-def do_an_action(selected_option):
-    if selected_option == 0:
+def do_an_action(selected_option, screen):
+    if selected_option == 0: # Normalna gra
         normal_games.normal_game.main()
-    elif selected_option == 1:
+    elif selected_option == 1: # Custom board game
         pygame.mixer.music.stop()
         custom_board_game.normal_game_custom_board.main()
-    elif selected_option == 2:
+    elif selected_option == 2: # Board maker
         pygame.mixer.music.stop()
         custom_board_game.board_maker.main()
-    elif selected_option == 3:
+    elif selected_option == 5: # Ustawienia
         pygame.mixer.music.stop()
         settings.main()
-    elif selected_option == 4:
+    elif selected_option == 6: #Wyjście do systemu
         return False
-    elif selected_option == 5:
-        normal_games.test_mode_normal_game.main()
-    elif selected_option == 6:
-        import multiplayer.server
-        multiplayer.server.main()
     elif selected_option == 7:
-        import multiplayer.client
-        multiplayer.client.main()
+        normal_games.test_mode_normal_game.main()
+    elif selected_option == 4:
+        server_or_client = graphics.choose_color_dialog(screen, 100)
+        if server_or_client == "w":
+            import multiplayer.client
+            multiplayer.client.main()
+        elif server_or_client == "b":
+            import multiplayer.server
+            multiplayer.server.main()
+    elif selected_option == 3:
+        import algorithms.ai_game
+        algorithms.ai_game.main()
+    return True
+
 
 # Funkcja do rysowania menu
 def draw_menu(selected_option:int, screen, menu_texts, text_white, text_gray,BLACK)->None:
