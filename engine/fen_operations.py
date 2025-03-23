@@ -127,8 +127,10 @@ def board_to_fen_inverted(board, turn:str, y1:int,x1:int,y2:int,x2:int) -> str:
     Returns:
         str: FEN
     """
-    start_field = board.board_state[y1][x1]
-    destination_field = board.board_state[y2][x2]
+    if y1 != None and x1 != None:
+        start_field = board.board_state[y1][x1]
+    if y2 != None and x2 != None:
+        destination_field = board.board_state[y2][x2]
     fen = ""
     castling_str = "    " # Ustawiamy 4 spacje w informacji o roszadzie, aby zachować spójność indeksów
     for row in reversed(board.board_state):  # Odwracamy kolejność wierszy
@@ -167,16 +169,19 @@ def board_to_fen_inverted(board, turn:str, y1:int,x1:int,y2:int,x2:int) -> str:
         castling_color = "b"               
     fen += " " + castling_str.strip() # Dodajemy informację o roszadzie (bez spacji)
     # Informacja o enpassant i zegarze połówek ruchów
-    if start_field.figure.type == "p":
-        if start_field.y - destination_field.y in [2,-2]:
-            fen += " " + chr(104 - start_field.x) + str(destination_field.y + ((start_field.y - destination_field.y)/2)) #Dodajemy współrzędne pola, które "przeskoczył" pionek
+    if start_field.figure:
+        if start_field.figure.type == "p":
+            if start_field.y - destination_field.y in [2,-2]:
+                fen += " " + chr(104 - start_field.x) + str(destination_field.y + ((start_field.y - destination_field.y)/2)) #Dodajemy współrzędne pola, które "przeskoczył" pionek
+            else:
+                fen += " -"
+            board.halfmove_clock = "0"
+        elif destination_field.figure:
+            board.halfmove_clock = "0"
         else:
-            fen += " -"
-        board.halfmove_clock = "0"
-    elif destination_field.figure:
-        board.halfmove_clock = "0"
-    else:
-        board.halfmove_clock = str(int(board.halfmove_clock) +1)
+            board.halfmove_clock = str(int(board.halfmove_clock) +1)
+    else: 
+        fen+= "- - 0 1"
     fen += " " + board.halfmove_clock
     fen += " " + str((len(board.moves_algebraic) //2))
     return fen
