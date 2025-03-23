@@ -1,6 +1,6 @@
 import engine.figures as figures
 import engine.board_and_fields as board_and_fields
-def fen_to_board(fen:str):
+def fen_to_board(fen:str, board):
     """Z fena zwraca listę obiektów. Należy zastosować tak:
 
 board_state = fen_to_board_state(fen)
@@ -12,7 +12,6 @@ main_board = board_and_fields.Board(board_state)
     Returns:
         list: lista obiektów figur, zobacz Board.__init__ aby się dowiedzieć więcej.
     """
-    board = board_and_fields.Board()
     rows = fen.split(" ")[0].split("/")
     board_state = []
     for r, row in enumerate(rows):
@@ -39,21 +38,45 @@ main_board = board_and_fields.Board(board_state)
         board_row.reverse()
         board_state.append(board_row)
     board_state.reverse()
-    char = fen[-5]
+    char = -5
     castling_str = ""
     while char != " ":
-        castling_str += char
-    cords = []
-    if "K" in castling_str:
-        cords += [(0,3),(0,0)]
-    if "Q" in castling_str:
-        cords += [(0,3),(0,7)]
-    if "k" in castling_str:
-        cords += [(7,3),(7,0)]
-    if "q" in castling_str:
-        cords += [(0,3),(7,7)]
-    return board_state
-
+        castling_str += fen[char]
+        char += -1
+    if fen[char-1] != "-":
+        passed_over_tile = (fen[char-1]-1,104 - ord(fen[char-2])) 
+        char -=1
+    else:
+        passed_over_tile = (-1,-1)
+    turn = fen[char - 2]
+    for row in range(0,8):
+        for col in range(0,8):
+            field = board.board_state[row][col]
+            if field.figure:
+                if field.figure.type == "R":
+                    if row != 0 and field.figure.color == "w":
+                        if col != 0 or "K" not in castling_str:
+                            field.figure.has_moved = True
+                        if col != 7 or "Q" not in castling_str:
+                            field.figure.has_moved = True
+                    if row != 7 and field.figure.color == "b":
+                        if col != 0 or "k" not in castling_str:
+                            field.figure.has_moved = True
+                        if col != 0 or "q" not in castling_str:
+                            field.figure.has_moved = True                  
+                elif field.figure.type == "K":
+                    if row != 0 or col != 3 or "K" not in castling_str or "Q" not in castling_str and field.figure.color == "w":
+                        field.figure.has_moved = True
+                    if row != 7 or col != 3 or "k" not in castling_str or "k" not in castling_str and field.figure.color == "b":
+                        field.figure.has_moved = True
+                elif field.figure.type == "p":
+                    if field.figure.color == turn:
+                        direction = -1 if turn == "w" else 1
+                        if passed_over_tile[0] - row == direction:
+                            if passed_over_tile[1] - col == -1:
+                                field.figure.can_enpassant = -1
+                            elif passed_over_tile[1] - col == 1:
+                                field.figure.can_enpassant = 1                                
 def board_to_fen(board_state:list)->str:
     """Z listy obiektów zwraca fena. Zastosowanie: tylko dla board_makera, nie dla czegokolwiek innego, bo:
     jest normalnie, a w normalnych trybach gry board jest odwrócony
@@ -143,6 +166,7 @@ def board_to_fen_inverted(board, turn:str, y1:int,x1:int,y2:int,x2:int) -> str:
                         i +=1
         castling_color = "b"               
     fen += " " + castling_str.strip() # Dodajemy informację o roszadzie (bez spacji)
+    # Informacja o enpassant i zegarze połówek ruchów
     if start_field.figure.type == "p":
         if start_field.y - destination_field.y in [2,-2]:
             fen += " " + chr(104 - start_field.x) + str(destination_field.y + ((start_field.y - destination_field.y)/2)) #Dodajemy współrzędne pola, które "przeskoczył" pionek
