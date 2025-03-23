@@ -112,6 +112,9 @@ def main():
                                     in_check = None
                             selected_piece = None
                             start_time = time.time()
+                            draw_board(screen, SQUARE_SIZE, main_board, in_check)
+                            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+
                         else:
                             selected_piece = (row, col)
                     else:
@@ -159,7 +162,7 @@ def main():
                             else:
                                 in_check = None
                         start_time = time.time()
-
+                        
                 elif algorithm == "monte_carlo":
                     pass
 
@@ -176,6 +179,7 @@ def main():
                              (font.render(format_time(current_black_time), True, YELLOW if turn=='b' else GRAY),(8*SQUARE_SIZE+10,80)))
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
+        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
