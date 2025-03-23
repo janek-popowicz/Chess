@@ -82,17 +82,20 @@ class Mcts:
         for i in range (random.randint(1,4)):
             moves=new_board.get_all_moves('b' if current_node.color == "w" else "w")
             key = random.sample(sorted(moves), 1)
-            new_node = Node(0,0,current_node, *key,*moves[key],'b' if current_node.color == "w" else "w")
-            current_node.children += new_node
+            move = random.sample(moves[key[0]], 1) 
+            new_node = Node(0,0,current_node, (*key[0],*move[0]),'b' if current_node.color == "w" else "w")
+            current_node.children += [new_node]
         # Symulacja (playout)
         current_node = new_node
         result = 0
-        move_color = self.color
+        move_color = self.root.color
         while result not in  ["checkmate","stalemate"]:
             moves = new_board.get_all_moves(move_color)
-            key = random.sample(moves,1)
-            engine.tryMove(move_color, new_board, *key, *moves[key])
-            result = engine.afterMove(move_color, new_board, *key, *moves[key])
+            key = random.sample(sorted(moves),1)
+            move = random.sample(moves[key[0]],1)
+            cords = (*key[0], move[0][0],move[0][1])
+            engine.tryMove(move_color, new_board, *cords)
+            result = engine.afterMove(move_color, new_board, *cords)
             move_color = 'b' if move_color == "w" else "w"
         current_node.games +=1
         # Propagacja wsteczna (backpropagation)

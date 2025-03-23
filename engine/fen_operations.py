@@ -40,11 +40,11 @@ main_board = board_and_fields.Board(board_state)
     board_state.reverse()
     char = -5
     castling_str = ""
-    while char != " ":
+    while fen[char] != " ":
         castling_str += fen[char]
         char += -1
     if fen[char-1] != "-":
-        passed_over_tile = (fen[char-1]-1,104 - ord(fen[char-2])) 
+        passed_over_tile = (int(fen[char-1])-1,104 - ord(fen[char-2])) 
         char -=1
     else:
         passed_over_tile = (-1,-1)
@@ -166,13 +166,16 @@ def board_to_fen_inverted(board, turn:str, y1:int,x1:int,y2:int,x2:int) -> str:
                                 if not board.board_state[row][col].figure.has_moved:
                                     castling_str[i] == letters[i]  
                         i +=1
-        castling_color = "b"               
-    fen += " " + castling_str.strip() # Dodajemy informację o roszadzie (bez spacji)
+        castling_color = "b"    
+    if len(castling_str) == "    ":           
+        fen += " " + castling_str.strip() # Dodajemy informację o roszadzie (bez spacji)
+    else:
+        fen += " - "
     # Informacja o enpassant i zegarze połówek ruchów
     if start_field.figure:
         if start_field.figure.type == "p":
             if start_field.y - destination_field.y in [2,-2]:
-                fen += " " + chr(104 - start_field.x) + str(destination_field.y + ((start_field.y - destination_field.y)/2)) #Dodajemy współrzędne pola, które "przeskoczył" pionek
+                fen += chr(104 - start_field.x) + str(int(destination_field.y + ((start_field.y - destination_field.y)/2))) #Dodajemy współrzędne pola, które "przeskoczył" pionek
             else:
                 fen += " -"
             board.halfmove_clock = "0"

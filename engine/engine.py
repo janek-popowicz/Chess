@@ -175,7 +175,7 @@ def undoMove(main_board: board_and_fields.Board) -> bool:
     Zwraca True jeżeli operacja się powiodła, False w przeciwnym razie.
     """
     if len(main_board.fen_history) > 0:
-        main_board.board_state = fen_operations.fen_to_board_state(main_board.fen_history[-1])
+        fen_operations.fen_to_board(main_board.fen_history[-1],main_board)
         main_board.fen_history.pop()
         main_board.moves_algebraic.pop()
         main_board.print_board()

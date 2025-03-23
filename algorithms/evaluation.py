@@ -250,12 +250,12 @@ def get_evaluation(board, color = 'b'):
     modifier *= 2
     #jezeli wszytkie listy dla danego koloru and szach to plus infinity jezeli pat to 
 
-    if board_and_fields.Board.get_all_moves(board, color) == {} and board.is_check(color):
+    if board_and_fields.Board.get_all_moves(board, color) == {} and board.is_in_check(color):
         if color == 'w':
             return [-1000000, 1000000]
         else:
             return [1000000, -1000000]
-    elif board_and_fields.Board.get_all_moves(board, color) == {} and board.is_check(color) == False:
+    elif board_and_fields.Board.get_all_moves(board, color) == {} and board.is_in_check(color) == False:
         if color == 'w' and  (material[0] + bonus[0] + (king_bonus[0] * modifier)) > (material[1] + bonus[1] + (king_bonus[1] * modifier)):
            return [-1000000, 1000000]
         else:

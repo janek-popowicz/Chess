@@ -220,6 +220,12 @@ class Board:
                 if field.figure:
                     if field.figure.color == turn:
                             all_moves[(y,x)] = self.get_legal_moves(field,turn)
+        remove_list =[]
+        for i in all_moves:
+            if all_moves[i] == []:
+                remove_list.append(i)
+        for i in remove_list:
+            all_moves.pop(i)
         return all_moves
     def get_legal_moves(self, field, turn):
         """

@@ -166,7 +166,7 @@ def main():
                         
                 elif algorithm == "monte_carlo":
                     mc_obj = Mcts(turn)
-                    move = mc_obj.pick_best_move(main_board, 20)
+                    move = mc_obj.pick_best_move(main_board, 5)
                     if move:
                         from_row, from_col, to_row, to_col = move
                         if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
