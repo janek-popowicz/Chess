@@ -63,7 +63,7 @@ class Mcts:
         """
         self.root = Node(0, 0, "root", (0,0,0,0), color) #Korzeń drzewa
     def expand_tree(self, board):
-        new_board = copy(board)
+        new_board = copy.deepcopy(board)
         # Wybór (selection) 
         current_node = self.root
         while len(current_node.children) > 0:
@@ -79,9 +79,9 @@ class Mcts:
                 break
             current_node = chosen_node
         # Rozrost (expansion)
-        for i in random.randint(1,4):
+        for i in range (random.randint(1,4)):
             moves=new_board.get_all_moves('b' if current_node.color == "w" else "w")
-            key = random.sample(moves)
+            key = random.sample(sorted(moves), 1)
             new_node = Node(0,0,current_node, *key,*moves[key],'b' if current_node.color == "w" else "w")
             current_node.children += new_node
         # Symulacja (playout)

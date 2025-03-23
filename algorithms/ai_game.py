@@ -7,6 +7,7 @@ from engine.engine import *
 from engine.figures import *
 from graphics import *
 from algorithms.minimax import *
+from algorithms.monte_carlo_tree_search import *
 
 
 
@@ -146,7 +147,7 @@ def main():
                             turn = 'w' if turn == 'b' else 'b'
                             whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
                             if whatAfter == "promotion":
-                                promotion_choice = '4'  # Zawsze promuj do królowej
+                                promotion_choice = '10'  # Zawsze promuj do królowej
                                 promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
                                 whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
                             if whatAfter == "checkmate":
@@ -164,7 +165,35 @@ def main():
                         start_time = time.time()
                         
                 elif algorithm == "monte_carlo":
-                    pass
+                    mc_obj = Mcts(turn)
+                    move = mc_obj.pick_best_move(main_board, 20)
+                    if move:
+                        from_row, from_col, to_row, to_col = move
+                        if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
+                            if turn == 'w':
+                                white_time += time.time() - start_time
+                            else:
+                                black_time += time.time() - start_time
+                            turn = 'w' if turn == 'b' else 'b'
+                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                            if whatAfter == "promotion":
+                                promotion_choice = '10'  # Zawsze promuj do królowej
+                                promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
+                                whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                            if whatAfter == "checkmate":
+                                result = "Szach Mat!"
+                                winner = "Białe" if turn == 'b' else "Czarne"
+                                running = False
+                            elif whatAfter == "stalemate":
+                                result = "Pat"
+                                winner = "Remis"
+                                running = False
+                            elif whatAfter == "check":
+                                in_check = turn
+                            else:
+                                in_check = None
+                        start_time = time.time()
+                        
 
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
