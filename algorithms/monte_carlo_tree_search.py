@@ -1,0 +1,128 @@
+import copy
+import math
+import algorithms.evaluation as evaluation
+import engine.board_and_fields as board_and_fields
+import engine.engine as engine
+import random
+import engine.fen_operations as fen_operations
+
+class Mcts_optimized: #Niedokończone
+    def __init__(self, color):
+        """
+        Klasa odpowiadająca za AI posługujące się algorytmem Monte Carlo Tree Search, wariant zmodyfikowany:
+        w fazie symulacji zamiast rozgrywać pełną symulację, ruch jest ewaluowany, a następnie porównywany z wynikiem dla poprzedniego węzła, jeśli jest większy daje to zwycięstwo, jeśli nie, przegraną
+
+        color - kolor, którym będzie grało AI
+        """
+        self.color = color
+        self.root = Node(0, 0, "root") #Korzeń drzewa
+    def expand_tree(self, board):
+        new_board = copy(board)
+        # Wybór (selection) 
+        current_node = self.root
+        while len(current_node.children) > 0:
+            max_choice_factor = 0
+            chosen_node = self.root
+            for child in current_node.children:
+                choice_factor = (child.wins / child.games) + math.sqrt(2) * math.sqrt(math.log(child.parent.games) / child.games)
+                if choice_factor > max_choice_factor:
+                   choice_factor = max_choice_factor
+                   chosen_node = child
+                   new_board.make_move(*child.move)
+            if current_node == chosen_node:
+                break
+            current_node = chosen_node
+        new_board.make_move(*current_node.move)
+        # Rozrost (expansion)
+        new_node = Node(0,0,current_node, random.sample(new_board.get_all_moves(self.color)))
+        current_node.children += new_node
+        # Symulacja (playout)
+        old_score = evaluation.Evaluation(new_board) 
+        fen = fen_operations.board_to_fen_inverted(new_board)
+        new_board.make_move(new_node.move)
+        new_score = evaluation.Evaluation(new_board) 
+        new_board.board_state = fen_operations.fen_to_board_state(fen)
+        new_node.games +=1
+        if new_score > old_score:
+            new_node.wins += 1
+        # Propagacja wsteczna (backpropagation)
+        node = new_node
+        while node.parent != "root":
+            node.parent.games += node.parent.games - node.games
+            node.parent.wins += node.parent.wins - node.wins
+            node = node.parent
+
+class Mcts:
+    def __init__(self, color):
+        """
+        Klasa odpowiadająca za AI posługujące się algorytmem Monte Carlo Tree Search, wariant zmodyfikowany:
+        w fazie symulacji zamiast rozgrywać pełną symulację, ruch jest ewaluowany, a następnie porównywany z wynikiem dla poprzedniego węzła, jeśli jest większy daje to zwycięstwo, jeśli nie, przegraną
+
+        color - kolor, którym będzie grało AI
+        """
+        self.root = Node(0, 0, "root", (0,0,0,0), color) #Korzeń drzewa
+    def expand_tree(self, board):
+        new_board = copy(board)
+        # Wybór (selection) 
+        current_node = self.root
+        while len(current_node.children) > 0:
+            max_choice_factor = 0
+            chosen_node = self.root
+            for child in current_node.children:
+                choice_factor = (child.wins / child.games) + math.sqrt(2) * math.sqrt(math.log(child.parent.games) / child.games)
+                if choice_factor > max_choice_factor:
+                   choice_factor = max_choice_factor
+                   chosen_node = child
+                   new_board.make_move(*child.move)
+            if current_node == chosen_node:
+                break
+            current_node = chosen_node
+        # Rozrost (expansion)
+        for i in random.randint(1,4):
+            new_node = Node(0,0,current_node, random.sample(new_board.get_all_moves('b' if current_node.color == "w" else "w"), 'b' if current_node.color == "w" else "w"))
+            current_node.children += new_node
+        # Symulacja (playout)
+        current_node = new_node
+        result = 0
+        move_color = self.color
+        while result not in  ["checkmate","stalemate"]:
+            moves = new_board.get_all_moves(move_color)
+            key = random.sample(moves,1)
+            engine.tryMove(move_color, new_board, *key, *moves[key])
+            result = engine.afterMove(move_color, new_board, *key, *moves[key])
+            move_color = 'b' if move_color == "w" else "w"
+        current_node.games +=1
+        # Propagacja wsteczna (backpropagation)
+        while node.parent != "root":
+            node.parent.games += node.parent.games - node.games
+            node.parent.wins += node.parent.wins - node.wins
+            node = node.parent
+    def pick_best_move(self,board,limit):
+        counter = 0
+        while limit > counter:
+            self.expand_tree(board)
+        max_played_games = 0
+        for child in self.root.children:
+            if child.games > max_played_games:
+                chosen_child = child
+        return chosen_child.move
+    
+class Node:
+    def __init__(self, games:int, wins:int, parent, move:tuple, color:str):
+        """
+            Klasa reprezentująca węzły drzewa \n
+            Args:
+                games(int) - zmienna przechowująca ilość rozegranych symulacji w poddrzewie danego węzła.
+                wins(int) - zmienna przechowująca ilość wygranych symulacji w poddrzewie danego węzła.
+                parent - rodzic danego węzła.
+                move(tuple) - ruch, który dany węzeł przechowuje.
+                children - lista dzieci danego węzła.
+                color - kolor ruchu, który przechowuje węzęł
+        """
+        self.games = games
+        self.wins = wins
+        self.parent = parent
+        self.move = move
+        self.children = []
+        self.color = color
+

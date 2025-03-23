@@ -64,7 +64,7 @@ def notation_to_cords(board, notation: str, turn: str):
                         if "x" in notation:
                             directions_to_check[0] = (0,0,0)
                             directions_to_check[1] = (0,0,0)
-                        else:
+                        elif not field.figure.can_enpassant:
                             directions_to_check[2] = (0,0,0)
                             directions_to_check[3] = (0,0,0)
                     #Sprawdzanie, czy pole docelowe jest w ruchach danej figury
@@ -80,7 +80,7 @@ def notation_to_cords(board, notation: str, turn: str):
                             if field_to_check == target_field:
                                 if notation[2] == "x" and notation[0] == "p":
                                     #sprawdzamy specjalny przypadek - en passant
-                                    if target_field.figure and field.figure.can_enpassant:
+                                    if not target_field.figure and field.figure.can_enpassant:
                                         candidate_figures.append((field.y,field.x))
                                 if field_to_check.figure and "x" in notation:
                                     candidate_figures.append((field.y,field.x))

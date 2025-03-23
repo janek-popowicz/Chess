@@ -86,7 +86,7 @@ def board_to_fen(board_state:list)->str:
     return fen
 
 
-def board_to_fen_inverted(board_state: list, turn:str, castling:tuple,enpassant, full_moves_count:int) -> str:
+def board_to_fen_inverted(board, turn:str, halfmove_reset:bool) -> str:
     """Z listy obiektów zwraca FEN, uwzględniając odwrócenie planszy.
     Stosować dla trybów gry, gdzie plansza jest odwrócona,
     czyli wszystkich poza custom board makerem.
@@ -94,15 +94,14 @@ def board_to_fen_inverted(board_state: list, turn:str, castling:tuple,enpassant,
     Args:
         board_state (list): board state
         turn (str): 'w' or 'b'
-        castling (tuple): (white_kingside, white_queenside, black_kingside, black_queenside)
-        enpassant (tuple): (x, y) or None
-        full_moves_count (int): full moves count
+        halfmove_reset (bool): czy resetować zegar połówek ruchów
 
     Returns:
         str: FEN
     """
     fen = ""
-    for row in reversed(board_state):  # Odwracamy kolejność wierszy
+    castling_str = "    " # Ustawiamy 4 spacje w informacji o roszadzie, aby zachować spójność indeksów
+    for row in reversed(board.board_state):  # Odwracamy kolejność wierszy
         empty_count = 0
         for field in reversed(row):  # Odwracamy kolejność pól w wierszu
             if field.figure is None:
@@ -121,21 +120,32 @@ def board_to_fen_inverted(board_state: list, turn:str, castling:tuple,enpassant,
         fen += "/"
     fen = fen[:-1]  # Usuwamy końcowy ukośnik
     fen += " " + turn  # Dodajemy informację o ruchu
-    castling_str = ""
-    try:
-        if castling[0]:
-            castling_str += "K"
-        if castling[1]:
-            castling_str += "Q"
-        if castling[2]:
-            castling_str += "k"
-        if castling[3]:
-            castling_str += "q"
-        if not castling_str:
-            castling_str = "-"
-    except:
-        castling_str = "-"
-    fen += " " + castling_str
+    #Informacje o roszadie
+    if board[0][3].figure:
+        if board[0][3].figure.type == "K" and board[0][3].figure.color == "w":
+            if not board[0][3].figure.has_moved:
+                if board[0][0].figure:
+                    if board[0][0].figure.type == "R" and board[0][0].figure.color == "w":
+                        if not board[0][0].figure.has_moved:
+                            castling_str[0] == "K"
+                if board[0][7].figure:
+                    if board[0][7].figure.type == "R" and board[0][7].figure.color == "w":
+                        if not board[0][7].figure.has_moved:
+                            castling_str[1] == "Q"                  
+    castling_color = "w"
+    letters = ["K","Q","k","q",]
+    for row in [0,7]:
+        if board[row][3].figure:
+            if board[row][3].figure.type == "K" and board[row][3].figure.color == castling_color:
+                if not board[row][3].figure.has_moved:
+                    for col in [0,7]:
+                        if board[row][col].figure:
+                            if board[row][col].figure.type == "R" and board[row][col].figure.color == castling_color:
+                                if not board[row][col].figure.has_moved:
+                                    castling_str[i] == letters[i]  
+                        i +=1
+        castling_color = "b"               
+    fen += " " + castling_str.strip()
     if enpassant:
         dictionary = {0: "a", 1: "b", 2: "c", 3: "d", 4: "e", 5: "f", 6: "g", 7: "h"}
         fen += " " + dictionary[enpassant[0]] + str(enpassant[1] + 1)
