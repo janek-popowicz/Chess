@@ -6,6 +6,7 @@ from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from graphics import *
+from algorithms.minimax import *
 
 
 
@@ -48,7 +49,8 @@ def main():
     selected_piece = None
     clock = pygame.time.Clock()
 
-    turn = choose_color_dialog(screen, SQUARE_SIZE)
+    player_turn = choose_color_dialog(screen, SQUARE_SIZE)
+    algorithm = choose_algorithm_dialog(screen, SQUARE_SIZE)
 
     # Teksty interfejsu
     texts = (
@@ -72,7 +74,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN and turn == player_turn:
                 pos = pygame.mouse.get_pos()
                 print(pos)
                 col = 7 - (pos[0] // SQUARE_SIZE)
@@ -127,6 +129,12 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+            if player_turn!=turn:
+                if algorithm == "minimax":
+                    minimax_obj = Minimax()
+                    move = minimax_obj.get_best_move()
+                elif algorithm == "monte_carlo":
+                    pass
 
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
