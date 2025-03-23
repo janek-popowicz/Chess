@@ -1,5 +1,7 @@
 import engine.engine as engine
-
+import json
+import re
+from pathlib import Path
 
 import sys
 import os
@@ -87,20 +89,70 @@ for game in result:
 
 
 
-def main(moves):
-    main_board = board_and_fields.Board()
-    turn = 'b'
-    for i in range(len(moves)):
-        turn = 'w' if turn == 'b' else 'b'
-        main_board.is_in_check(turn)
-        try:
-            cords=engine.notation_to_cords(main_board, moves[i], turn)
-            y1,x1,y2,x2 = cords
-            tryMove(turn, main_board, y1, x1, y2, x2)
-        except ValueError:
-            print("Niepoprawny ruch, ",cords)
-            break
-        except IndexError:
-            print("Brak notacji")
-            break
-        whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
+def main():
+    # Wczytanie pliku PGN
+    pgn_path = Path("grandmaster/games.pgn")
+    with open(pgn_path, "r") as pgn_file:
+        pgn_data = pgn_file.read()
+
+    # Przetworzenie gier z pliku PGN
+    games = parse_pgn(pgn_data)
+    
+    # Słownik do przechowywania FENów i ruchów arcymistrza
+    fen_moves = {}
+    
+    for game in games:
+        grandmaster_color = game['grandmaster']
+        moves = game['moves']
+        main_board = board_and_fields.Board()
+        turn = 'w'  # Biały zawsze zaczyna
+        
+        for i in range(len(moves)):
+            current_move = moves[i]
+            
+            # Zapisujemy FEN i ruch tylko gdy jest ruch arcymistrza
+            if (turn == grandmaster_color):
+                # Pobierz aktualny FEN (bez liczników ruchów)
+                current_fen = board_to_fen_inverted(main_board, turn, y1, x1, y2, x2)
+                fen_parts = current_fen.split(' ')
+                position_fen = f"{fen_parts[0]} {fen_parts[1]} {fen_parts[2]} {fen_parts[3]}"
+                
+                # Dodaj ruch do listy ruchów dla danego FENa
+                if position_fen in fen_moves:
+                    if current_move not in fen_moves[position_fen]:
+                        fen_moves[position_fen].append(current_move)
+                else:
+                    fen_moves[position_fen] = [current_move]
+            
+            # Wykonaj ruch na planszy
+            try:
+                cords = engine.notation_to_cords(main_board, current_move, turn)
+                y1, x1, y2, x2 = cords
+                tryMove(turn, main_board, y1, x1, y2, x2)
+                
+                whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
+                if whatAfter == "promotion":
+                    choiceOfPromotion = current_move[-1]
+                    promotion_letter_to_number = {
+                        "Q": "4", "R": "3", "B": "2", "N": "1"
+                    }
+                    promotion(turn, yForPromotion, xForPromotion, main_board, 
+                            promotion_letter_to_number[choiceOfPromotion])
+                
+                if whatAfter in ["checkmate", "stalemate"]:
+                    break
+                    
+            except (ValueError, IndexError) as e:
+                print(f"Błąd podczas wykonywania ruchu: {e}")
+                break
+            
+            turn = 'b' if turn == 'w' else 'w'
+    
+    # Zapisz wyniki do pliku JSON
+    json_path = Path("grandmaster/grandmaster_moves.json")
+    with open(json_path, "w") as json_file:
+        json.dump(fen_moves, json_file, indent=2)
+
+
+if __name__ == "__main__":
+    main()
