@@ -67,7 +67,6 @@ def main():
     running = True
     main_board = board_and_fields.Board()
     turn = 'b'
-    main_board.board_state = fen_to_board_state("1r4k1/2Q3pp/p1p1p1p1/3p4/N2P4/P2KP1P1/1P1B1rqP/2R4R w - - 0 1")
     while running:
         turn = 'w' if turn == 'b' else 'b'
         main_board.print_board()

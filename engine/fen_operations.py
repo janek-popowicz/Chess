@@ -86,13 +86,17 @@ def board_to_fen(board_state:list)->str:
     return fen
 
 
-def board_to_fen_inverted(board_state: list) -> str:
+def board_to_fen_inverted(board_state: list, turn:str, castling:tuple,enpassant, full_moves_count:int) -> str:
     """Z listy obiektów zwraca FEN, uwzględniając odwrócenie planszy.
     Stosować dla trybów gry, gdzie plansza jest odwrócona,
     czyli wszystkich poza custom board makerem.
 
     Args:
         board_state (list): board state
+        turn (str): 'w' or 'b'
+        castling (tuple): (white_kingside, white_queenside, black_kingside, black_queenside)
+        enpassant (tuple): (x, y) or None
+        full_moves_count (int): full moves count
 
     Returns:
         str: FEN
@@ -116,5 +120,28 @@ def board_to_fen_inverted(board_state: list) -> str:
             fen += str(empty_count)
         fen += "/"
     fen = fen[:-1]  # Usuwamy końcowy ukośnik
-    fen += " w - - 0 1"  # Dodajemy domyślny FEN suffix
+    fen += " " + turn  # Dodajemy informację o ruchu
+    castling_str = ""
+    try:
+        if castling[0]:
+            castling_str += "K"
+        if castling[1]:
+            castling_str += "Q"
+        if castling[2]:
+            castling_str += "k"
+        if castling[3]:
+            castling_str += "q"
+        if not castling_str:
+            castling_str = "-"
+    except:
+        castling_str = "-"
+    fen += " " + castling_str
+    if enpassant:
+        dictionary = {0: "a", 1: "b", 2: "c", 3: "d", 4: "e", 5: "f", 6: "g", 7: "h"}
+        fen += " " + dictionary[enpassant[0]] + str(enpassant[1] + 1)
+    else:
+        fen += " -"
+    fen += " 0"
+    fen += " " + str(full_moves_count)
+    #fen += " w - - 0 1"  # Dodajemy domyślny FEN suffix
     return fen
