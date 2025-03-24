@@ -1,60 +1,11 @@
-import re
 import engine.engine as engine
-def parse_pgn(pgn_text):
-    games = pgn_text.strip().split("\n\n")  # Podział na gry
-    extracted_games = []
-    
-    for game in games:
-        headers = {}
-        moves = []
-        
-        split_result = re.split(r'\n\d+\.', game, maxsplit=1)
-        if len(split_result) < 2:
-            continue  # Pomijamy, jeśli nie ma części z ruchami
-        
-        header_lines, move_section = split_result
-        
-        for line in header_lines.split("\n"):
-            match = re.match(r'\[(\w+)\s+"([^"]+)"\]', line)
-            if match:
-                headers[match[1]] = match[2]
-        
-        # Określenie, kto jest arcymistrzem
-        white_elo = int(headers.get("WhiteElo", 0))
-        black_elo = int(headers.get("BlackElo", 0))
-        grandmaster_color = "White" if white_elo > black_elo else "Black"
-        
-        # Pobranie ruchów w oryginalnym formacie
-        moves = re.findall(r'\d+\.\s*([^\s]+)\s*([^\s]+)?', move_section)
-        move_list = [move for pair in moves for move in pair if move]
-        
-    
-    return grandmaster_color, move_list
-
-# Przykładowe użycie
-pgn_data = """[Event "Match (active)"]
-[Site "Creta (Greece)"]
-[Date "2003.??.??"]
-[Round "2"]
-[White "Azmaiparashvili Zurab (GEO)"]
-[Black "Kasparov Garry (RUS)"]
-[Result "0-1"]
-[ECO "D11"]
-[WhiteElo "2672"]
-[BlackElo "2813"]
-
-1.c4 c6 2.d4 d5 3.Nf3 Nf6 4.e3 a6 5.Qc2 Bg4 6.Ne5 Bh5 7.Qb3 Qc7
-8.cxd5 cxd5 9.Nc3 e6 10.Bd2 Bd6 11.Rc1 Nc6 12.Na4 O-O 13.Nxc6
-bxc6 14.Qb6 Qe7 15.Bd3 Bg6 16.Bxg6 fxg6 17.f3 Ne4 18.fxe4 Qh4+
-19.g3 Qxe4 20.Ke2 Qg2+ 21.Kd3 Rf2 22.Qa5 Rb8 23.a3 Bc7 24.Qxc7
-Rxd2+ 25.Kc3 Rdxb2 0-1
-"""
-
-color, list = parse_pgn(pgn_data)
-
+import json
+import re
+from pathlib import Path
 
 import sys
 import os
+import re
 
 #wygląda dziwnie ale musi działać
 from engine.board_and_fields import *
@@ -63,49 +14,140 @@ from engine.figures import *
 from algorithms import evaluation
 from engine.fen_operations import *
 
-def main():
-    running = True
-    main_board = board_and_fields.Board()
-    turn = 'b'
-    main_board.board_state = fen_to_board_state("1r4k1/2Q3pp/p1p1p1p1/3p4/N2P4/P2KP1P1/1P1B1rqP/2R4R w - - 0 1")
-    while running:
-        turn = 'w' if turn == 'b' else 'b'
-        main_board.print_board()
-        main_board.is_in_check(turn)
-        if main_board.incheck:
-            print("Szach!", end=" ")
-        moving = True
-        while moving:
-            print(evaluation.Evaluation(main_board).ocena_materiału())
+import re
+
+import re
+
+def parse_pgn(pgn_text, grandmaster_name_fragment):
+    # Podział na gry na podstawie wyników (0-1, 1-0, 1/2-1/2)
+    games = re.split(r'(?:1-0|0-1|1/2-1/2)', pgn_text.replace("\n", " ").strip())
+
+    extracted_games = []
+    last_grandmaster_color = None
+    
+    for game in games:
+        headers = {}
+        moves = []
+        
+        # Usuń zawartość nawiasów {} (np. {[%clk 0:02:58]})
+        game = re.sub(r'\{.*?\}', '', game)
+        
+        # Pobranie nagłówków PGN
+        header_lines = re.findall(r'\[(\w+) "([^"]+)"\]', game)
+        for key, value in header_lines:
+            headers[key] = value
+        
+        # Pobranie nazw graczy
+        white_player = headers.get("White", "")
+        black_player = headers.get("Black", "")
+        
+        # Pobranie ELO
+        white_elo_str = headers.get("WhiteElo", "0")
+        black_elo_str = headers.get("BlackElo", "0")
+        
+        white_elo = int(white_elo_str) if white_elo_str.isdigit() else 0
+        black_elo = int(black_elo_str) if black_elo_str.isdigit() else 0
+        
+        # Ustalenie, kto jest arcymistrzem
+        if grandmaster_name_fragment.lower() in white_player.lower():
+            last_grandmaster_color = "w"
+        elif grandmaster_name_fragment.lower() in black_player.lower():
+            last_grandmaster_color = "b"
+        elif white_player or black_player:
+            # Jeśli nie znaleziono arcymistrza, ale jest drugi gracz, to on NIE jest arcymistrzem
+            if white_player: 
+                last_grandmaster_color = "b"
+            elif black_player:
+                last_grandmaster_color = "w"
+        elif white_elo or black_elo:
+            last_grandmaster_color = "w" if white_elo > black_elo else "b"
+         
+        # Usunięcie nagłówków
+        game = re.sub(r'\[.*?\]', '', game).strip()
+        
+        # Pobranie ruchów w oryginalnym formacie
+        move_list = re.findall(r'\d+\.\s*([^\s]+)\s*([^\s]+)?', game)
+        moves = [move for pair in move_list for move in pair if move]
+        
+        extracted_games.append({
+            "grandmaster": last_grandmaster_color,
+            "moves": moves
+        })
+    
+    return extracted_games
+
+def main(grandmaster):
+    # Wczytanie pliku PGN
+    pgn_path = Path(f"grandmaster/pgn/{grandmaster}.pgn")
+    with open(pgn_path, "r") as pgn_file:
+        pgn_data = pgn_file.read()
+
+    # Przetworzenie gier z pliku PGN
+    games = parse_pgn(pgn_data, grandmaster)
+
+    # for game in games:
+    #     print("\n\n", game)
+    # print(len(games))
+
+    # Słownik do przechowywania FENów i ruchów arcymistrza
+    fen_moves = {}
+    
+    for game in games:
+        grandmaster_color = game['grandmaster']
+        moves = game['moves']
+        main_board = board_and_fields.Board()
+        turn = 'w'  # Biały zawsze zaczyna
+        y1, x1, y2, x2 = 0, 0, 0, 0
+
+        for i in range(len(moves)):
+            current_move = moves[i]    
+            # Zapisujemy FEN i ruch tylko gdy jest ruch arcymistrza
+            if (turn == grandmaster_color):
+                # Pobierz aktualny FEN (bez liczników ruchów)
+                current_fen = board_to_fen_inverted(main_board, turn, y1, x1, y2, x2)
+                fen_parts = current_fen.split(' ')
+                good_fen = f"{fen_parts[0]} {fen_parts[1]} {fen_parts[2]} {fen_parts[3]} 0 1"
+                
+                
+            
+            # Wykonaj ruch na planszy
             try:
-                cords=engine.notation_to_cords(main_board, input("ruch: "), turn)
-                y1,x1,y2,x2 = cords
-                moving = not tryMove(turn, main_board, y1, x1, y2, x2)
-            except ValueError:
-                print("Niepoprawny ruch, ",cords)
-            # except IndexError:
-            #     print("Brak notacji")
-        print(afterMove(turn, main_board, y1, x1, y2, x2))
-        print(board_to_fen(main_board.board_state))
-        print(main_board.moves_algebraic)
-        whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
-        if whatAfter == "promotion":
-            main_board.print_board()
-            choiceOfPromotion = input(f"""Pionek w kolumnie {xForPromotion} dotarł do końca planszy. Wpisz:
-    1 - Aby zmienić go w Skoczka
-    2 - Aby zmienić go w Gońca
-    3 - Aby zmienić go w Wieżę
-    4 - Aby zmienić go w Królową
-                    """)
-            promotion(turn, yForPromotion, xForPromotion, main_board, choiceOfPromotion)
-        if whatAfter == "checkmate":
-            print("Szach Mat!")
-            break
-        elif whatAfter == "stalemate":
-            print("Pat")
-            break
-        else:
-            continue
-    return
+                print(f"Ruch: {current_move}")
+                cords = engine.notation_to_cords(main_board, current_move, turn)
+                y1, x1, y2, x2 = cords
+                if tryMove(turn, main_board, y1, x1, y2, x2):
+                    if turn == grandmaster_color:
+                        # Dodaj ruch do listy ruchów dla danego FENa
+                        if good_fen in fen_moves:
+                            if current_move not in fen_moves[good_fen]:
+                                fen_moves[good_fen].append(current_move)
+                        else:
+                            fen_moves[good_fen] = [current_move]
+                    turn = 'b' if turn == 'w' else 'w'
+                    whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
+                    if whatAfter == "promotion":
+                        choiceOfPromotion = current_move[-1]
+                        promotion_letter_to_number = {
+                            "Q": "4", "R": "3", "B": "2", "N": "1"
+                        }
+                        promotion(turn, yForPromotion, xForPromotion, main_board, 
+                                promotion_letter_to_number[choiceOfPromotion])
+            except:
+                break
+            
+            if whatAfter in ["checkmate", "stalemate"]:
+                break
+                    
+            # except (ValueError, IndexError) as e:
+            #     print(f"Błąd podczas wykonywania ruchu: {e}")
+            
+            
+    
+    # Zapisz wyniki do pliku JSON
+    json_path = Path(f"grandmaster/json/{grandmaster}.json")
+    with open(json_path, "w") as json_file:
+        json.dump(fen_moves, json_file, indent=2)
+
+
 if __name__ == "__main__":
     main()

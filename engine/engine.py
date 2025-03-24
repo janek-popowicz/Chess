@@ -64,7 +64,7 @@ def notation_to_cords(board, notation: str, turn: str):
                         if "x" in notation:
                             directions_to_check[0] = (0,0,0)
                             directions_to_check[1] = (0,0,0)
-                        else:
+                        elif not field.figure.can_enpassant:
                             directions_to_check[2] = (0,0,0)
                             directions_to_check[3] = (0,0,0)
                     #Sprawdzanie, czy pole docelowe jest w ruchach danej figury
@@ -80,7 +80,7 @@ def notation_to_cords(board, notation: str, turn: str):
                             if field_to_check == target_field:
                                 if notation[2] == "x" and notation[0] == "p":
                                     #sprawdzamy specjalny przypadek - en passant
-                                    if target_field.figure and field.figure.can_enpassant:
+                                    if not target_field.figure and field.figure.can_enpassant:
                                         candidate_figures.append((field.y,field.x))
                                 if field_to_check.figure and "x" in notation:
                                     candidate_figures.append((field.y,field.x))
@@ -127,9 +127,9 @@ Returns:
         main_board.moves_algebraic += [chr(104 - x2) + str(y2+1)]
         if destination_tile.figure:
             main_board.moves_algebraic[-1] = chr(104 - x2) +  'x' + main_board.moves_algebraic[-1]
-        main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board.board_state))
-        print(main_board.moves_algebraic)
-        print(main_board.fen_history)
+        main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board, turn, y1,x1,y2,x2))
+        # print(main_board.moves_algebraic)
+        #print(main_board.fen_history)
         #Wykonanie roszady
         if destination_tile.figure:
             if destination_tile.figure.type == 'R' and  destination_tile.figure.color == start_tile.figure.color:
@@ -175,7 +175,7 @@ def undoMove(main_board: board_and_fields.Board) -> bool:
     Zwraca True jeżeli operacja się powiodła, False w przeciwnym razie.
     """
     if len(main_board.fen_history) > 0:
-        main_board.board_state = fen_operations.fen_to_board_state(main_board.fen_history[-1])
+        fen_operations.fen_to_board(main_board.fen_history[-1],main_board)
         main_board.fen_history.pop()
         main_board.moves_algebraic.pop()
         main_board.print_board()

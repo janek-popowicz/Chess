@@ -285,3 +285,113 @@ def confirm_undo_dialog(screen, SQUARE_SIZE: int) -> bool:
                     return True
                 elif event.key == pygame.K_n:  # Klawisz "N" dla "Nie"
                     return False
+
+def choose_color_dialog(screen, SQUARE_SIZE: int) -> str:
+    """
+    Wyświetla okno dialogowe z pytaniem, jaki kolor gry wybiera użytkownik.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+
+    Returns:
+        str: 'w' dla białego, 'b' dla czarnego.
+    """
+    font = pygame.font.Font(None, 36)
+
+    # Tekst pytania
+    dialog_text = "Wybierz kolor gry:"
+    dialog = font.render(dialog_text, True, pygame.Color("white"))
+
+    # Opcje kolorów
+    options = [("Biały", pygame.Color("white"), 'w'), ("Czarny", pygame.Color("black"), 'b')]
+    option_rects = []
+    for i, (label, color, _) in enumerate(options):
+        rect = pygame.Rect(SQUARE_SIZE * 3, SQUARE_SIZE * (3 + i), SQUARE_SIZE * 2, SQUARE_SIZE)
+        option_rects.append((label, color, rect))
+
+    while True:
+        screen.fill(pygame.Color("gray"))
+        screen.blit(dialog, (SQUARE_SIZE * 2, SQUARE_SIZE * 2))
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Rysowanie opcji
+        for label, color, rect in option_rects:
+            pygame.draw.rect(screen, color, rect)
+            pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3)  # Obrys
+            text = font.render(label, True, pygame.Color("black") if color == pygame.Color("white") else pygame.Color("white"))
+            text_rect = text.get_rect(center=rect.center)
+            screen.blit(text, text_rect)
+
+        pygame.display.flip()
+
+        # Obsługa zdarzeń
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for label, color, rect in option_rects:
+                    if rect.collidepoint(pos):
+                        return 'w' if color == pygame.Color("white") else 'b'
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:  # Klawisz "W" dla białego
+                    return 'w'
+                elif event.key == pygame.K_b:  # Klawisz "B" dla czarnego
+                    return 'b'
+
+def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
+    """
+    Wyświetla okno dialogowe z pytaniem, jaki algorytm gry wybiera użytkownik.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+
+    Returns:
+        str: 'minimax' dla algorytmu Minimax, 'monte_carlo' dla Monte Carlo.
+    """
+    font = pygame.font.Font(None, 36)
+
+    # Tekst pytania
+    dialog_text = "Wybierz algorytm gry:"
+    dialog = font.render(dialog_text, True, pygame.Color("white"))
+
+    # Opcje algorytmów
+    options = [("Minimax", pygame.Color("blue"), 'minimax'), ("Monte Carlo", pygame.Color("green"), 'monte_carlo')]
+    option_rects = []
+    for i, (label, color, _) in enumerate(options):
+        rect = pygame.Rect(SQUARE_SIZE * 3, SQUARE_SIZE * (3 + i), SQUARE_SIZE * 4, SQUARE_SIZE)
+        option_rects.append((label, color, rect))
+
+    while True:
+        screen.fill(pygame.Color("gray"))
+        screen.blit(dialog, (SQUARE_SIZE * 2, SQUARE_SIZE * 2))
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Rysowanie opcji
+        for label, color, rect in option_rects:
+            pygame.draw.rect(screen, color, rect)
+            pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3)  # Obrys
+            text = font.render(label, True, pygame.Color("white"))
+            text_rect = text.get_rect(center=rect.center)
+            screen.blit(text, text_rect)
+
+        pygame.display.flip()
+
+        # Obsługa zdarzeń
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for label, color, rect in option_rects:
+                    if rect.collidepoint(pos):
+                        return 'minimax' if label == "Minimax" else 'monte_carlo'
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_m:  # Klawisz "M" dla Minimax
+                    return 'minimax'
+                elif event.key == pygame.K_c:  # Klawisz "C" dla Monte Carlo
+                    return 'monte_carlo'

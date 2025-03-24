@@ -1,6 +1,6 @@
 import engine.figures as figures
 import engine.board_and_fields as board_and_fields
-def fen_to_board_state(fen:str)->list:
+def fen_to_board(fen:str, board):
     """Z fena zwraca listę obiektów. Należy zastosować tak:
 
 board_state = fen_to_board_state(fen)
@@ -34,24 +34,54 @@ main_board = board_and_fields.Board(board_state)
                     'p': figures.Pawn
                 }[piece_type]
                 board_row.append(board_and_fields.Field(7-c, 7-r, piece_class(color)))
-                #Do linii 49 włącznie jest do zamienienia
-                if piece_type == 'p':
-                    if board_row[-1].figure.color == "w" and 7-r != 1:
-                        board_row[-1].figure.has_moved = True
-                    if board_row[-1].figure.color == "b" and 7-r != 6:
-                        board_row[-1].figure.has_moved = True
-                if piece_type == 'k' and 7-r != 3:
-                    if board_row[-1].figure.color == "w" and 7-r != 0:
-                        board_row[-1].figure.has_moved = True
-                    if board_row[-1].figure.color == "b" and 7-r != 7:
-                        board_row[-1].figure.has_moved = True
-                if piece_type == "r" and board_row[-1].x not in [0,7] and board_row[-1].x not in [0,7]:
-                    board_row[-1].figure.has_moved = True
                 c += 1
         board_row.reverse()
         board_state.append(board_row)
     board_state.reverse()
-    return board_state
+    board.board_state = board_state
+    char = -5
+    castling_str = ""
+    while fen[char] != " ":
+        castling_str += fen[char]
+        char += -1
+    if fen[char-1] != "-":
+        passed_over_tile = (int(fen[char-1])-1,104 - ord(fen[char-2])) 
+        char -=1
+    else:
+        passed_over_tile = (-1,-1)
+    turn = fen[char - 2]
+    for row in range(0,8):
+        for col in range(0,8):
+            field = board.board_state[row][col]
+            if field.figure:
+                if field.figure.type == "R":
+                    if row != 0 and field.figure.color == "w":
+                        if col != 0 or "K" not in castling_str:
+                            field.figure.has_moved = True
+                        if col != 7 or "Q" not in castling_str:
+                            field.figure.has_moved = True
+                    if row != 7 and field.figure.color == "b":
+                        if col != 0 or "k" not in castling_str:
+                            field.figure.has_moved = True
+                        if col != 0 or "q" not in castling_str:
+                            field.figure.has_moved = True                  
+                elif field.figure.type == "K":
+                    if row != 0 or col != 3 or "K" not in castling_str or "Q" not in castling_str and field.figure.color == "w":
+                        field.figure.has_moved = True
+                    if row != 7 or col != 3 or "k" not in castling_str or "k" not in castling_str and field.figure.color == "b":
+                        field.figure.has_moved = True
+                elif field.figure.type == "p":
+                    if field.figure.color == turn:
+                        direction = -1 if turn == "w" else 1
+                        if passed_over_tile[0] - row == direction:
+                            if passed_over_tile[1] - col == -1:
+                                field.figure.can_enpassant = -1
+                            elif passed_over_tile[1] - col == 1:
+                                field.figure.can_enpassant = 1  
+                    if field.figure.color == "w" and field.y != 1:
+                        field.figure.has_moved = True
+                    if field.figure.color == "b" and field.y != 6:
+                        field.figure.has_moved = True
 
 def board_to_fen(board_state:list)->str:
     """Z listy obiektów zwraca fena. Zastosowanie: tylko dla board_makera, nie dla czegokolwiek innego, bo:
@@ -86,19 +116,30 @@ def board_to_fen(board_state:list)->str:
     return fen
 
 
-def board_to_fen_inverted(board_state: list) -> str:
+def board_to_fen_inverted(board, turn:str, y1:int,x1:int,y2:int,x2:int) -> str:
     """Z listy obiektów zwraca FEN, uwzględniając odwrócenie planszy.
     Stosować dla trybów gry, gdzie plansza jest odwrócona,
     czyli wszystkich poza custom board makerem.
 
     Args:
         board_state (list): board state
+        turn (str): 'w' or 'b'
+        halfmove_reset (bool): czy resetować zegar połówek ruchów
+        y1 (int): współrzędna y pola startowego 
+        x1 (int): współrzędna x pola startowego 
+        y2 (int): współrzędna y pola docelowego 
+        x2 (int): współrzędna x pola docelowego 
 
     Returns:
         str: FEN
     """
+    if y1 != None and x1 != None:
+        start_field = board.board_state[y1][x1]
+    if y2 != None and x2 != None:
+        destination_field = board.board_state[y2][x2]
     fen = ""
-    for row in reversed(board_state):  # Odwracamy kolejność wierszy
+    castling_str = "    " # Ustawiamy 4 spacje w informacji o roszadzie, aby zachować spójność indeksów
+    for row in reversed(board.board_state):  # Odwracamy kolejność wierszy
         empty_count = 0
         for field in reversed(row):  # Odwracamy kolejność pól w wierszu
             if field.figure is None:
@@ -116,5 +157,40 @@ def board_to_fen_inverted(board_state: list) -> str:
             fen += str(empty_count)
         fen += "/"
     fen = fen[:-1]  # Usuwamy końcowy ukośnik
-    fen += " w - - 0 1"  # Dodajemy domyślny FEN suffix
+    fen += " " + turn  # Dodajemy informację o ruchu
+    #Informacje o roszadie
+    i =0                
+    castling_color = "w"
+    letters = ["K","Q","k","q",]
+    for row in [0,7]:
+        if board.board_state[row][3].figure:
+            if board.board_state[row][3].figure.type == "K" and board.board_state[row][3].figure.color == castling_color:
+                if not board.board_state[row][3].figure.has_moved:
+                    for col in [0,7]:
+                        if board.board_state[row][col].figure:
+                            if board.board_state[row][col].figure.type == "R" and board.board_state[row][col].figure.color == castling_color:
+                                if not board.board_state[row][col].figure.has_moved:
+                                    castling_str[i] == letters[i]  
+                        i +=1
+        castling_color = "b"    
+    if len(castling_str) == "    ":           
+        fen += " " + castling_str.strip() # Dodajemy informację o roszadzie (bez spacji)
+    else:
+        fen += " -"
+    # Informacja o enpassant i zegarze połówek ruchów
+    if start_field.figure:
+        if start_field.figure.type == "p":
+            if start_field.y - destination_field.y in [2,-2]:
+                fen += chr(104 - start_field.x) + str(int(destination_field.y + ((start_field.y - destination_field.y)/2))) #Dodajemy współrzędne pola, które "przeskoczył" pionek
+            else:
+                fen += " -"
+            board.halfmove_clock = "0"
+        elif destination_field.figure:
+            board.halfmove_clock = "0"
+        else:
+            board.halfmove_clock = str(int(board.halfmove_clock) +1)
+    else: 
+        fen+= "- - 0 1"
+    fen += " " + board.halfmove_clock
+    fen += " " + str((len(board.moves_algebraic) //2))
     return fen
