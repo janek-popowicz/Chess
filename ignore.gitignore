@@ -1,5 +1,4 @@
 
-
 config.json
 
 
@@ -15,6 +14,7 @@ __pycache__/*
 *.so
 
 # Distribution / packaging
+__pycache__/
 .Python
 build/
 develop-eggs/
@@ -76,8 +76,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
 
 # PyBuilder
 .pybuilder/

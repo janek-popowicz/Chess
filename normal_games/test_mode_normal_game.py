@@ -6,6 +6,7 @@ from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from algorithms import evaluation
+from engine.fen_operations import *
 
 def main():
     running = True
@@ -21,16 +22,14 @@ def main():
         moving = True
         while moving:
             print(evaluation.Evaluation(main_board).ocena_materiału())
-            y1 = input("Wprowadź rząd figury, którą chcesz przesunąć: ")
-            x1 = input("Wprowadź kolumnę figury, którą chcesz przesunąć: ")
-            y2 = input("Wprowadź rząd, na który chcesz przesunąć figurę: ")
-            x2 = input("Wprowadź kolumnę, na którą chcesz przesunąć figurę: ")
-            y1 = int(y1)
-            x1 = int(x1)
-            y2 = int(y2)
-            x2 = int(x2)
+            y1 = int(input("Wprowadź rząd figury, którą chcesz przesunąć: "))
+            x1 = int(input("Wprowadź kolumnę figury, którą chcesz przesunąć: "))
+            y2 = int(input("Wprowadź rząd, na który chcesz przesunąć figurę: "))
+            x2 = int(input("Wprowadź kolumnę, na którą chcesz przesunąć figurę: "))
             moving = not tryMove(turn, main_board, y1, x1, y2, x2)
         print(afterMove(turn, main_board, y1, x1, y2, x2))
+        print(board_to_fen(main_board.board_state))
+        print(main_board.moves_algebraic)
         whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
         if whatAfter == "promotion":
             main_board.print_board()

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="pl" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>graphics module &#8212; Chess 1.0 - dokumentacja</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=331e28ce"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=2827c288"></script>
+    <link rel="index" title="Indeks" href="genindex.html" />
+    <link rel="search" title="Szukaj" href="search.html" />
+    <link rel="next" title="laucher_ai module" href="laucher_ai.html" />
+    <link rel="prev" title="grandmaster package" href="grandmaster.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-graphics">
+<span id="graphics-module"></span><h1>graphics module<a class="headerlink" href="#module-graphics" title="Link to this heading">¶</a></h1>
+<p>Moduł zawiera funkcje odpowiedzialne za grafikę i interfejs użytkownika w grze szachowej.</p>
+<p>Funkcje te obejmują rysowanie szachownicy, figur, podświetlanie możliwych ruchów, wyświetlanie interfejsu oraz obsługę okien dialogowych.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="graphics.load_config">
+<span class="sig-prename descclassname"><span class="pre">graphics.</span></span><span class="sig-name descname"><span class="pre">load_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#graphics.load_config" title="Link to this definition">¶</a></dt>
+<dd><p>Ładuje konfigurację gry z pliku JSON.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Zwraca<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Słownik zawierający ustawienia gry (np. głośność, rozdzielczość, ikony, podświetlanie).</p>
+</dd>
+<dt class="field-even">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graphics.draw_board">
+<span class="sig-prename descclassname"><span class="pre">graphics.</span></span><span class="sig-name descname"><span class="pre">draw_board</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SQUARE_SIZE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_board</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_check</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#graphics.draw_board" title="Link to this definition">¶</a></dt>
+<dd><p>Rysuje szachownicę na ekranie.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>screen</strong> (<em>pygame.Surface</em>) – Powierzchnia ekranu gry.</p></li>
+<li><p><strong>SQUARE_SIZE</strong> (<em>int</em>) – Rozmiar pojedynczego pola na szachownicy.</p></li>
+<li><p><strong>main_board</strong> (<a class="reference internal" href="engine.html#engine.board_and_fields.Board" title="engine.board_and_fields.Board"><em>Board</em></a>) – Obiekt planszy szachowej.</p></li>
+<li><p><strong>in_check</strong> (<em>str</em>) – Kolor gracza, którego król jest szachowany («w» lub «b»).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graphics.draw_pieces">
+<span class="sig-prename descclassname"><span class="pre">graphics.</span></span><span class="sig-name descname"><span class="pre">draw_pieces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">board</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SQUARE_SIZE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pieces</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#graphics.draw_pieces" title="Link to this definition">¶</a></dt>
+<dd><p>Rysuje figury na szachownicy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>screen</strong> (<em>pygame.Surface</em>) – Powierzchnia ekranu gry.</p></li>
+<li><p><strong>board</strong> (<a class="reference internal" href="engine.html#engine.board_and_fields.Board" title="engine.board_and_fields.Board"><em>Board</em></a>) – Obiekt planszy szachowej.</p></li>
+<li><p><strong>SQUARE_SIZE</strong> (<em>int</em>) – Rozmiar pojedynczego pola na szachownicy.</p></li>
+<li><p><strong>pieces</strong> (<em>dict</em>) – Słownik zawierający obrazy figur.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graphics.highlight_moves">
+<span class="sig-prename descclassname"><span class="pre">graphics.</span></span><span class="sig-name descname"><span class="pre">highlight_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">square_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">board</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_move</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_take</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#graphics.highlight_moves" title="Link to this definition">¶</a></dt>
+<dd><p>Podświetla możliwe ruchy dla wybranej figury.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>screen</strong> (<em>pygame.Surface</em>) – Powierzchnia ekranu gry.</p></li>
+<li><p><strong>field</strong> (<a class="reference internal" href="engine.html#engine.board_and_fields.Field" title="engine.board_and_fields.Field"><em>Field</em></a>) – Pole, na którym znajduje się wybrana figura.</p></li>
+<li><p><strong>square_size</strong> (<em>int</em>) – Rozmiar pojedynczego pola na szachownicy.</p></li>
+<li><p><strong>board</strong> (<a class="reference internal" href="engine.html#engine.board_and_fields.Board" title="engine.board_and_fields.Board"><em>Board</em></a>) – Obiekt planszy szachowej.</p></li>
+<li><p><strong>color_move</strong> (<em>tuple</em>) – Kolor podświetlenia dla możliwych ruchów.</p></li>
+<li><p><strong>color_take</strong> (<em>tuple</em>) – Kolor podświetlenia dla możliwych bić.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graphics.draw_interface">
+<span class="sig-prename descclassname"><span class="pre">graphics.</span></span><span class="sig-name descname"><span class="pre">draw_interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SQUARE_SIZE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">BLACK</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">player_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_check</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#graphics.draw_interface" title="Link to this definition">¶</a></dt>
+<dd><p>Rysuje interfejs użytkownika obok szachownicy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>screen</strong> (<em>pygame.Surface</em>) – Powierzchnia ekranu gry.</p></li>
+<li><p><strong>turn</strong> (<em>str</em>) – Aktualna tura («w» dla białych, «b» dla czarnych).</p></li>
+<li><p><strong>SQUARE_SIZE</strong> (<em>int</em>) – Rozmiar pojedynczego pola na szachownicy.</p></li>
+<li><p><strong>BLACK</strong> (<em>tuple</em>) – Kolor tła interfejsu.</p></li>
+<li><p><strong>texts</strong> (<em>tuple</em>) – Teksty wyświetlane w interfejsie.</p></li>
+<li><p><strong>player_times</strong> (<em>tuple</em>) – Czas gry dla obu graczy.</p></li>
+<li><p><strong>in_check</strong> (<em>str</em>) – Kolor gracza, którego król jest szachowany («w» lub «b»).</p></li>
+<li><p><strong>check_text</strong> (<em>pygame.Surface</em>) – Tekst informujący o szachu.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graphics.format_time">
+<span class="sig-prename descclassname"><span class="pre">graphics.</span></span><span class="sig-name descname"><span class="pre">format_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#graphics.format_time" title="Link to this definition">¶</a></dt>
+<dd><p>Formatuje czas gry na minuty i sekundy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seconds</strong> (<em>float</em>) – Czas w sekundach.</p>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sformatowany czas w formacie „MM:SS”.</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graphics.promotion_dialog">
+<span class="sig-prename descclassname"><span class="pre">graphics.</span></span><span class="sig-name descname"><span class="pre">promotion_dialog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SQUARE_SIZE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#graphics.promotion_dialog" title="Link to this definition">¶</a></dt>
+<dd><p>Wyświetla okno dialogowe do wyboru figury przy promocji pionka.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>screen</strong> (<em>pygame.Surface</em>) – Powierzchnia ekranu gry.</p></li>
+<li><p><strong>SQUARE_SIZE</strong> (<em>int</em>) – Rozmiar pojedynczego pola na szachownicy.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Kolor gracza («w» dla białych, «b» dla czarnych).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>Wybrana figura («1» dla skoczka, «2» dla gońca, «3» dla wieży, «4» dla królowej).</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graphics.end_screen">
+<span class="sig-prename descclassname"><span class="pre">graphics.</span></span><span class="sig-name descname"><span class="pre">end_screen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">white_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">black_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SQUARE_SIZE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">WHITE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">BLACK</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#graphics.end_screen" title="Link to this definition">¶</a></dt>
+<dd><p>Wyświetla ekran końcowy z wynikami gry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>screen</strong> (<em>pygame.Surface</em>) – Powierzchnia ekranu gry.</p></li>
+<li><p><strong>result</strong> (<em>str</em>) – Wynik gry (np. „Szach Mat!”, „Pat”).</p></li>
+<li><p><strong>winner</strong> (<em>str</em>) – Zwycięzca gry.</p></li>
+<li><p><strong>white_time</strong> (<em>float</em>) – Czas gry białego gracza.</p></li>
+<li><p><strong>black_time</strong> (<em>float</em>) – Czas gry czarnego gracza.</p></li>
+<li><p><strong>SQUARE_SIZE</strong> (<em>int</em>) – Rozmiar pojedynczego pola na szachownicy.</p></li>
+<li><p><strong>width</strong> (<em>int</em>) – Szerokość ekranu.</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – Wysokość ekranu.</p></li>
+<li><p><strong>WHITE</strong> (<em>tuple</em>) – Kolor tekstu.</p></li>
+<li><p><strong>BLACK</strong> (<em>tuple</em>) – Kolor tła.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Chess</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Szukaj" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Nawigacja</h3>
+<p class="caption" role="heading"><span class="caption-text">Dokumentacja</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Chess</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html">algorithms package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_board_game.html">custom_board_game package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engine.html">engine package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grandmaster.html">grandmaster package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">graphics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="laucher_ai.html">laucher_ai module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="launcher.html">launcher module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="normal_games.html">normal_games package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pieces.html">pieces package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html">settings module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">Chess</a><ul>
+      <li>Previous: <a href="grandmaster.html" title="poprzedni rozdział">grandmaster package</a></li>
+      <li>Next: <a href="laucher_ai.html" title="następny rozdział">laucher_ai module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Janek Popowicz / Chopinpawns.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/graphics.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

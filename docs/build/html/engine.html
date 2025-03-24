@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+
+<html lang="pl" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>engine package &#8212; Chess 1.0 - dokumentacja</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=331e28ce"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=2827c288"></script>
+    <link rel="index" title="Indeks" href="genindex.html" />
+    <link rel="search" title="Szukaj" href="search.html" />
+    <link rel="next" title="grandmaster package" href="grandmaster.html" />
+    <link rel="prev" title="custom_board_game package" href="custom_board_game.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="engine-package">
+<h1>engine package<a class="headerlink" href="#engine-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-engine.board_and_fields">
+<span id="engine-board-and-fields-module"></span><h2>engine.board_and_fields module<a class="headerlink" href="#module-engine.board_and_fields" title="Link to this heading">¶</a></h2>
+<p>Moduł zawiera klasy reprezentujące pola i planszę szachową.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="engine.board_and_fields.Field">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">engine.board_and_fields.</span></span><span class="sig-name descname"><span class="pre">Field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Field" title="Link to this definition">¶</a></dt>
+<dd><p>Klasy bazowe: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Klasa reprezentująca pojedyncze pole na planszy szachowej.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Field.remove_figure">
+<span class="sig-name descname"><span class="pre">remove_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Field.remove_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Usuwa figurę z pola.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">engine.board_and_fields.</span></span><span class="sig-name descname"><span class="pre">Board</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board" title="Link to this definition">¶</a></dt>
+<dd><p>Klasy bazowe: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Klasa reprezentująca planszę szachową.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board.make_move">
+<span class="sig-name descname"><span class="pre">make_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board.make_move" title="Link to this definition">¶</a></dt>
+<dd><p>Wykonuje ruch na planszy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y1</strong> (<em>int</em>) – Współrzędna wiersza początkowego.</p></li>
+<li><p><strong>x1</strong> (<em>int</em>) – Współrzędna kolumny początkowej.</p></li>
+<li><p><strong>y2</strong> (<em>int</em>) – Współrzędna wiersza docelowego.</p></li>
+<li><p><strong>x2</strong> (<em>int</em>) – Współrzędna kolumny docelowej.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board.make_move_new_board">
+<span class="sig-name descname"><span class="pre">make_move_new_board</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board.make_move_new_board" title="Link to this definition">¶</a></dt>
+<dd><p>Wykonuje ruch na planszy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y1</strong> (<em>int</em>) – Współrzędna wiersza początkowego.</p></li>
+<li><p><strong>x1</strong> (<em>int</em>) – Współrzędna kolumny początkowej.</p></li>
+<li><p><strong>y2</strong> (<em>int</em>) – Współrzędna wiersza docelowego.</p></li>
+<li><p><strong>x2</strong> (<em>int</em>) – Współrzędna kolumny docelowej.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board.get_regular_moves">
+<span class="sig-name descname"><span class="pre">get_regular_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board.get_regular_moves" title="Link to this definition">¶</a></dt>
+<dd><p>Generuje możliwe ruchy dla figury na danym polu (bez uwzględnienia ataków).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>field</strong> (<a class="reference internal" href="#engine.board_and_fields.Field" title="engine.board_and_fields.Field"><em>Field</em></a>) – Pole, dla którego generowane są ruchy.</p>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista możliwych współrzędnych ruchów.</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board.get_attack_moves">
+<span class="sig-name descname"><span class="pre">get_attack_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board.get_attack_moves" title="Link to this definition">¶</a></dt>
+<dd><p>Generuje możliwe ruchy ataku dla figury na danym polu.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>field</strong> (<a class="reference internal" href="#engine.board_and_fields.Field" title="engine.board_and_fields.Field"><em>Field</em></a>) – Pole, dla którego generowane są ruchy ataku.</p>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista możliwych współrzędnych ataków.</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board.is_attacked">
+<span class="sig-name descname"><span class="pre">is_attacked</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board.is_attacked" title="Link to this definition">¶</a></dt>
+<dd><p>Sprawdza, czy dane pole jest atakowane przez przeciwnika.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<a class="reference internal" href="#engine.board_and_fields.Field" title="engine.board_and_fields.Field"><em>Field</em></a>) – Pole do sprawdzenia.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>opcjonalnie</em>) – Kolor gracza, który atakuje (domyślnie przeciwnik).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>True, jeśli pole jest atakowane, False w przeciwnym razie.</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board.is_in_check">
+<span class="sig-name descname"><span class="pre">is_in_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board.is_in_check" title="Link to this definition">¶</a></dt>
+<dd><p>Sprawdza, czy król danego koloru jest szachowany.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>color</strong> (<em>str</em>) – Kolor króla do sprawdzenia.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board.get_all_moves">
+<span class="sig-name descname"><span class="pre">get_all_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">turn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board.get_all_moves" title="Link to this definition">¶</a></dt>
+<dd><p>Generuje wszystkie możliwe ruchy dla danego koloru.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>turn</strong> (<em>str</em>) – Aktualna tura («w» lub «b»).</p>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista wszystkich możliwych ruchów.</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board.get_legal_moves">
+<span class="sig-name descname"><span class="pre">get_legal_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board.get_legal_moves" title="Link to this definition">¶</a></dt>
+<dd><p>Generuje legalne ruchy dla figury na danym polu.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<a class="reference internal" href="#engine.board_and_fields.Field" title="engine.board_and_fields.Field"><em>Field</em></a>) – Pole figury, dla której generowane są ruchy.</p></li>
+<li><p><strong>turn</strong> (<em>str</em>) – Aktualna tura («w» lub «b»).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista legalnych ruchów.</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board.print_board">
+<span class="sig-name descname"><span class="pre">print_board</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board.print_board" title="Link to this definition">¶</a></dt>
+<dd><p>Wyświetla aktualny stan planszy w terminalu.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.board_and_fields.Board.get_piece">
+<span class="sig-name descname"><span class="pre">get_piece</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.board_and_fields.Board.get_piece" title="Link to this definition">¶</a></dt>
+<dd><p>Zwraca figurę znajdującą się na danym polu.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>row</strong> (<em>int</em>) – Wiersz pola.</p></li>
+<li><p><strong>col</strong> (<em>int</em>) – Kolumna pola.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reprezentacja figury lub „–”, jeśli pole jest puste.</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-engine.engine">
+<span id="engine-engine-module"></span><h2>engine.engine module<a class="headerlink" href="#module-engine.engine" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="engine.engine.notation_to_cords">
+<span class="sig-prename descclassname"><span class="pre">engine.engine.</span></span><span class="sig-name descname"><span class="pre">notation_to_cords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.engine.notation_to_cords" title="Link to this definition">¶</a></dt>
+<dd><p>Konwertuje notację szachową na współrzędne na planszy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>board</strong> (<a class="reference internal" href="#engine.board_and_fields.Board" title="engine.board_and_fields.Board"><em>Board</em></a>) – Obiekt planszy szachowej.</p></li>
+<li><p><strong>notation</strong> (<em>str</em>) – Ruch w standardowej notacji szachowej (np. „e4”, „Nf3”).</p></li>
+<li><p><strong>turn</strong> (<em>str</em>) – Tura gracza («w» dla białych, «b» dla czarnych).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>Krotka współrzędnych (start_y, start_x, target_y, target_x), jeśli ruch jest poprawny.
+str: Komunikat o błędzie, jeśli ruch nie może zostać określony.</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="engine.engine.tryMove">
+<span class="sig-prename descclassname"><span class="pre">engine.engine.</span></span><span class="sig-name descname"><span class="pre">tryMove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">turn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_board</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.engine.tryMove" title="Link to this definition">¶</a></dt>
+<dd><p>Próbuje zrobić ruch</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>turn</strong> (<em>str</em>) – Tura gracza («w» lub «b»).</p></li>
+<li><p><strong>main_board</strong> (<a class="reference internal" href="#engine.board_and_fields.Board" title="engine.board_and_fields.Board"><em>Board</em></a>) – Obiekt planszy szachowej.</p></li>
+<li><p><strong>y1</strong> (<em>int</em>) – Współrzędna wiersza początkowego.</p></li>
+<li><p><strong>x1</strong> (<em>int</em>) – Współrzędna kolumny początkowej.</p></li>
+<li><p><strong>y2</strong> (<em>int</em>) – Współrzędna wiersza docelowego.</p></li>
+<li><p><strong>x2</strong> (<em>int</em>) – Współrzędna kolumny docelowej.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>True, jeśli ruch jest poprawny i został wykonany, False w przeciwnym razie.</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="engine.engine.afterMove">
+<span class="sig-prename descclassname"><span class="pre">engine.engine.</span></span><span class="sig-name descname"><span class="pre">afterMove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">turn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_board</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.engine.afterMove" title="Link to this definition">¶</a></dt>
+<dd><p>Sprawdza stan planszy po wykonaniu ruchu.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>turn</strong> (<em>str</em>) – Tura gracza («w» lub «b»).</p></li>
+<li><p><strong>main_board</strong> (<a class="reference internal" href="#engine.board_and_fields.Board" title="engine.board_and_fields.Board"><em>Board</em></a>) – Obiekt planszy szachowej.</p></li>
+<li><p><strong>y1</strong> (<em>int</em>) – Współrzędna wiersza początkowego.</p></li>
+<li><p><strong>x1</strong> (<em>int</em>) – Współrzędna kolumny początkowej.</p></li>
+<li><p><strong>y2</strong> (<em>int</em>) – Współrzędna wiersza docelowego.</p></li>
+<li><p><strong>x2</strong> (<em>int</em>) – Współrzędna kolumny docelowej.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>Komunikat wskazujący wynik ruchu (np. „checkmate”, „stalemate”, „check”).</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="engine.engine.promotion">
+<span class="sig-prename descclassname"><span class="pre">engine.engine.</span></span><span class="sig-name descname"><span class="pre">promotion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_board</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choice</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.engine.promotion" title="Link to this definition">¶</a></dt>
+<dd><p>Obsługuje promocję pionka.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>int</em>) – Współrzędna wiersza pionka.</p></li>
+<li><p><strong>x</strong> (<em>int</em>) – Współrzędna kolumny pionka.</p></li>
+<li><p><strong>main_board</strong> (<a class="reference internal" href="#engine.board_and_fields.Board" title="engine.board_and_fields.Board"><em>Board</em></a>) – Obiekt planszy szachowej.</p></li>
+<li><p><strong>choice</strong> (<em>str</em>) – Wybór promocji («1» dla skoczka, «2» dla gońca, «3» dla wieży, «4» dla królowej).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+<dt class="field-odd">Zwraca<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-engine.fen_operations">
+<span id="engine-fen-operations-module"></span><h2>engine.fen_operations module<a class="headerlink" href="#module-engine.fen_operations" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="engine.fen_operations.fen_to_board_state">
+<span class="sig-prename descclassname"><span class="pre">engine.fen_operations.</span></span><span class="sig-name descname"><span class="pre">fen_to_board_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.fen_operations.fen_to_board_state" title="Link to this definition">¶</a></dt>
+<dd><p>Z fena zwraca listę obiektów. Należy zastosować tak:</p>
+<p>board_state = fen_to_board_state(fen)
+main_board = board_and_fields.Board(board_state)
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></span></p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>fen (str): string w takiej formie: 8/8/4K3/8/8/7k/8/8 w - - 0 1</p>
+</dd>
+<dt>Returns:</dt><dd><p>list: lista obiektów figur, zobacz Board.__init__ aby się dowiedzieć więcej.</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="engine.fen_operations.board_to_fen">
+<span class="sig-prename descclassname"><span class="pre">engine.fen_operations.</span></span><span class="sig-name descname"><span class="pre">board_to_fen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board_state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.fen_operations.board_to_fen" title="Link to this definition">¶</a></dt>
+<dd><p>Z listy obiektów zwraca fena.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parametry<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>board_state</strong> (<em>list</em>) – board state</p>
+</dd>
+<dt class="field-even">Zwraca<span class="colon">:</span></dt>
+<dd class="field-even"><p>fen</p>
+</dd>
+<dt class="field-odd">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-engine.figures">
+<span id="engine-figures-module"></span><h2>engine.figures module<a class="headerlink" href="#module-engine.figures" title="Link to this heading">¶</a></h2>
+<p>Moduł zawiera klasy reprezentujące figury szachowe.</p>
+<p>Każda figura posiada swoje unikalne właściwości, takie jak typ, kolor, schemat ruchu oraz dodatkowe atrybuty (np. możliwość wykonania roszady lub bicia w przelocie).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="engine.figures.Pawn">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">engine.figures.</span></span><span class="sig-name descname"><span class="pre">Pawn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Pawn" title="Link to this definition">¶</a></dt>
+<dd><p>Klasy bazowe: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Klasa reprezentująca pionka.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.Pawn.return_figure">
+<span class="sig-name descname"><span class="pre">return_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Pawn.return_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Zwraca reprezentację pionka jako ciąg znaków.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Zwraca<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reprezentacja pionka (np. „wp” dla białego pionka).</p>
+</dd>
+<dt class="field-even">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.Pawn.print_figure">
+<span class="sig-name descname"><span class="pre">print_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Pawn.print_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Wyświetla reprezentację pionka w terminalu.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="engine.figures.Rook">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">engine.figures.</span></span><span class="sig-name descname"><span class="pre">Rook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Rook" title="Link to this definition">¶</a></dt>
+<dd><p>Klasy bazowe: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Klasa reprezentująca wieżę.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.Rook.return_figure">
+<span class="sig-name descname"><span class="pre">return_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Rook.return_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Zwraca reprezentację wieży jako ciąg znaków.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Zwraca<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reprezentacja wieży (np. „wR” dla białej wieży).</p>
+</dd>
+<dt class="field-even">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.Rook.print_figure">
+<span class="sig-name descname"><span class="pre">print_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Rook.print_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Wyświetla reprezentację wieży w terminalu.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="engine.figures.Knight">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">engine.figures.</span></span><span class="sig-name descname"><span class="pre">Knight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Knight" title="Link to this definition">¶</a></dt>
+<dd><p>Klasy bazowe: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Klasa reprezentująca skoczka.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.Knight.return_figure">
+<span class="sig-name descname"><span class="pre">return_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Knight.return_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Zwraca reprezentację skoczka jako ciąg znaków.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Zwraca<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reprezentacja skoczka (np. „wN” dla białego skoczka).</p>
+</dd>
+<dt class="field-even">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.Knight.print_figure">
+<span class="sig-name descname"><span class="pre">print_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Knight.print_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Wyświetla reprezentację skoczka w terminalu.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="engine.figures.Bishop">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">engine.figures.</span></span><span class="sig-name descname"><span class="pre">Bishop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Bishop" title="Link to this definition">¶</a></dt>
+<dd><p>Klasy bazowe: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Klasa reprezentująca gońca.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.Bishop.return_figure">
+<span class="sig-name descname"><span class="pre">return_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Bishop.return_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Zwraca reprezentację gońca jako ciąg znaków.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Zwraca<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reprezentacja gońca (np. „wB” dla białego gońca).</p>
+</dd>
+<dt class="field-even">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.Bishop.print_figure">
+<span class="sig-name descname"><span class="pre">print_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Bishop.print_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Wyświetla reprezentację gońca w terminalu.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="engine.figures.Queen">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">engine.figures.</span></span><span class="sig-name descname"><span class="pre">Queen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Queen" title="Link to this definition">¶</a></dt>
+<dd><p>Klasy bazowe: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Klasa reprezentująca królową.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.Queen.return_figure">
+<span class="sig-name descname"><span class="pre">return_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Queen.return_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Zwraca reprezentację królowej jako ciąg znaków.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Zwraca<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reprezentacja królowej (np. „wQ” dla białej królowej).</p>
+</dd>
+<dt class="field-even">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.Queen.print_figure">
+<span class="sig-name descname"><span class="pre">print_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.Queen.print_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Wyświetla reprezentację królowej w terminalu.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="engine.figures.King">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">engine.figures.</span></span><span class="sig-name descname"><span class="pre">King</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.King" title="Link to this definition">¶</a></dt>
+<dd><p>Klasy bazowe: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Klasa reprezentująca króla.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.King.return_figure">
+<span class="sig-name descname"><span class="pre">return_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.King.return_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Zwraca reprezentację króla jako ciąg znaków.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Zwraca<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reprezentacja króla (np. „wK” dla białego króla).</p>
+</dd>
+<dt class="field-even">Typ zwracany<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="engine.figures.King.print_figure">
+<span class="sig-name descname"><span class="pre">print_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#engine.figures.King.print_figure" title="Link to this definition">¶</a></dt>
+<dd><p>Wyświetla reprezentację króla w terminalu.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-engine">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-engine" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Chess</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Szukaj" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Nawigacja</h3>
+<p class="caption" role="heading"><span class="caption-text">Dokumentacja</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Chess</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html">algorithms package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_board_game.html">custom_board_game package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">engine package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grandmaster.html">grandmaster package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graphics.html">graphics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="laucher_ai.html">laucher_ai module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="launcher.html">launcher module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="normal_games.html">normal_games package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pieces.html">pieces package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html">settings module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">Chess</a><ul>
+      <li>Previous: <a href="custom_board_game.html" title="poprzedni rozdział">custom_board_game package</a></li>
+      <li>Next: <a href="grandmaster.html" title="następny rozdział">grandmaster package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Janek Popowicz / Chopinpawns.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/engine.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

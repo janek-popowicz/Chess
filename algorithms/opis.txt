@@ -18,3 +18,16 @@ Evaluation
 -nie ma testów na to 
 - nie ma dokończenia wag do końca (chodzi o mnozniki itp)
 - i pewnie czegoś jeszcze ale i tak to w miare dobra podstawa do minimaxa 
+
+
+
+
+
+
+
+
+
+Na 19.03.2025
+
+1. Zamienić wszytkie Funkcje na get legal moves na get all legal moves coś takiego 
+2. Zrobić funcje na robi

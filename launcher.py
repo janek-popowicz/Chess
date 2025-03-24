@@ -11,8 +11,6 @@ import normal_games.normal_game
 import normal_games.test_mode_normal_game
 import custom_board_game.board_maker
 import custom_board_game.normal_game_custom_board
-import multiplayer.client
-import multiplayer.server
 import settings
 
 # Funkcja główna
@@ -45,9 +43,9 @@ def main():
         "Board maker",
         "Ustawienia",
         "Wyjście",
-        "Test mode",
-        "Seerwer",
-        "klient"
+        "Tryb terminalowy",
+        "Serwer",
+        "Klient"
     ]
 
     selected_option = 0
@@ -121,8 +119,10 @@ def do_an_action(selected_option):
     elif selected_option == 5:
         normal_games.test_mode_normal_game.main()
     elif selected_option == 6:
+        import multiplayer.server
         multiplayer.server.main()
     elif selected_option == 7:
+        import multiplayer.client
         multiplayer.client.main()
 
 
