@@ -29,8 +29,8 @@ class Minimax:
         
     def minimax(self, board, depth, alfa, beta, is_maximizing):
 
-        if depth == self.depth:
-            board = self.main_board
+        '''if depth == self.depth:
+            board = self.main_board'''
         current_color = self.color if is_maximizing else ('w' if self.color == 'b' else 'b')
 
         legal_moves = board.get_all_moves(current_color)
@@ -92,7 +92,7 @@ class Minimax:
 
                         if beta <= alfa:
                             break 
-                return min_eval, best_move
+            return min_eval, best_move
     def get_best_move(self):
         """Wywołuje funkcję minimax dla aktualnej planszy i zwraca najlepszy ruch."""
         score, move = self.minimax(self.main_board, 3, self.alpha, self.beta, True)
