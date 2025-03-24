@@ -113,8 +113,6 @@ def main():
                                     in_check = None
                             selected_piece = None
                             start_time = time.time()
-                            draw_board(screen, SQUARE_SIZE, main_board, in_check)
-                            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
 
                         else:
                             selected_piece = (row, col)
@@ -134,6 +132,9 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
             if player_turn!=turn:
+                draw_board(screen, SQUARE_SIZE, main_board, in_check)
+                draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+                pygame.display.flip()
                 if algorithm == "minimax":
                     minimax_obj = Minimax(main_board, 3, turn)
                     move = minimax_obj.get_best_move()
