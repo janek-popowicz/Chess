@@ -14,8 +14,14 @@ from engine.figures import *
 from algorithms import evaluation
 from engine.fen_operations import *
 
-def parse_pgn(pgn_text):
-    games = re.split(r'(?m)^1\.', pgn_text.strip())  # Podział na gry tylko gdy "1." jest na początku linii
+import re
+
+import re
+
+def parse_pgn(pgn_text, grandmaster_name_fragment):
+    # Podział na gry na podstawie wyników (0-1, 1-0, 1/2-1/2)
+    games = re.split(r'(?:1-0|0-1|1/2-1/2)', pgn_text.replace("\n", " ").strip())
+
     extracted_games = []
     last_grandmaster_color = None
     
@@ -31,20 +37,31 @@ def parse_pgn(pgn_text):
         for key, value in header_lines:
             headers[key] = value
         
-        # Określenie, kto jest arcymistrzem, jeśli dostępne
+        # Pobranie nazw graczy
+        white_player = headers.get("White", "")
+        black_player = headers.get("Black", "")
+        
+        # Pobranie ELO
         white_elo_str = headers.get("WhiteElo", "0")
         black_elo_str = headers.get("BlackElo", "0")
         
-        # Konwersja Elo na liczby, obsługa "?"
         white_elo = int(white_elo_str) if white_elo_str.isdigit() else 0
         black_elo = int(black_elo_str) if black_elo_str.isdigit() else 0
         
-        print(f"White Elo: {white_elo}")
-        print(f"Black Elo: {black_elo}")
-        
-        if white_elo or black_elo:
+        # Ustalenie, kto jest arcymistrzem
+        if grandmaster_name_fragment.lower() in white_player.lower():
+            last_grandmaster_color = "w"
+        elif grandmaster_name_fragment.lower() in black_player.lower():
+            last_grandmaster_color = "b"
+        elif white_player or black_player:
+            # Jeśli nie znaleziono arcymistrza, ale jest drugi gracz, to on NIE jest arcymistrzem
+            if white_player: 
+                last_grandmaster_color = "b"
+            elif black_player:
+                last_grandmaster_color = "w"
+        elif white_elo or black_elo:
             last_grandmaster_color = "w" if white_elo > black_elo else "b"
-        
+         
         # Usunięcie nagłówków
         game = re.sub(r'\[.*?\]', '', game).strip()
         
@@ -59,17 +76,19 @@ def parse_pgn(pgn_text):
     
     return extracted_games
 
-
-
-def main():
+def main(grandmaster):
     # Wczytanie pliku PGN
-    pgn_path = Path("grandmaster/games.pgn")
+    pgn_path = Path(f"grandmaster/pgn/{grandmaster}.pgn")
     with open(pgn_path, "r") as pgn_file:
         pgn_data = pgn_file.read()
 
     # Przetworzenie gier z pliku PGN
-    games = parse_pgn(pgn_data)
-    
+    games = parse_pgn(pgn_data, grandmaster)
+
+    # for game in games:
+    #     print("\n\n", game)
+    # print(len(games))
+
     # Słownik do przechowywania FENów i ruchów arcymistrza
     fen_moves = {}
     
@@ -78,10 +97,10 @@ def main():
         moves = game['moves']
         main_board = board_and_fields.Board()
         turn = 'w'  # Biały zawsze zaczyna
-        
+        y1, x1, y2, x2 = 0, 0, 0, 0
+
         for i in range(len(moves)):
-            current_move = moves[i]
-            
+            current_move = moves[i]    
             # Zapisujemy FEN i ruch tylko gdy jest ruch arcymistrza
             if (turn == grandmaster_color):
                 # Pobierz aktualny FEN (bez liczników ruchów)
@@ -89,12 +108,7 @@ def main():
                 fen_parts = current_fen.split(' ')
                 good_fen = f"{fen_parts[0]} {fen_parts[1]} {fen_parts[2]} {fen_parts[3]} 0 1"
                 
-                # Dodaj ruch do listy ruchów dla danego FENa
-                if good_fen in fen_moves:
-                    if current_move not in fen_moves[good_fen]:
-                        fen_moves[good_fen].append(current_move)
-                else:
-                    fen_moves[good_fen] = [current_move]
+                
             
             # Wykonaj ruch na planszy
             try:
@@ -102,6 +116,13 @@ def main():
                 cords = engine.notation_to_cords(main_board, current_move, turn)
                 y1, x1, y2, x2 = cords
                 if tryMove(turn, main_board, y1, x1, y2, x2):
+                    if turn == grandmaster_color:
+                        # Dodaj ruch do listy ruchów dla danego FENa
+                        if good_fen in fen_moves:
+                            if current_move not in fen_moves[good_fen]:
+                                fen_moves[good_fen].append(current_move)
+                        else:
+                            fen_moves[good_fen] = [current_move]
                     turn = 'b' if turn == 'w' else 'w'
                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
                     if whatAfter == "promotion":
@@ -123,7 +144,7 @@ def main():
             
     
     # Zapisz wyniki do pliku JSON
-    json_path = Path("grandmaster/grandmaster_moves.json")
+    json_path = Path(f"grandmaster/json/{grandmaster}.json")
     with open(json_path, "w") as json_file:
         json.dump(fen_moves, json_file, indent=2)
 
