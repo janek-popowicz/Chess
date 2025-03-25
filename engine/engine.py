@@ -120,15 +120,23 @@ Args:
 Returns:
     bool: True, jeśli ruch jest poprawny i został wykonany, False w przeciwnym razie.
     """
+    passed_over_tile = (-1,-1)
+    halfmove_reset = True
     start_tile = main_board.board_state[y1][x1] 
     destination_tile = main_board.board_state[y2][x2]
+    if start_tile.figure:    
+        if start_tile.figure.type == "p":
+            halfmove_reset = False
+            if y1 - y2 in [-2,2]:
+                passed_over_tile = (y2 - ((y2 - y1)/2),x1)
+    elif destination_tile.figure:
+        halfmove_reset = False
     if(y2,x2) in main_board.get_legal_moves(start_tile,turn):
         color_to_check = 'b' if start_tile.figure.color == 'w' else 'b'
         main_board.moves_algebraic += [chr(104 - x2) + str(y2+1)]
         if destination_tile.figure:
             main_board.moves_algebraic[-1] = chr(104 - x2) +  'x' + main_board.moves_algebraic[-1]
-        main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board, turn, y1,x1,y2,x2))
-        # print(main_board.moves_algebraic)
+        #print(main_board.moves_algebraic)
         #print(main_board.fen_history)
         #Wykonanie roszady
         if destination_tile.figure:
@@ -147,6 +155,7 @@ Returns:
                     main_board.moves_algebraic[-1] = "O-O"
                 else:
                     main_board.moves_algebraic[-1] = "O-O-O"
+                main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board, "b" if turn == 'w' else "w", halfmove_reset, passed_over_tile))
                 return True
         #Wykonanie enpassant
         elif destination_tile.figure == None and start_tile.figure.type == 'p':
@@ -165,6 +174,7 @@ Returns:
             main_board.moves_algebraic[-1] += '+'
         if destination_tile.figure.type != 'p':
             main_board.moves_algebraic[-1] = destination_tile.figure.type + main_board.moves_algebraic[-1]
+        main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board, "b" if turn == 'w' else "w", halfmove_reset, passed_over_tile))
         return True
     else: 
         print("Nielegalny ruch!")
@@ -175,10 +185,10 @@ def undoMove(main_board: board_and_fields.Board) -> bool:
     Zwraca True jeżeli operacja się powiodła, False w przeciwnym razie.
     """
     if len(main_board.fen_history) > 0:
-        fen_operations.fen_to_board(main_board.fen_history[-1],main_board)
+        fen_operations.fen_to_board(main_board.fen_history[-2],main_board)
         main_board.fen_history.pop()
+        # main_board.print_board()
         main_board.moves_algebraic.pop()
-        main_board.print_board()
         return True
     else:
         return False

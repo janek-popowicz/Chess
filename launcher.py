@@ -79,7 +79,7 @@ def main():
                 elif event.key == pygame.K_DOWN:
                     selected_option = (selected_option + 1) % len(menu_options)
                 elif event.key == pygame.K_RETURN:
-                    if do_an_action(selected_option) == False:
+                    if do_an_action(selected_option, screen) == False:
                         running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for i, (text_white, text_gray) in enumerate(menu_texts):

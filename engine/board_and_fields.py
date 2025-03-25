@@ -2,6 +2,7 @@
 Moduł zawiera klasy reprezentujące pola i planszę szachową.
 """
 import engine.figures as figures
+import engine.fen_operations as fen_operations
 import copy
 class Field:
     """
@@ -53,8 +54,8 @@ class Board:
         self.incheck = False
         self.moves_numeric = []
         self.moves_algebraic = []
-        self.fen_history = []
-        self.halfmove_clock = "0"
+        self.halfmove_clock = 0
+        self.fen_history = [fen_operations.board_to_fen_inverted(self,"w")]
     def make_move(self, y1: int, x1: int, y2: int, x2: int) -> None:
         """
         Wykonuje ruch na planszy.
