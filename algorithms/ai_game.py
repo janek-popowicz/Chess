@@ -1,5 +1,8 @@
 import pygame
 import time
+import threading
+import queue
+import copy
 
 #wygląda dziwnie ale musi działać
 from engine.board_and_fields import *
@@ -9,7 +12,27 @@ from graphics import *
 from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
 
+class MinimaxThread(threading.Thread):
+    def __init__(self, board, depth, turn, result_queue):
+        super().__init__()
+        self.board = copy.deepcopy(board)  # Kopiujemy planszę dla bezpieczeństwa
+        self.depth = depth
+        self.turn = turn
+        self.result_queue = result_queue
+        self._stop_event = threading.Event()
 
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.is_set()
+
+    def run(self):
+        minimax_obj = Minimax(self.board, self.depth, self.turn)
+        minimax_obj.should_stop = self.stopped  # Przekazujemy metodę sprawdzającą zatrzymanie
+        move = minimax_obj.get_best_move()
+        if not self.stopped():
+            self.result_queue.put(move)
 
 # Funkcja główna
 def main():
@@ -70,160 +93,210 @@ def main():
     winner = ""
     in_check = None
 
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                pygame.quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and turn == player_turn:
-                pos = pygame.mouse.get_pos()
-                print(pos)
-                col = 7 - (pos[0] // SQUARE_SIZE)
-                row = 7 - (pos[1] // SQUARE_SIZE)
-                if col < 8 and row < 8:
-                    if selected_piece:
-                        if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                            draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
-                            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
-                            move_time = time.time() - start_time
-                            if turn == 'w':
-                                white_time += move_time
-                            else:
-                                black_time += move_time
-                            turn = 'w' if turn == 'b' else 'b'
-                            
-                            #sprawdzanie co po ruchu
-                            if selected_piece!=None:
-                                whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
-                                if whatAfter == "promotion":
-                                    choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
-                                    promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
-                                    whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
-                                if whatAfter == "checkmate":
-                                    result = "Szach Mat!"
-                                    winner = "Białe" if turn == 'b' else "Czarne"
-                                    running = False
-                                elif whatAfter == "stalemate":
-                                    result = "Pat"
-                                    winner = "Remis"
-                                    running = False
-                                elif whatAfter == "check":
-                                    in_check = turn
-                                else:
-                                    in_check = None
-                            selected_piece = None
-                            start_time = time.time()
+    # Dodaj zmienne do obsługi wątku
+    minimax_thread = None
+    result_queue = queue.Queue()
+    calculating = False
 
-                        else:
-                            selected_piece = (row, col)
-                    else:
-                        selected_piece = (row, col)
-                # Obsługa przycisku "Wyjście"
-                if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
-                    running = False
-                    return
-                # Obsługa przycisku "Cofnij ruch"
-                if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and height - 100 <= pos[1] < height - 80:
-                    if confirm_undo_dialog(screen, SQUARE_SIZE):
-                        if undoMove(main_board):  # Cofnięcie ruchu
-                            turn = 'w' if turn == 'b' else 'b'  # Zmiana tury
-                            start_time = time.time()  # Reset czasu tury
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-            if player_turn!=turn:
-                draw_board(screen, SQUARE_SIZE, main_board, in_check)
-                draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
-                pygame.display.flip()
-                if algorithm == "minimax":
-                    minimax_obj = Minimax(main_board, 3, turn)
-                    move = minimax_obj.get_best_move()
-                    if move:
-                        from_row, from_col, to_row, to_col = move
-                        if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
-                            if turn == 'w':
-                                white_time += time.time() - start_time
-                            else:
-                                black_time += time.time() - start_time
-                            turn = 'w' if turn == 'b' else 'b'
-                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                            if whatAfter == "promotion":
-                                promotion_choice = '10'  # Zawsze promuj do królowej
-                                promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
-                                whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                            if whatAfter == "checkmate":
-                                result = "Szach Mat!"
-                                winner = "Białe" if turn == 'b' else "Czarne"
-                                running = False
-                            elif whatAfter == "stalemate":
-                                result = "Pat"
-                                winner = "Remis"
-                                running = False
-                            elif whatAfter == "check":
-                                in_check = turn
-                            else:
-                                in_check = None
-                        start_time = time.time()
-                        
-                elif algorithm == "monte_carlo":
-                    mc_obj = Mcts(turn)
-                    move = mc_obj.pick_best_move(main_board, 5)
-                    if move:
-                        from_row, from_col, to_row, to_col = move
-                        if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
-                            if turn == 'w':
-                                white_time += time.time() - start_time
-                            else:
-                                black_time += time.time() - start_time
-                            turn = 'w' if turn == 'b' else 'b'
-                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                            if whatAfter == "promotion":
-                                promotion_choice = '10'  # Zawsze promuj do królowej
-                                promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
-                                whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                            if whatAfter == "checkmate":
-                                result = "Szach Mat!"
-                                winner = "Białe" if turn == 'b' else "Czarne"
-                                running = False
-                            elif whatAfter == "stalemate":
-                                result = "Pat"
-                                winner = "Remis"
-                                running = False
-                            elif whatAfter == "check":
-                                in_check = turn
-                            else:
-                                in_check = None
-                        start_time = time.time()
-                        
-
-        # Aktualizacja czasu gracza na żywo
-        current_time = time.time()
+    # Aktualizacja wyświetlania czasów
+    def update_time_display(white_time, black_time, current_time, start_time, turn):
         if turn == 'w':
             current_white_time = white_time + (current_time - start_time)
             current_black_time = black_time
         else:
             current_black_time = black_time + (current_time - start_time)
             current_white_time = white_time
+            
+        return (
+            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
+             (8 * SQUARE_SIZE + 10, height - 150)),
+            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
+             (8 * SQUARE_SIZE + 10, 80))
+        )
 
-        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn=='w' else GRAY),(8*SQUARE_SIZE+10,height - 150)),
-                             (font.render(format_time(current_black_time), True, YELLOW if turn=='b' else GRAY),(8*SQUARE_SIZE+10,80)))
+    while running:
+        # Obsługa zdarzeń zawsze na początku pętli
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                if minimax_thread and minimax_thread.is_alive():
+                    minimax_thread.stop()
+                    minimax_thread.join(timeout=0.1)
+                running = False
+                return
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                # Obsługa przycisków zawsze dostępna
+                if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20:
+                    if pos[1] >= height - 80:  # Przycisk "Wyjście"
+                        if minimax_thread and minimax_thread.is_alive():
+                            minimax_thread.stop()
+                            minimax_thread.join(timeout=0.1)
+                        running = False
+                        return
+                    elif height - 130 <= pos[1] < height - 80:  # Przycisk "Cofnij ruch"
+                        if confirm_undo_dialog(screen, SQUARE_SIZE):
+                            if undoMove(main_board):
+                                turn = 'w' if turn == 'b' else 'b'
+                                start_time = time.time()
+                
+                # Obsługa ruchów gracza tylko w jego turze
+                if turn == player_turn:
+                    col = 7 - (pos[0] // SQUARE_SIZE)
+                    row = 7 - (pos[1] // SQUARE_SIZE)
+                    if col < 8 and row < 8:
+                        if selected_piece:
+                            if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
+                                draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
+                                draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+                                move_time = time.time() - start_time
+                                if turn == 'w':
+                                    white_time += move_time
+                                else:
+                                    black_time += move_time
+                                turn = 'w' if turn == 'b' else 'b'
+                                
+                                #sprawdzanie co po ruchu
+                                if selected_piece!=None:
+                                    whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
+                                    if whatAfter == "promotion":
+                                        choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
+                                        promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
+                                        whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
+                                    if whatAfter == "checkmate":
+                                        result = "Szach Mat!"
+                                        winner = "Białe" if turn == 'b' else "Czarne"
+                                        running = False
+                                    elif whatAfter == "stalemate":
+                                        result = "Pat"
+                                        winner = "Remis"
+                                        running = False
+                                    elif whatAfter == "check":
+                                        in_check = turn
+                                    else:
+                                        in_check = None
+                                selected_piece = None
+                                start_time = time.time()
+
+                            else:
+                                selected_piece = (row, col)
+                        else:
+                            selected_piece = (row, col)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if minimax_thread and minimax_thread.is_alive():
+                        minimax_thread.stop()
+                        minimax_thread.join(timeout=0.1)
+                    running = False
+
+        # Ruch AI w osobnym bloku
+        if turn != player_turn:
+            if algorithm == "minimax":
+                if not calculating:
+                    calculating = True
+                    result_queue = queue.Queue()
+                    minimax_thread = MinimaxThread(main_board, 3, turn, result_queue)
+                    minimax_thread.start()
+                
+                try:
+                    move = result_queue.get_nowait()
+                    calculating = False
+                    if move:
+                        from_row, from_col, to_row, to_col = move
+                        if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
+                            if turn == 'w':
+                                white_time += time.time() - start_time
+                            else:
+                                black_time += time.time() - start_time
+                            turn = 'w' if turn == 'b' else 'b'
+                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                            if whatAfter == "promotion":
+                                promotion_choice = '10'  # Zawsze promuj do królowej
+                                promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
+                                whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                            if whatAfter == "checkmate":
+                                result = "Szach Mat!"
+                                winner = "Białe" if turn == 'b' else "Czarne"
+                                running = False
+                            elif whatAfter == "stalemate":
+                                result = "Pat"
+                                winner = "Remis"
+                                running = False
+                            elif whatAfter == "check":
+                                in_check = turn
+                            else:
+                                in_check = None
+                        start_time = time.time()
+                except queue.Empty:
+                    pass  # Kontynuuj bez blokowania
+
+            elif algorithm == "monte_carlo":
+                mc_obj = Mcts(turn)
+                move = mc_obj.pick_best_move(main_board, 5)
+                if move:
+                    from_row, from_col, to_row, to_col = move
+                    if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
+                        if turn == 'w':
+                            white_time += time.time() - start_time
+                        else:
+                            black_time += time.time() - start_time
+                        turn = 'w' if turn == 'b' else 'b'
+                        whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                        if whatAfter == "promotion":
+                            promotion_choice = '10'  # Zawsze promuj do królowej
+                            promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
+                            whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                        if whatAfter == "checkmate":
+                            result = "Szach Mat!"
+                            winner = "Białe" if turn == 'b' else "Czarne"
+                            running = False
+                        elif whatAfter == "stalemate":
+                            result = "Pat"
+                            winner = "Remis"
+                            running = False
+                        elif whatAfter == "check":
+                            in_check = turn
+                        else:
+                            in_check = None
+                    start_time = time.time()
+                        
+
+        # Przed renderowaniem
+        current_time = time.time()
+        player_times_font = update_time_display(white_time, black_time, current_time, start_time, turn)
+
+        # Rendering zawsze na końcu pętli
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
-        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
-        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
+        
+        # Dodanie podświetlania ruchów
         try:
-            if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
-                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
-        except TypeError:
+            if selected_piece and (config["highlight_enemy"] or main_board.get_piece(selected_piece[0], selected_piece[1])[0] == turn):
+                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]], 
+                              SQUARE_SIZE, main_board, HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+        except (TypeError, AttributeError):
             pass
-        except AttributeError:
-            pass
+
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
+        
+        if calculating:
+            calculating_text = font.render("Obliczanie...", True, WHITE)
+            screen.blit(calculating_text, (8 * SQUARE_SIZE + 10, height - 200))
+            dots = "." * ((int(time.time() * 2) % 4))
+            calculating_dots = font.render(dots, True, WHITE)
+            screen.blit(calculating_dots, (8 * SQUARE_SIZE + 150, height - 200))
+
         pygame.display.flip()
         clock.tick(60)
     
+    # Upewnij się, że wątek zostanie zakończony przy wyjściu
+    if minimax_thread and minimax_thread.is_alive():
+        minimax_thread.stop()
+        minimax_thread.join(timeout=0.1)
+
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
     return
+
 if __name__ == "__main__":
 
     main()
