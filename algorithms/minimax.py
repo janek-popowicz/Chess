@@ -5,7 +5,7 @@ import sys, copy , os
 #importacja plików wewnętrznych 
 
 import algorithms.evaluation as evaluation 
-import engine.board_and_fields as board_and_files 
+import engine.board_and_fields as board_and_fields 
 import engine.engine as engine 
 
 
@@ -19,8 +19,19 @@ class Minimax:
         
         self.best_move = None
     
-    def get_evaluation_score(self,board):
+    def get_evaluation_score(self,board,is_maximizing):
         eval_result = evaluation.get_evaluation(board, self.color) # eval_result = [ocena_białych, ocena_czarnych]
+        color = self.color if is_maximizing else ('w' if self.color == 'b' else 'b')
+        if board_and_fields.Board.get_all_moves(board, color) == {} and board.is_in_check(color):
+            if color == 'w':
+                return [-1000000, 1000000]
+            else:
+                return [1000000, -1000000]
+        elif board_and_fields.Board.get_all_moves(board, color) == {} and board.is_in_check(color) == False:
+            if color == 'w' and  eval_result[0] > eval_result[1]:
+                return [0, 0]
+            else:
+                return [0, 0]
 
         if self.color == 'b':
             return (eval_result[1] - eval_result[0])
@@ -36,7 +47,7 @@ class Minimax:
         legal_moves = board.get_all_moves(current_color)
 
         if depth == 0 or legal_moves == {}:
-            score = self.get_evaluation_score(board)
+            score = self.get_evaluation_score(board,is_maximizing)
             return score, None
 
 
