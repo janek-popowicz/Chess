@@ -63,7 +63,9 @@ class Minimax:
                         alfa = max(alfa, eval_value)
 
                         if beta <= alfa:
-                            break 
+                            break
+                if beta <= alfa:
+                    break
                     
                 
             return max_eval, best_move
@@ -91,11 +93,13 @@ class Minimax:
                         beta = min(beta, eval_value)
 
                         if beta <= alfa:
-                            break 
+                            break
+                if beta <= alfa:
+                    break
             return min_eval, best_move
     def get_best_move(self):
         """Wywołuje funkcję minimax dla aktualnej planszy i zwraca najlepszy ruch."""
-        score, move = self.minimax(self.main_board, 3, self.alpha, self.beta, True)
+        score, move = self.minimax(self.main_board, self.depth, self.alpha, self.beta, True)
         return move
 
 
