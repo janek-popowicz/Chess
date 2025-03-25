@@ -51,11 +51,16 @@ class MonteCarloThread(threading.Thread):
         return self._stop_event.is_set()
 
     def run(self):
-        mc_obj = Mcts(self.turn)
-        mc_obj.should_stop = self.stopped  # Dodaj metodę should_stop w klasie Mcts
-        move = mc_obj.pick_best_move(self.board, self.simulations)
-        if not self.stopped():
-            self.result_queue.put(move)
+        try:
+            mc_obj = Mcts(self.turn)
+            # Sprawdzamy czy wątek nie został zatrzymany przed każdą symulacją
+            if not self.stopped():
+                move = mc_obj.pick_best_move(self.board, self.simulations)
+                if not self.stopped():
+                    self.result_queue.put(move)
+        except Exception as e:
+            print(f"Błąd w wątku Monte Carlo: {e}")
+            self.result_queue.put(None)
 
 # Funkcja główna
 def main():
@@ -144,6 +149,10 @@ def main():
                 if minimax_thread and minimax_thread.is_alive():
                     minimax_thread.stop()
                     minimax_thread.join(timeout=0.1)
+                # W obsłudze wyjścia
+                if monte_carlo_thread and monte_carlo_thread.is_alive():
+                    monte_carlo_thread.stop()
+                    monte_carlo_thread.join(timeout=0.1)
                 running = False
                 return
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -210,6 +219,10 @@ def main():
                         minimax_thread.stop()
                         minimax_thread.join(timeout=0.1)
                     running = False
+                # W obsłudze wyjścia
+                    if monte_carlo_thread and monte_carlo_thread.is_alive():
+                        monte_carlo_thread.stop()
+                        monte_carlo_thread.join(timeout=0.1)
 
         # Ruch AI w osobnym bloku
         if turn != player_turn:
@@ -325,6 +338,10 @@ def main():
     if minimax_thread and minimax_thread.is_alive():
         minimax_thread.stop()
         minimax_thread.join(timeout=0.1)
+    # W obsłudze wyjścia
+    if monte_carlo_thread and monte_carlo_thread.is_alive():
+        monte_carlo_thread.stop()
+        monte_carlo_thread.join(timeout=0.1)
 
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
     return
