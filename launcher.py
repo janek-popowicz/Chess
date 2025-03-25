@@ -11,6 +11,7 @@ import normal_games.normal_game
 import normal_games.test_mode_normal_game
 import custom_board_game.board_maker
 import custom_board_game.normal_game_custom_board
+import grandmaster.grandmaster_game
 import settings
 import graphics
 
@@ -43,10 +44,11 @@ def main():
         "Graj z własną planszą",#1
         "Kreator planszy",#2
         "Graj z botem",#3
-        "Graj w sieci lokalnej",#4
-        "Ustawienia",#5
-        "Wyjście do systemu",#6
-        "Tryb terminalowy"#7
+        "Graj z arcymistrzem",#4
+        "Graj w sieci lokalnej",#5
+        "Ustawienia",#6
+        "Wyjście do systemu",#7
+        "Tryb terminalowy"#8
     ]
 
     selected_option = 0
@@ -112,14 +114,17 @@ def do_an_action(selected_option, screen):
     elif selected_option == 2: # Board maker
         pygame.mixer.music.stop()
         custom_board_game.board_maker.main()
-    elif selected_option == 5: # Ustawienia
+    elif selected_option == 4: # Arcymistrz
+        pygame.mixer.music.stop()
+        grandmaster.grandmaster_game.main('b', 'kasparov')
+    elif selected_option == 6: # Ustawienia
         pygame.mixer.music.stop()
         settings.main()
-    elif selected_option == 6: #Wyjście do systemu
+    elif selected_option == 7: #Wyjście do systemu
         return False
-    elif selected_option == 7:
+    elif selected_option == 8:
         normal_games.test_mode_normal_game.main()
-    elif selected_option == 4:
+    elif selected_option == 5:
         server_or_client = graphics.choose_color_dialog(screen, 100)
         if server_or_client == "w":
             import multiplayer.client

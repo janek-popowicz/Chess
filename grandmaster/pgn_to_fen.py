@@ -104,9 +104,9 @@ def main(grandmaster):
             # Zapisujemy FEN i ruch tylko gdy jest ruch arcymistrza
             if (turn == grandmaster_color):
                 # Pobierz aktualny FEN (bez liczników ruchów)
-                current_fen = board_to_fen_inverted(main_board, turn, y1, x1, y2, x2)
+                current_fen = board_to_fen_inverted(main_board, turn)
                 fen_parts = current_fen.split(' ')
-                good_fen = f"{fen_parts[0]} {fen_parts[1]} {fen_parts[2]} {fen_parts[3]} 0 1"
+                good_fen = f"{fen_parts[0]}"
                 
                 
             

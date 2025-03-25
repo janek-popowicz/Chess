@@ -16,7 +16,7 @@ import grandmaster.algebraic_moves_tester as algebraic_moves_tester
 import grandmaster.pgn_to_fen as pgn_to_fen
 
 
-grandmaster_list = [#"fischer", "capablanca", "carlsen", "hikaru",
+grandmaster_list = ["fischer", "capablanca", "carlsen", "hikaru",
                      "morphy paul",
                     "alekhine", "botvinnik", "caruana", "mikhail", "polgar",
                     "viswanathan", "kasparov"]
