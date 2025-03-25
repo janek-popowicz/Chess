@@ -39,7 +39,11 @@ main_board = board_and_fields.Board(board_state)
         board_state.append(board_row)
     board_state.reverse()
     board.board_state = board_state
-    char = -5
+    char = -1
+    for i in range(0,1):
+        char += -1
+        if char != " ":
+            continue
     castling_str = ""
     if fen[char] != "-":
         passed_over_tile = (int(fen[char])-1,104 - ord(fen[char-1])) 
