@@ -162,7 +162,7 @@ def main(player_color, grandmaster_name):
             time.sleep(1)
             grandmaster_move = get_grandmaster_move(main_board, grandmaster_color, grandmaster_moves)
             if grandmaster_move:
-                y1, x1, y2, x2 = notation_to_cords(grandmaster_move, main_board, turn)
+                y1, x1, y2, x2 = notation_to_cords(main_board, grandmaster_move, turn)
             else:
                 print("Nie znaleziono ruchu dla danej pozycji")
                 print(grandmaster_move)
