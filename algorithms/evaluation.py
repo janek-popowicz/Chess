@@ -12,7 +12,7 @@ def rotate_pst(white_pst):
     return white_pst[::-1]
 
 # PST dla białych (wartości przeskalowane – oryginalne liczby dzielone przez 100)
-PAWN_DOWN = [
+PAWN_DOWN = [ #mnożnik 10
     [0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  0.0],
     [0.2,  0.20,  0.20,  0.20,  0.20,  0.20,  0.20, 0.20],
     [0.5, -0.05, -0.10,  0.0,   0.0,  -0.10, -0.05, 0.05],
@@ -23,7 +23,7 @@ PAWN_DOWN = [
     [0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  0.0]
 ]
 
-KNIGHT = [
+KNIGHT = [ #mnożnik 10
     [-0.50, -0.40, -0.30, -0.30, -0.30, -0.30, -0.40, -0.50],
     [-0.40, -0.20,  0.00,  0.05,  0.05,  0.00, -0.20, -0.40],
     [-0.30,  0.05,  0.10,  0.15,  0.15,  0.10,  0.05, -0.30],
@@ -34,7 +34,7 @@ KNIGHT = [
     [-0.50, -0.40, -0.30, -0.30, -0.30, -0.30, -0.40, -0.50]
 ]
 
-BISHOP = [  # mnożnik razy 3
+BISHOP = [  # mnożnik razy 30
     [-0.20, -0.10, -0.10, -0.10, -0.10, -0.10, -0.10, -0.20],
     [-0.10,  0.05,  0.00,  0.00,  0.00,  0.00,  0.05, -0.10],
     [-0.10,  0.10,  0.10,  0.10,  0.10,  0.10,  0.10, -0.10],
@@ -45,7 +45,7 @@ BISHOP = [  # mnożnik razy 3
     [-0.20, -0.10, -0.10, -0.10, -0.10, -0.10, -0.10, -0.20]
 ]
 
-ROOK = [  # mnożnik razy 4
+ROOK = [  # mnożnik razy 40
     [ 0.00,  0.00,  0.05,  0.10,  0.10,  0.05,  0.00,  0.00],
     [-0.05,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.05],
     [-0.05,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.05],
@@ -56,7 +56,7 @@ ROOK = [  # mnożnik razy 4
     [ 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00]
 ]
 
-QUEEN = [  # mnożnik razy 10
+QUEEN = [  # mnożnik razy 100
     [-0.20, -0.10, -0.10, -0.05, -0.05, -0.10, -0.10, -0.20],
     [-0.10,  0.00,  0.05,  0.00,  0.00,  0.00,  0.00, -0.10],
     [-0.10,  0.05,  0.05,  0.05,  0.05,  0.05,  0.00, -0.10],
@@ -67,7 +67,7 @@ QUEEN = [  # mnożnik razy 10
     [-0.20, -0.10, -0.10, -0.05, -0.05, -0.10, -0.10, -0.20]
 ]
 
-KING_UP = [  # razy 20
+KING_UP = [  # razy 200
     [ 0.20,  0.30,  0.10,  0.00,  0.00,  0.10,  0.30,  0.20],
     [ 0.20,  0.20,  0.00,  0.00,  0.00,  0.00,  0.20,  0.20],
     [-0.10, -0.20, -0.20, -0.20, -0.20, -0.20, -0.20, -0.10],
@@ -91,11 +91,11 @@ def ocena_materiału(board):
     waga_białych = 0
     waga_czarnych = 0
     figures_values = {
-        'p': 1,
-        'N': 3,
-        'B': 3,
-        'R': 5,
-        'Q': 9,
+        'p': 10,
+        'N': 30,
+        'B': 35,
+        'R': 50,
+        'Q': 90,
         'K': 0
     }
     for i in range(8):
@@ -132,57 +132,57 @@ def bonus_squares(board):
             if player_color == "white":
                 if color == 'w':
                     if piece_type == 'p':
-                        bonus_białych += PAWN_DOWN[i][j]
+                        bonus_białych += (PAWN_DOWN[i][j] * 10)
                     elif piece_type == 'N':
-                        bonus_białych += KNIGHT[i][j]
+                        bonus_białych += (KNIGHT[i][j] *10)
                     elif piece_type == 'B':
-                        bonus_białych += BISHOP[i][j] * 3
+                        bonus_białych += (BISHOP[i][j] * 30)
                     elif piece_type == 'R':
-                        bonus_białych += ROOK[i][j] * 4
+                        bonus_białych += (ROOK[i][j] * 40)
                     elif piece_type == 'Q':
-                        bonus_białych += QUEEN[i][j] * 10
+                        bonus_białych += (QUEEN[i][j] * 100)
                     elif piece_type == 'K':
-                        bonus_białych += KING_DOWN[i][j] * 20
+                        bonus_białych += (KING_DOWN[i][j] * 200)
                 else:
                     if piece_type == 'p':
-                        bonus_czarnych += PAWN_UP[i][j]
+                        bonus_czarnych += (PAWN_UP[i][j] * 10)
                     elif piece_type == 'N':
-                        bonus_czarnych += KNIGHT[i][j]
+                        bonus_czarnych += (KNIGHT[i][j] *10)
                     elif piece_type == 'B':
-                        bonus_czarnych += BISHOP[i][j] * 3
+                        bonus_czarnych += (BISHOP[i][j] * 30)
                     elif piece_type == 'R':
-                        bonus_czarnych += ROOK[i][j] * 4
+                        bonus_czarnych += (ROOK[i][j] * 40)
                     elif piece_type == 'Q':
-                        bonus_czarnych += QUEEN[i][j] * 10
+                        bonus_czarnych += (QUEEN[i][j] * 100)
                     elif piece_type == 'K':
-                        bonus_czarnych += KING_UP[i][j] * 20
+                        bonus_czarnych += (KING_UP[i][j] * 200)
             else:
                 if color == 'b':
                     if piece_type == 'p':
-                        bonus_białych += PAWN_DOWN[i][j]
+                        bonus_czarnych += (PAWN_DOWN[i][j] * 10)
                     elif piece_type == 'N':
-                        bonus_białych += KNIGHT[i][j]
+                        bonus_czarnych += (KNIGHT[i][j] *10)
                     elif piece_type == 'B':
-                        bonus_białych += BISHOP[i][j] * 3
+                        bonus_czarnych += (BISHOP[i][j] * 30)
                     elif piece_type == 'R':
-                        bonus_białych += ROOK[i][j] * 4
+                        bonus_czarnych += (ROOK[i][j] * 40)
                     elif piece_type == 'Q':
-                        bonus_białych += QUEEN[i][j] * 10
+                        bonus_czarnych += (QUEEN[i][j] * 100)
                     elif piece_type == 'K':
-                        bonus_białych += KING_DOWN[i][j] * 20
+                        bonus_czarnych += (KING_DOWN[i][j] * 200)
                 else:
                     if piece_type == 'p':
                         bonus_czarnych += PAWN_UP[i][j]
                     elif piece_type == 'N':
-                        bonus_czarnych += KNIGHT[i][j]
+                        bonus_czarnych += (KNIGHT[i][j] * 10)
                     elif piece_type == 'B':
-                        bonus_czarnych += BISHOP[i][j] * 3
+                        bonus_czarnych += (BISHOP[i][j] * 30)
                     elif piece_type == 'R':
-                        bonus_czarnych += ROOK[i][j] * 4
+                        bonus_czarnych += (ROOK[i][j] * 40)
                     elif piece_type == 'Q':
-                        bonus_czarnych += QUEEN[i][j] * 10
+                        bonus_czarnych += (QUEEN[i][j] * 100)
                     elif piece_type == 'K':
-                        bonus_czarnych += KING_UP[i][j] * 20
+                        bonus_czarnych += (KING_UP[i][j] * 200)
     return [bonus_białych, bonus_czarnych]
 
 
@@ -263,8 +263,12 @@ def get_evaluation(board, color = 'b'):
 
 
     # .is_check (bierze kolor) 
-    eval_white = material[0] + bonus[0] + (king_bonus[0] * modifier)
-    eval_black = material[1] + bonus[1] + (king_bonus[1] * modifier)
+    eval_white = material[0] + bonus[0] + int(king_bonus[0] * modifier)
+    eval_black = material[1] + bonus[1] + int(king_bonus[1] * modifier)
+    print(material[0], material[1], " Suma Materiału")
+    print(bonus[0], bonus[1], " Board Bonus")
+    print(king_bonus[0], king_bonus[1], " King bonus")
+
     return [eval_white, eval_black]
 
 
