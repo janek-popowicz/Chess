@@ -34,6 +34,29 @@ class MinimaxThread(threading.Thread):
         if not self.stopped():
             self.result_queue.put(move)
 
+# Dodaj nową klasę po MinimaxThread
+class MonteCarloThread(threading.Thread):
+    def __init__(self, board, simulations, turn, result_queue):
+        super().__init__()
+        self.board = copy.deepcopy(board)
+        self.simulations = simulations
+        self.turn = turn
+        self.result_queue = result_queue
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.is_set()
+
+    def run(self):
+        mc_obj = Mcts(self.turn)
+        mc_obj.should_stop = self.stopped  # Dodaj metodę should_stop w klasie Mcts
+        move = mc_obj.pick_best_move(self.board, self.simulations)
+        if not self.stopped():
+            self.result_queue.put(move)
+
 # Funkcja główna
 def main():
     pygame.init()
@@ -230,34 +253,43 @@ def main():
                     pass  # Kontynuuj bez blokowania
 
             elif algorithm == "monte_carlo":
-                mc_obj = Mcts(turn)
-                move = mc_obj.pick_best_move(main_board, 5)
-                if move:
-                    from_row, from_col, to_row, to_col = move
-                    if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
-                        if turn == 'w':
-                            white_time += time.time() - start_time
-                        else:
-                            black_time += time.time() - start_time
-                        turn = 'w' if turn == 'b' else 'b'
-                        whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                        if whatAfter == "promotion":
-                            promotion_choice = '10'  # Zawsze promuj do królowej
-                            promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
-                            whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                        if whatAfter == "checkmate":
-                            result = "Szach Mat!"
-                            winner = "Białe" if turn == 'b' else "Czarne"
-                            running = False
-                        elif whatAfter == "stalemate":
-                            result = "Pat"
-                            winner = "Remis"
-                            running = False
-                        elif whatAfter == "check":
-                            in_check = turn
-                        else:
-                            in_check = None
-                    start_time = time.time()
+                if not calculating:
+                    calculating = True
+                    result_queue = queue.Queue()
+                    monte_carlo_thread = MonteCarloThread(main_board, 20, turn, result_queue)
+                    monte_carlo_thread.start()
+                
+                try:
+                    move = result_queue.get_nowait()
+                    calculating = False
+                    if move:
+                        from_row, from_col, to_row, to_col = move
+                        if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
+                            if turn == 'w':
+                                white_time += time.time() - start_time
+                            else:
+                                black_time += time.time() - start_time
+                            turn = 'w' if turn == 'b' else 'b'
+                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                            if whatAfter == "promotion":
+                                promotion_choice = '10'  # Zawsze promuj do królowej
+                                promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
+                                whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                            if whatAfter == "checkmate":
+                                result = "Szach Mat!"
+                                winner = "Białe" if turn == 'b' else "Czarne"
+                                running = False
+                            elif whatAfter == "stalemate":
+                                result = "Pat"
+                                winner = "Remis"
+                                running = False
+                            elif whatAfter == "check":
+                                in_check = turn
+                            else:
+                                in_check = None
+                        start_time = time.time()
+                except queue.Empty:
+                    pass  # Kontynuuj bez blokowania
                         
 
         # Przed renderowaniem
