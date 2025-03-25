@@ -116,6 +116,8 @@ def do_an_action(selected_option, screen):
         custom_board_game.board_maker.main()
     elif selected_option == 4: # Arcymistrz
         pygame.mixer.music.stop()
+        player_color = graphics.choose_color_dialog(screen, 100)
+        grandmaster_name = graphics.choose_grandmaster_dialog(screen, 100)
         grandmaster.grandmaster_game.main('b', 'kasparov')
     elif selected_option == 6: # Ustawienia
         pygame.mixer.music.stop()

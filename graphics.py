@@ -7,6 +7,7 @@ Funkcje te obejmują rysowanie szachownicy, figur, podświetlanie możliwych ruc
 import pygame
 import json
 import sys
+import time
 
 CONFIG_FILE = "config.json"
 
@@ -395,3 +396,106 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
                     return 'minimax'
                 elif event.key == pygame.K_c:  # Klawisz "C" dla Monte Carlo
                     return 'monte_carlo'
+
+def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
+    """
+    Wyświetla efektowne okno dialogowe do wpisania nazwy arcymistrza.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu gry.
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+
+    Returns:
+        str: Nazwa wybranego arcymistrza.
+    """
+    font = pygame.font.Font(None, 48)
+    small_font = pygame.font.Font(None, 24)
+    
+    grandmaster_name = ""
+    cursor_visible = True
+    last_cursor_toggle = time.time()
+    
+    # Lista przykładowych arcymistrzów
+    examples = ["np. Kasparov", "np. Fischer", "np. Carlsen", "np. Nakamura"]
+    current_example = 0
+    last_example_change = time.time()
+    
+    clock = pygame.time.Clock()
+    background_offset = 0
+
+    while True:
+        current_time = time.time()
+        
+        # Animowane tło szachownicy
+        screen.fill(pygame.Color("gray20"))
+        background_offset = (background_offset + 0.5) % (SQUARE_SIZE * 2)
+        for i in range(-1, screen.get_width() // SQUARE_SIZE + 1):
+            for j in range(-1, screen.get_height() // SQUARE_SIZE + 1):
+                if (i + j) % 2 == 0:
+                    rect = pygame.Rect(
+                        i * SQUARE_SIZE + background_offset,
+                        j * SQUARE_SIZE + background_offset,
+                        SQUARE_SIZE,
+                        SQUARE_SIZE
+                    )
+                    pygame.draw.rect(screen, pygame.Color("gray40"), rect)
+
+        # Tytuł
+        title_text = font.render("Wybierz Arcymistrza", True, pygame.Color("gold"))
+        title_rect = title_text.get_rect(center=(screen.get_width() // 2, SQUARE_SIZE * 2))
+        
+        # Efekt cienia dla tytułu
+        shadow_text = font.render("Wybierz Arcymistrza", True, pygame.Color("darkgoldenrod"))
+        shadow_rect = shadow_text.get_rect(center=(title_rect.centerx + 2, title_rect.centery + 2))
+        screen.blit(shadow_text, shadow_rect)
+        screen.blit(title_text, title_rect)
+
+        # Pole tekstowe
+        input_rect = pygame.Rect(
+            SQUARE_SIZE * 2,
+            screen.get_height() // 2 - SQUARE_SIZE,
+            SQUARE_SIZE * 8,
+            SQUARE_SIZE
+        )
+        pygame.draw.rect(screen, pygame.Color("white"), input_rect)
+        pygame.draw.rect(screen, pygame.Color("gold"), input_rect, 3)
+
+        # Tekst wejściowy z migającym kursorem
+        if current_time - last_cursor_toggle > 0.5:
+            cursor_visible = not cursor_visible
+            last_cursor_toggle = current_time
+
+        display_text = grandmaster_name + ("|" if cursor_visible else " ")
+        text_surface = font.render(display_text, True, pygame.Color("black"))
+        text_rect = text_surface.get_rect(center=input_rect.center)
+        screen.blit(text_surface, text_rect)
+
+        # Wyświetlanie przykładów
+        if not grandmaster_name:
+            if current_time - last_example_change > 2.0:
+                current_example = (current_example + 1) % len(examples)
+                last_example_change = current_time
+            example_text = small_font.render(examples[current_example], True, pygame.Color("lightgray"))
+            example_rect = example_text.get_rect(center=(input_rect.centerx, input_rect.bottom + 20))
+            screen.blit(example_text, example_rect)
+
+        # Instrukcja
+        instruction_text = small_font.render("Naciśnij ENTER aby zatwierdzić", True, pygame.Color("lightgray"))
+        screen.blit(instruction_text, (SQUARE_SIZE * 2, screen.get_height() - SQUARE_SIZE * 2))
+
+        pygame.display.flip()
+        clock.tick(60)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN and grandmaster_name:
+                    return grandmaster_name.lower()
+                elif event.key == pygame.K_BACKSPACE:
+                    grandmaster_name = grandmaster_name[:-1]
+                elif event.key == pygame.K_ESCAPE:
+                    return ""
+                elif len(grandmaster_name) < 20 and event.unicode.isalnum() or event.unicode in [' ', '-']:
+                    grandmaster_name += event.unicode

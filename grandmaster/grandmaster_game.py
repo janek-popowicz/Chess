@@ -30,7 +30,8 @@ def get_grandmaster_move(board, turn, grandmaster_moves):
     print(position_fen)
     if position_fen in grandmaster_moves:
         moves_list = grandmaster_moves[position_fen]
-        return moves_list[randint(1,len(moves_list))]  # Bierzemy pierwszy dostępny ruch
+        print(position_fen, len(moves_list))
+        return moves_list[randint(1,len(moves_list))-1]  # Bierzemy losowy ruch
     return None
 
 # Funkcja główna
@@ -155,7 +156,6 @@ def main(player_color, grandmaster_name):
                 white_time += move_time
             else:
                 black_time += move_time
-            turn = 'w' if turn == 'b' else 'b'
             draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
             draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
             pygame.display.flip()
@@ -170,8 +170,9 @@ def main(player_color, grandmaster_name):
                 print("Nie znaleziono ruchu dla danej pozycji")
                 print(grandmaster_move)
                 break
-            #sprawdzanie co po ruchu
-            if selected_piece!=None:
+            if tryMove(turn, main_board, y1, x1, y2, x2):
+                #sprawdzanie co po ruchu
+                turn = 'w' if turn == 'b' else 'b'
                 whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, y1, x1, y2, x2)
                 if whatAfter == "promotion":
                     choiceOfPromotion = "4"
@@ -188,8 +189,8 @@ def main(player_color, grandmaster_name):
                     in_check = turn
                 else:
                     in_check = None
-            selected_piece = None
-            start_time = time.time()
+                selected_piece = None
+                start_time = time.time()
             
 
         # Aktualizacja czasu gracza na żywo
