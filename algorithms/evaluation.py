@@ -12,75 +12,76 @@ def rotate_pst(white_pst):
     return white_pst[::-1]
 
 # PST dla białych (wartości przeskalowane – oryginalne liczby dzielone przez 100)
-PAWN_DOWN = [
-    [0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  0.0],
-    [0.2,  0.20,  0.20,  0.20,  0.20,  0.20,  0.20, 0.20],
-    [0.5, -0.05, -0.10,  0.0,   0.0,  -0.10, -0.05, 0.05],
-    [0.10, 0.10,  0.10,  0.20,  0.20,  0.10,  0.10, 0.10],
-    [0.1,  0.1,   0.10,  0.25,  0.25,  0.10,  0.1,  0.1],
-    [0.10, 0.10,  0.20,  0.30,  0.30,  0.20,  0.10, 0.10],
-    [0.2,  0.25,  0.25,  0.15,  0.15,  0.25,  0.25, 0.2],
-    [0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  0.0]
+KING_DOWN = [
+    [-15.0, -20.0, -20.0, -25.0, -25.0, -20.0, -20.0, -15.0],
+    [-15.0, -20.0, -20.0, -25.0, -25.0, -20.0, -20.0, -15.0],
+    [-15.0, -20.0, -20.0, -25.0, -25.0, -20.0, -20.0, -15.0],
+    [-15.0, -20.0, -20.0, -25.0, -25.0, -20.0, -20.0, -15.0],
+    [-10.0, -15.0, -15.0, -20.0, -20.0, -15.0, -15.0, -10.0],
+    [ -5.0, -10.0, -10.0, -15.0, -15.0, -10.0, -10.0,  -5.0],
+    [ 10.0,  10.0,   0.0,   0.0,   0.0,   0.0,  10.0,  10.0],
+    [ 10.0,  15.0,   5.0,   0.0,   0.0,   5.0,  15.0,  10.0]
+]
+
+QUEEN = [
+    [-10.0,  -5.0,  -5.0,  -2.5,  -2.5,  -5.0,  -5.0, -10.0],
+    [ -5.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -5.0],
+    [ -5.0,   0.0,   2.5,   2.5,   2.5,   2.5,   0.0,  -5.0],
+    [ -2.5,   0.0,   2.5,   2.5,   2.5,   2.5,   0.0,  -2.5],
+    [  0.0,   0.0,   2.5,   2.5,   2.5,   2.5,   0.0,  -2.5],
+    [ -5.0,   2.5,   2.5,   2.5,   2.5,   2.5,   0.0,  -5.0],
+    [ -5.0,   0.0,   2.5,   0.0,   0.0,   0.0,   0.0,  -5.0],
+    [-10.0,  -5.0,  -5.0,  -2.5,  -2.5,  -5.0,  -5.0, -10.0]
+]
+
+ROOK = [
+    [  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0],
+    [  2.5,   5.0,   5.0,   5.0,   5.0,   5.0,   5.0,   2.5],
+    [ -2.5,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -2.5],
+    [ -2.5,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -2.5],
+    [ -2.5,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -2.5],
+    [ -2.5,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -2.5],
+    [ -2.5,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -2.5],
+    [  0.0,   0.0,   0.0,   2.5,   2.5,   0.0,   0.0,   0.0]
+]
+
+BISHOP = [
+    [-10.0,  -5.0,  -5.0,  -5.0,  -5.0,  -5.0,  -5.0, -10.0],
+    [ -5.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -5.0],
+    [ -5.0,   0.0,   2.5,   5.0,   5.0,   2.5,   0.0,  -5.0],
+    [ -5.0,   2.5,   2.5,   5.0,   5.0,   2.5,   2.5,  -5.0],
+    [ -5.0,   0.0,   5.0,   5.0,   5.0,   5.0,   0.0,  -5.0],
+    [ -5.0,   5.0,   5.0,   5.0,   5.0,   5.0,   5.0,  -5.0],
+    [ -5.0,   2.5,   0.0,   0.0,   0.0,   0.0,   2.5,  -5.0],
+    [-10.0,  -5.0,  -5.0,  -5.0,  -5.0,  -5.0,  -5.0, -10.0]
 ]
 
 KNIGHT = [
-    [-0.50, -0.40, -0.30, -0.30, -0.30, -0.30, -0.40, -0.50],
-    [-0.40, -0.20,  0.00,  0.05,  0.05,  0.00, -0.20, -0.40],
-    [-0.30,  0.05,  0.10,  0.15,  0.15,  0.10,  0.05, -0.30],
-    [-0.30,  0.00,  0.15,  0.20,  0.20,  0.15,  0.00, -0.30],
-    [-0.30,  0.05,  0.15,  0.20,  0.20,  0.15,  0.05, -0.30],
-    [-0.30,  0.00,  0.10,  0.15,  0.15,  0.10,  0.00, -0.30],
-    [-0.40, -0.20,  0.00,  0.00,  0.00,  0.00, -0.20, -0.40],
-    [-0.50, -0.40, -0.30, -0.30, -0.30, -0.30, -0.40, -0.50]
+    [-25.0, -20.0, -15.0, -15.0, -15.0, -15.0, -20.0, -25.0],
+    [-20.0, -10.0,   0.0,   0.0,   0.0,   0.0, -10.0, -20.0],
+    [-15.0,   0.0,   5.0,   7.5,   7.5,   5.0,   0.0, -15.0],
+    [-15.0,   2.5,   7.5,  10.0,  10.0,   7.5,   2.5, -15.0],
+    [-15.0,   0.0,   7.5,  10.0,  10.0,   7.5,   0.0, -15.0],
+    [-15.0,   2.5,   5.0,   7.5,   7.5,   5.0,   2.5, -15.0],
+    [-20.0, -10.0,   0.0,   2.5,   2.5,   0.0, -10.0, -20.0],
+    [-25.0, -20.0, -15.0, -15.0, -15.0, -15.0, -20.0, -25.0]
 ]
 
-BISHOP = [  # mnożnik razy 3
-    [-0.20, -0.10, -0.10, -0.10, -0.10, -0.10, -0.10, -0.20],
-    [-0.10,  0.05,  0.00,  0.00,  0.00,  0.00,  0.05, -0.10],
-    [-0.10,  0.10,  0.10,  0.10,  0.10,  0.10,  0.10, -0.10],
-    [-0.10,  0.00,  0.10,  0.10,  0.10,  0.10,  0.00, -0.10],
-    [-0.10,  0.05,  0.05,  0.10,  0.10,  0.05,  0.05, -0.10],
-    [-0.10,  0.00,  0.05,  0.10,  0.10,  0.05,  0.00, -0.10],
-    [-0.10,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.10],
-    [-0.20, -0.10, -0.10, -0.10, -0.10, -0.10, -0.10, -0.20]
+PAWN_DOWN = [
+    [  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0],
+    [ 25.0,  25.0,  25.0,  25.0,  25.0,  25.0,  25.0,  25.0],
+    [  5.0,   5.0,  10.0,  15.0,  15.0,  10.0,   5.0,   5.0],
+    [  2.5,   2.5,   5.0,  12.5,  12.5,   5.0,   2.5,   2.5],
+    [  0.0,   0.0,   0.0,  10.0,  10.0,   0.0,   0.0,   0.0],
+    [  2.5,  -2.5,  -5.0,   0.0,   0.0,  -5.0,  -2.5,   2.5],
+    [  2.5,   5.0,   5.0, -10.0, -10.0,   5.0,   5.0,   2.5],
+    [  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0]
 ]
 
-ROOK = [  # mnożnik razy 4
-    [ 0.00,  0.00,  0.05,  0.10,  0.10,  0.05,  0.00,  0.00],
-    [-0.05,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.05],
-    [-0.05,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.05],
-    [-0.05,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.05],
-    [-0.05,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.05],
-    [-0.05,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.05],
-    [ 0.05,  0.10,  0.10,  0.10,  0.10,  0.10,  0.10,  0.05],
-    [ 0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00]
-]
-
-QUEEN = [  # mnożnik razy 10
-    [-0.20, -0.10, -0.10, -0.05, -0.05, -0.10, -0.10, -0.20],
-    [-0.10,  0.00,  0.05,  0.00,  0.00,  0.00,  0.00, -0.10],
-    [-0.10,  0.05,  0.05,  0.05,  0.05,  0.05,  0.00, -0.10],
-    [ 0.00,  0.00,  0.05,  0.05,  0.05,  0.05,  0.00, -0.05],
-    [-0.05,  0.00,  0.05,  0.05,  0.05,  0.05,  0.00, -0.05],
-    [-0.10,  0.00,  0.05,  0.05,  0.05,  0.05,  0.00, -0.10],
-    [-0.10,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00, -0.10],
-    [-0.20, -0.10, -0.10, -0.05, -0.05, -0.10, -0.10, -0.20]
-]
-
-KING_UP = [  # razy 20
-    [ 0.20,  0.30,  0.10,  0.00,  0.00,  0.10,  0.30,  0.20],
-    [ 0.20,  0.20,  0.00,  0.00,  0.00,  0.00,  0.20,  0.20],
-    [-0.10, -0.20, -0.20, -0.20, -0.20, -0.20, -0.20, -0.10],
-    [-0.20, -0.30, -0.30, -0.40, -0.40, -0.30, -0.30, -0.20],
-    [-0.30, -0.40, -0.40, -0.50, -0.50, -0.40, -0.40, -0.30],
-    [-0.30, -0.40, -0.40, -0.50, -0.50, -0.40, -0.40, -0.30],
-    [-0.30, -0.40, -0.40, -0.50, -0.50, -0.40, -0.40, -0.30],
-    [-0.30, -0.40, -0.40, -0.50, -0.50, -0.40, -0.40, -0.30]
-]
 
 # Generujemy PST dla czarnych przez obrócenie tablic białych:
 PAWN_UP = rotate_pst(PAWN_DOWN)
-KING_DOWN = rotate_pst(KING_UP)
+KING_UP = rotate_pst(KING_DOWN)
 
 
 def ocena_materiału(board):
@@ -91,11 +92,11 @@ def ocena_materiału(board):
     waga_białych = 0
     waga_czarnych = 0
     figures_values = {
-        'p': 1,
-        'N': 3,
-        'B': 3,
-        'R': 5,
-        'Q': 9,
+        'p': 10,
+        'N': 30,
+        'B': 30,
+        'R': 50,
+        'Q': 90,
         'K': 0
     }
     for i in range(8):
@@ -132,57 +133,57 @@ def bonus_squares(board):
             if player_color == "white":
                 if color == 'w':
                     if piece_type == 'p':
-                        bonus_białych += PAWN_DOWN[i][j]
+                        bonus_białych += PAWN_DOWN[i][j] 
                     elif piece_type == 'N':
-                        bonus_białych += KNIGHT[i][j]
+                        bonus_białych += KNIGHT[i][j] 
                     elif piece_type == 'B':
-                        bonus_białych += BISHOP[i][j] * 3
+                        bonus_białych += BISHOP[i][j] 
                     elif piece_type == 'R':
-                        bonus_białych += ROOK[i][j] * 4
+                        bonus_białych += ROOK[i][j] 
                     elif piece_type == 'Q':
-                        bonus_białych += QUEEN[i][j] * 10
+                        bonus_białych += QUEEN[i][j] 
                     elif piece_type == 'K':
-                        bonus_białych += KING_DOWN[i][j] * 20
+                        bonus_białych += KING_DOWN[i][j] 
                 else:
                     if piece_type == 'p':
-                        bonus_czarnych += PAWN_UP[i][j]
+                        bonus_czarnych += PAWN_UP[i][j] 
                     elif piece_type == 'N':
-                        bonus_czarnych += KNIGHT[i][j]
+                        bonus_czarnych += KNIGHT[i][j] 
                     elif piece_type == 'B':
-                        bonus_czarnych += BISHOP[i][j] * 3
+                        bonus_czarnych += BISHOP[i][j]
                     elif piece_type == 'R':
-                        bonus_czarnych += ROOK[i][j] * 4
+                        bonus_czarnych += ROOK[i][j]
                     elif piece_type == 'Q':
-                        bonus_czarnych += QUEEN[i][j] * 10
+                        bonus_czarnych += QUEEN[i][j]
                     elif piece_type == 'K':
-                        bonus_czarnych += KING_UP[i][j] * 20
+                        bonus_czarnych += KING_UP[i][j]
             else:
                 if color == 'b':
                     if piece_type == 'p':
-                        bonus_białych += PAWN_DOWN[i][j]
+                        bonus_czarnych += PAWN_DOWN[i][j] 
                     elif piece_type == 'N':
-                        bonus_białych += KNIGHT[i][j]
+                        bonus_czarnych += KNIGHT[i][j] 
                     elif piece_type == 'B':
-                        bonus_białych += BISHOP[i][j] * 3
+                        bonus_czarnych += BISHOP[i][j] 
                     elif piece_type == 'R':
-                        bonus_białych += ROOK[i][j] * 4
+                        bonus_czarnych += ROOK[i][j] 
                     elif piece_type == 'Q':
-                        bonus_białych += QUEEN[i][j] * 10
+                        bonus_czarnych += QUEEN[i][j] 
                     elif piece_type == 'K':
-                        bonus_białych += KING_DOWN[i][j] * 20
+                        bonus_czarnych += KING_DOWN[i][j] 
                 else:
                     if piece_type == 'p':
                         bonus_czarnych += PAWN_UP[i][j]
                     elif piece_type == 'N':
-                        bonus_czarnych += KNIGHT[i][j]
+                        bonus_czarnych += KNIGHT[i][j] 
                     elif piece_type == 'B':
-                        bonus_czarnych += BISHOP[i][j] * 3
+                        bonus_czarnych += BISHOP[i][j] 
                     elif piece_type == 'R':
-                        bonus_czarnych += ROOK[i][j] * 4
+                        bonus_czarnych += ROOK[i][j]
                     elif piece_type == 'Q':
-                        bonus_czarnych += QUEEN[i][j] * 10
+                        bonus_czarnych += QUEEN[i][j] 
                     elif piece_type == 'K':
-                        bonus_czarnych += KING_UP[i][j] * 20
+                        bonus_czarnych += KING_UP[i][j] 
     return [bonus_białych, bonus_czarnych]
 
 
@@ -246,8 +247,8 @@ def get_evaluation(board, color = 'b'):
     pieces_count = count_pieces(board)
     
     # Modyfikator zależny od liczby figur – im mniej figur, tym większy wpływ oceny pozycji króla
-    modifier = 1 + (32 - pieces_count) / 100
-    modifier *= 2
+    modifier = 1 + (32 - pieces_count) / 2
+    
     #jezeli wszytkie listy dla danego koloru and szach to plus infinity jezeli pat to 
 
     if board_and_fields.Board.get_all_moves(board, color) == {} and board.is_in_check(color):
@@ -263,8 +264,12 @@ def get_evaluation(board, color = 'b'):
 
 
     # .is_check (bierze kolor) 
-    eval_white = material[0] + bonus[0] + (king_bonus[0] * modifier)
-    eval_black = material[1] + bonus[1] + (king_bonus[1] * modifier)
+    eval_white = material[0] + bonus[0] + int(king_bonus[0] * modifier)
+    eval_black = material[1] + bonus[1] + int(king_bonus[1] * modifier)
+    print(material[0], material[1], " Suma Materiału")
+    print(bonus[0], bonus[1], " Board Bonus")
+    print(king_bonus[0], king_bonus[1], " King bonus")
+
     return [eval_white, eval_black]
 
 
