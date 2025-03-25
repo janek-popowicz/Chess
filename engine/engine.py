@@ -169,11 +169,12 @@ Returns:
         if destination_tile.figure:
             if destination_tile.figure.type in ['p','K','R']:
                 destination_tile.figure.has_moved = True
+            if destination_tile.figure.type != 'p':
+                main_board.moves_algebraic[-1] = destination_tile.figure.type + main_board.moves_algebraic[-1]
+            
         main_board.is_in_check(color_to_check)
         if main_board.incheck:
             main_board.moves_algebraic[-1] += '+'
-        if destination_tile.figure.type != 'p':
-            main_board.moves_algebraic[-1] = destination_tile.figure.type + main_board.moves_algebraic[-1]
         main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board, "b" if turn == 'w' else "w", halfmove_reset, passed_over_tile))
         return True
     else: 
@@ -211,6 +212,7 @@ def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
     start_tile = main_board.board_state[y1][x1]
     destination_tile = main_board.board_state[y2][x2]
     available_moves = []
+    only_kings = True 
     for y in range(0,8):
         for x in range(0,8):
             if main_board.board_state[y][x].figure:
@@ -220,6 +222,10 @@ def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
                     #Sprawdzanie flag enpassant
                     if main_board.board_state[y][x].figure.can_enpassant:
                         main_board.board_state[y][x].figure.can_enpassant = 0
+                if main_board.board_state[y][x].figure.type != 'K':
+                    only_kings = False
+                if only_kings:
+                    return ("stalemate",0,0)
     #Sprawdzanie enpassant
     if destination_tile.figure:
         if destination_tile.figure.type == 'p' :

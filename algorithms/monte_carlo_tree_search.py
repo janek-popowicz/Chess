@@ -13,8 +13,7 @@ class Mcts_optimized: #Niedokończone
 
         color - kolor, którym będzie grało AI
         """
-        self.color = color
-        self.root = Node(0, 0, "root") #Korzeń drzewa
+        self.root = Node(0, 0, "root",(0,0,0,0), color) #Korzeń drzewa
     def expand_tree(self, board):
         new_board = copy(board)
         # Wybór (selection) 
@@ -31,7 +30,8 @@ class Mcts_optimized: #Niedokończone
             if current_node == chosen_node:
                 break
             current_node = chosen_node
-        new_board.make_move(*current_node.move)
+        if current_node.parent != "root":
+            new_board.make_move(*current_node.move)
         # Rozrost (expansion)
         moves=new_board.get_all_moves('b' if current_node.color == "w" else "w")
         key = random.sample(moves)
@@ -39,7 +39,7 @@ class Mcts_optimized: #Niedokończone
         current_node.children += new_node
         # Symulacja (playout)
         old_score = evaluation.Evaluation(new_board) 
-        fen = fen_operations.board_to_fen_inverted(new_board, self.color, )
+        fen = fen_operations.board_to_fen_inverted(new_board,current_node.color)
         new_board.make_move(new_node.move)
         new_score = evaluation.Evaluation(new_board) 
         new_board.board_state = fen_operations.fen_to_board_state(fen)
@@ -56,12 +56,11 @@ class Mcts_optimized: #Niedokończone
 class Mcts:
     def __init__(self, color):
         """
-        Klasa odpowiadająca za AI posługujące się algorytmem Monte Carlo Tree Search, wariant zmodyfikowany:
-        w fazie symulacji zamiast rozgrywać pełną symulację, ruch jest ewaluowany, a następnie porównywany z wynikiem dla poprzedniego węzła, jeśli jest większy daje to zwycięstwo, jeśli nie, przegraną
+        Klasa odpowiadająca za AI posługujące się algorytmem Monte Carlo Tree Search
 
         color - kolor, którym będzie grało AI
         """
-        self.root = Node(0, 0, "root", (0,0,0,0), color) #Korzeń drzewa
+        self.root = Node(0, 0, "root", (0,0,0,0), "w" if color == "b" else "b") #Korzeń drzewa (kolor korzenia musi być odwrotny, ponieważ zmienia sie on co ruch)
     def expand_tree(self, board):
         new_board = copy.deepcopy(board)
         # Wybór (selection) 
@@ -70,13 +69,12 @@ class Mcts:
             max_choice_factor = 0
             chosen_node = self.root
             for child in current_node.children:
-                choice_factor = (child.wins / child.games) + math.sqrt(2) * math.sqrt(math.log(child.parent.games) / child.games)
+                # Liczymy wzór UCT na zmiennych z następnego ruchu, stąd +0.5 przy wygranych  
+                choice_factor = ((child.wins + 0.5) / (child.games+1)) + math.sqrt(2) * math.sqrt(math.log(child.parent.games + 1) / (child.games +1))
                 if choice_factor > max_choice_factor:
-                   choice_factor = max_choice_factor
-                   chosen_node = child
-                   new_board.make_move(*child.move)
-            if current_node == chosen_node:
-                break
+                    choice_factor = max_choice_factor
+                    chosen_node = child
+            engine.tryMove(chosen_node.color, new_board, *chosen_node.move)
             current_node = chosen_node
         # Rozrost (expansion)
         for i in range (random.randint(1,4)):
@@ -87,26 +85,34 @@ class Mcts:
             current_node.children += [new_node]
         # Symulacja (playout)
         current_node = new_node
-        result = 0
+        result = (1,1,1)
         move_color = self.root.color
-        while result not in  ["checkmate","stalemate"]:
+        counter = 0
+        while result[0] not in  ["checkmate","stalemate"]:
             moves = new_board.get_all_moves(move_color)
             key = random.sample(sorted(moves),1)
             move = random.sample(moves[key[0]],1)
             cords = (*key[0], move[0][0],move[0][1])
+            new_board.print_board()
             engine.tryMove(move_color, new_board, *cords)
-            result = engine.afterMove(move_color, new_board, *cords)
             move_color = 'b' if move_color == "w" else "w"
+            result = engine.afterMove(move_color, new_board, *cords)
+            if result[0] == "promotion":
+                engine.promotion(move[0][0],move[0][1],new_board,random.randint(1,4))
+            counter += 1
         current_node.games +=1
+        if result == "checkmate" and move_color == self.root.color:
+            current_node.wins +=1  
         # Propagacja wsteczna (backpropagation)
-        while node.parent != "root":
-            node.parent.games += node.parent.games - node.games
-            node.parent.wins += node.parent.wins - node.wins
-            node = node.parent
+        while current_node.parent != "root":
+            current_node.parent.games += current_node.games - current_node.parent.games 
+            current_node.parent.wins += current_node.wins - current_node.parent.wins
+            current_node = current_node.parent
     def pick_best_move(self,board,limit):
         counter = 0
         while limit > counter:
             self.expand_tree(board)
+            counter += 1
         max_played_games = 0
         for child in self.root.children:
             if child.games > max_played_games:
