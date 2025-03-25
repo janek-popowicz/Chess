@@ -2,7 +2,12 @@ import engine.board_and_fields as board_and_fields
 import engine.figures as figures
 
 # Ustawienia globalne
-player_color = "white"
+domyśly_color = "white"
+
+def get_color(color):
+    return color 
+
+player_color = get_color(domyśly_color)
 
 def rotate_pst(white_pst):
     """
