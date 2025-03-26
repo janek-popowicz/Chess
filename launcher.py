@@ -118,7 +118,7 @@ def do_an_action(selected_option, screen):
         pygame.mixer.music.stop()
         player_color = graphics.choose_color_dialog(screen, 100)
         grandmaster_name = graphics.choose_grandmaster_dialog(screen, 100)
-        grandmaster.grandmaster_game.main('b', 'kasparov')
+        grandmaster.grandmaster_game.main(player_color, grandmaster_name)
     elif selected_option == 6: # Ustawienia
         pygame.mixer.music.stop()
         settings.main()
