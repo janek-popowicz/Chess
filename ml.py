@@ -122,37 +122,38 @@ class ChessQLearningAI:
         return best_move or random.choice(possible_moves)
     
     def calculate_reward(self, turn):
-        """
-        Advanced reward calculation considering multiple game aspects.
+        """Enhanced reward calculation"""
+        reward = 0
         
-        Args:
-            turn (str): Current player's turn
-        
-        Returns:
-            float: Reward value
-        """
-        # Reward structure
-        if self.board.incheck:
-            # Higher penalty for being in check
-            return -20
-        
-        # Advanced piece valuation
+        # Material value
         piece_values = {
-            'P': 1, 'N': 3, 'B': 3, 'R': 5, 'Q': 9, 'K': 0,
-            'p': -1, 'n': -3, 'b': -3, 'r': -5, 'q': -9, 'k': 0
+            'P': 100, 'N': 320, 'B': 330, 'R': 500, 'Q': 900, 'K': 20000,
+            'p': -100, 'n': -320, 'b': -330, 'r': -500, 'q': -900, 'k': -20000
         }
         
-        # Calculate piece value difference
-        piece_reward = 0
+        # Calculate material balance
+        material_reward = 0
         for row in self.board.board_state:
             for field in row:
                 if field.figure:
-                    piece_reward += piece_values.get(field.figure.return_figure(), 0)
+                    material_reward += piece_values.get(field.figure.return_figure(), 0)
         
-        # Additional strategic bonuses
-        bonus = 10 if turn == 'w' and piece_reward > 0 else -10 if turn == 'b' and piece_reward < 0 else 0
+        # Position rewards
+        position_reward = 0
+        center_squares = [(3,3), (3,4), (4,3), (4,4)]
+        for y, x in center_squares:
+            field = self.board.board_state[y][x]
+            if field.figure and field.figure.color == turn:
+                position_reward += 50  # Bonus for controlling center
         
-        return piece_reward + bonus
+        # Game state rewards
+        if self.board.incheck:
+            reward -= 200 if turn == 'w' else 200  # Penalty for being in check
+        
+        # Normalize rewards
+        total_reward = (material_reward + position_reward + reward) / 100.0
+        
+        return total_reward
     
     def update_q_table(self, state, move, reward, next_state):
         """
@@ -202,14 +203,7 @@ class ChessQLearningAI:
     
     def train(self, num_episodes=5000, verbose=True):
         """
-        Train the AI with comprehensive progress tracking.
-        
-        Args:
-            num_episodes (int): Number of training episodes
-            verbose (bool): Whether to print detailed progress
-        
-        Returns:
-            dict: Training progress statistics
+        Train the AI with comprehensive progress tracking and proper reward accumulation.
         """
         start_time = time.time()
         self.training_progress['total_episodes'] = num_episodes
@@ -218,60 +212,63 @@ class ChessQLearningAI:
             # Reset board and game state
             self.board = board_and_fields.Board()
             turn = 'w'
-            total_episode_reward = 0
+            total_episode_reward = 0  # Reset episode reward
             move_count = 0
             max_moves = 200
             
             while move_count < max_moves:
-                # Get possible moves
                 possible_moves = self.get_possible_moves(turn)
                 
                 if not possible_moves:
-                    if verbose:
-                        self.logger.warning(f"No moves possible for {turn} in episode {episode}")
                     break
                 
-                # Store current state before move
                 current_state = self.get_board_state()
-                
-                # Choose and execute move
                 move = self.choose_move(turn)
+                
+                # Store board state before move
+                previous_board = copy.deepcopy(self.board)
+                
+                # Execute move
                 move_result = engine.tryMove(turn, self.board, *move)
                 
                 if not move_result:
                     continue
                 
-                # Get next state and reward
-                next_state = self.get_board_state()
+                # Calculate immediate reward
                 reward = self.calculate_reward(turn)
+                total_episode_reward += reward  # Accumulate reward properly
                 
-                # Accumulate episode reward
-                total_episode_reward += reward
-                
-                # Update Q-table
+                next_state = self.get_board_state()
                 self.update_q_table(current_state, move, reward, next_state)
                 
-                # Check game end conditions
+                # Check for game end and add final reward
                 result = engine.afterMove(turn, self.board, *move)
-                if result[0] in ['checkmate', 'stalemate']:
+                if result[0] == 'checkmate':
+                    total_episode_reward += 1000 if turn == 'w' else -1000
+                    break
+                elif result[0] == 'stalemate':
+                    total_episode_reward += 0  # Neutral reward for stalemate
                     break
                 
-                # Switch turns
                 turn = 'b' if turn == 'w' else 'w'
                 move_count += 1
             
-            # Update training progress
+            # Update training progress with proper reward averaging
             self.training_progress['completed_episodes'] += 1
-            self.training_progress['average_reward'] = (
-                self.training_progress['average_reward'] * episode + total_episode_reward
-            ) / (episode + 1)
+            if episode == 0:
+                self.training_progress['average_reward'] = total_episode_reward
+            else:
+                self.training_progress['average_reward'] = (
+                    self.training_progress['average_reward'] * 0.95 + 
+                    total_episode_reward * 0.05
+                )
             
             self.training_progress['best_reward'] = max(
                 self.training_progress['best_reward'], 
                 total_episode_reward
             )
             
-            # Gradually reduce exploration rate
+            # Update exploration rate
             self.exploration_rate = max(
                 0.01, 
                 self.exploration_rate * self.training_progress['exploration_decay_rate']
@@ -281,11 +278,12 @@ class ChessQLearningAI:
             if verbose and episode % 100 == 0:
                 self.logger.info(
                     f"Episode {episode}: "
-                    f"Total Reward = {total_episode_reward}, "
-                    f"Exploration Rate = {self.exploration_rate:.4f}"
+                    f"Total Reward = {total_episode_reward:.2f}, "
+                    f"Avg Reward = {self.training_progress['average_reward']:.2f}, "
+                    f"Best = {self.training_progress['best_reward']:.2f}, "
+                    f"Exploration = {self.exploration_rate:.4f}"
                 )
         
-        # Calculate total training time
         total_time = time.time() - start_time
         self.training_progress['total_training_time'] = total_time
         
@@ -333,20 +331,200 @@ class ChessQLearningAI:
         # This is a placeholder. You'll need to implement actual game simulation
         # based on your specific chess engine and game rules
         return random.choice(['win', 'loss', 'draw'])
+    def play_interactive_game(self, human_color='w'):
+        """
+        Play an interactive chess game against the trained AI.
+        
+        Args:
+            human_color (str): Color of the human player ('w' or 'b')
+        """
+        # Reset the board
+        self.board = board_and_fields.Board()
+        current_turn = 'w'
+        
+        print("Welcome to Chess AI Interaction!")
+        print(f"You are playing as {human_color} (White or Black)")
+        print("Enter moves in algebraic notation (e.g., 'e2e4')")
+        
+        while True:
+            # Display current board state
+            self.display_board()
+            
+            # Check if it's human's turn
+            if current_turn == human_color:
+                try:
+                    # Get human move
+                    human_move = self.get_human_move(current_turn)
+                    
+                    # Try to execute human move
+                    move_result = engine.tryMove(current_turn, self.board, *human_move)
+                    
+                    if not move_result:
+                        print("Invalid move. Try again.")
+                        continue
+                    
+                    # Check game end conditions
+                    result = engine.afterMove(current_turn, self.board, *human_move)
+                    
+                    if result[0] in ['checkmate', 'stalemate']:
+                        print(f"Game over: {result[0]}")
+                        break
+                
+                except Exception as e:
+                    print(f"Error processing your move: {e}")
+                    continue
+            
+            # AI's turn
+            else:
+                # Use trained model to choose move
+                ai_move = self.choose_move(current_turn)
+                
+                print(f"AI moves: {self.format_move(ai_move)}")
+                
+                # Execute AI move
+                move_result = engine.tryMove(current_turn, self.board, *ai_move)
+                
+                # Check game end conditions
+                result = engine.afterMove(current_turn, self.board, *ai_move)
+                
+                if result[0] in ['checkmate', 'stalemate']:
+                    print(f"Game over: {result[0]}")
+                    break
+            
+            # Switch turns
+            current_turn = 'b' if current_turn == 'w' else 'w'
+    
+    def get_human_move(self, turn):
+        """
+        Get a valid move from human input.
+        
+        Args:
+            turn (str): Current player's turn
+        
+        Returns:
+            tuple: Move as (start_y, start_x, target_y, target_x)
+        """
+        while True:
+            move = input("Enter your move (e.g., 'e2e4'): ").lower().strip()
+            
+            # Convert algebraic notation to board coordinates
+            try:
+                start_x = ord(move[0]) - ord('a')
+                start_y = 8 - int(move[1])
+                target_x = ord(move[2]) - ord('a')
+                target_y = 8 - int(move[3])
+                
+                # Validate move is in possible moves
+                possible_moves = self.get_possible_moves(turn)
+                
+                # Check if the move is in possible moves
+                if (start_y, start_x, target_y, target_x) in possible_moves:
+                    return (start_y, start_x, target_y, target_x)
+                else:
+                    print("Invalid move. Try again.")
+            
+            except (IndexError, ValueError):
+                print("Invalid move format. Use algebraic notation like 'e2e4'.")
+    
+    def display_board(self):
+        """
+        Display the current board state in a readable format.
+        """
+        print("\n  a b c d e f g h")
+        for y, row in enumerate(self.board.board_state):
+            row_display = [f"{8-y} "]
+            for field in row:
+                if field.figure:
+                    row_display.append(field.figure.return_figure())
+                else:
+                    row_display.append('.')
+            print(' '.join(row_display))
+        print()
+    
+    def format_move(self, move):
+        """
+        Convert move tuple to algebraic notation.
+        
+        Args:
+            move (tuple): Move as (start_y, start_x, target_y, target_x)
+        
+        Returns:
+            str: Algebraic notation move
+        """
+        start_file = chr(move[1] + ord('a'))
+        start_rank = 8 - move[0]
+        target_file = chr(move[3] + ord('a'))
+        target_rank = 8 - move[2]
+        
+        return f"{start_file}{start_rank}{target_file}{target_rank}"
+
+    def save_model(self, filename='chess_model.pkl'):
+        """Save the trained model to a file"""
+        import pickle
+        model_data = {
+            'q_table': self.q_table,
+            'best_moves_memory': self.best_moves_memory,
+            'training_progress': self.training_progress
+        }
+        try:
+            with open(filename, 'wb') as f:
+                pickle.dump(model_data, f)
+            print(f"Model successfully saved to {filename}")
+        except Exception as e:
+            print(f"Error saving model: {e}")
+
+    def load_model(self, filename='chess_model.pkl'):
+        """Load a previously trained model"""
+        import pickle
+        try:
+            with open(filename, 'rb') as f:
+                model_data = pickle.load(f)
+                self.q_table = model_data['q_table']
+                self.best_moves_memory = model_data['best_moves_memory']
+                self.training_progress = model_data.get('training_progress', self.training_progress)
+            print(f"Model successfully loaded from {filename}")
+            return True
+        except FileNotFoundError:
+            print("No saved model found")
+            return False
+        except Exception as e:
+            print(f"Error loading model: {e}")
+            return False
 
 # Example usage
 def main():
-    # Initialize the AI
     ai = ChessQLearningAI(board_and_fields.Board())
     
-    # Train the model
-    print("Starting training...")
-    training_progress = ai.train(num_episodes=50000)  # Reduced for testing
-    print("Training completed. Progress:", training_progress)
-    
-    # Evaluate the model
-    performance = ai.evaluate_model()
-    print("Model Performance:", performance)
+    while True:
+        print("\nChess AI Menu:")
+        print("1. Train New Model")
+        print("2. Load Existing Model")
+        print("3. Play as White")
+        print("4. Play as Black")
+        print("5. Save Current Model")
+        print("6. Exit")
+        
+        choice = input("Enter your choice (1-6): ")
+        
+        if choice == '1':
+            print("Starting training...")
+            training_progress = ai.train(num_episodes=1000)
+            print("Training completed. Progress:", training_progress)
+            # Auto-save after training
+            ai.save_model()
+        elif choice == '2':
+            ai.load_model()
+        elif choice == '3':
+            ai.play_interactive_game(human_color='w')
+        elif choice == '4':
+            ai.play_interactive_game(human_color='b')
+        elif choice == '5':
+            ai.save_model()
+        elif choice == '6':
+            break
+        else:
+            print("Invalid choice. Try again.")
 
 if __name__ == "__main__":
     main()
+# Test the Q-learning AI
