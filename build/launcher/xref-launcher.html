@@ -21,6 +21,7 @@ imports:
     <a href="#_collections_abc">_collections_abc</a>
  &#8226;   <a href="#_weakrefset">_weakrefset</a>
  &#8226;   <a href="#abc">abc</a>
+ &#8226;   <a href="#algorithms.ai_game">algorithms.ai_game</a>
  &#8226;   <a href="#codecs">codecs</a>
  &#8226;   <a href="#collections">collections</a>
  &#8226;   <a href="#copyreg">copyreg</a>
@@ -151,6 +152,8 @@ imports:
  &#8226;   <a href="#enum">enum</a>
  &#8226;   <a href="#functools">functools</a>
  &#8226;   <a href="#genericpath">genericpath</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
+ &#8226;   <a href="#graphics">graphics</a>
  &#8226;   <a href="#heapq">heapq</a>
  &#8226;   <a href="#io">io</a>
  &#8226;   <a href="#json">json</a>
@@ -1622,8 +1625,39 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#algorithms.evaluation">algorithms.evaluation</a>
+    <a href="#algorithms.ai_game">algorithms.ai_game</a>
+ &#8226;   <a href="#algorithms.evaluation">algorithms.evaluation</a>
+ &#8226;   <a href="#algorithms.minimax">algorithms.minimax</a>
+ &#8226;   <a href="#algorithms.monte_carlo_tree_search">algorithms.monte_carlo_tree_search</a>
  &#8226;   <a href="#normal_games.test_mode_normal_game">normal_games.test_mode_normal_game</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="algorithms.ai_game"></a>
+  <a target="code" href="/home/janek/Projects/Chess/algorithms/ai_game.py" type="text/plain"><tt>algorithms.ai_game</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#algorithms">algorithms</a>
+ &#8226;   <a href="#algorithms.minimax">algorithms.minimax</a>
+ &#8226;   <a href="#algorithms.monte_carlo_tree_search">algorithms.monte_carlo_tree_search</a>
+ &#8226;   <a href="#copy">copy</a>
+ &#8226;   <a href="#engine.board_and_fields">engine.board_and_fields</a>
+ &#8226;   <a href="#engine.engine">engine.engine</a>
+ &#8226;   <a href="#engine.figures">engine.figures</a>
+ &#8226;   <a href="#graphics">graphics</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#queue">queue</a>
+ &#8226;   <a href="#threading">threading</a>
+ &#8226;   <a href="#time">time</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#launcher">launcher</a>
+ &#8226;   <a href="#launcher.py">launcher.py</a>
 
   </div>
 
@@ -1636,16 +1670,59 @@ imported by:
 imports:
     <a href="#algorithms">algorithms</a>
  &#8226;   <a href="#engine.board_and_fields">engine.board_and_fields</a>
- &#8226;   <a href="#engine.engine">engine.engine</a>
  &#8226;   <a href="#engine.figures">engine.figures</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#algorithms">algorithms</a>
+ &#8226;   <a href="#algorithms.minimax">algorithms.minimax</a>
+ &#8226;   <a href="#algorithms.monte_carlo_tree_search">algorithms.monte_carlo_tree_search</a>
+ &#8226;   <a href="#normal_games.test_mode_normal_game">normal_games.test_mode_normal_game</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="algorithms.minimax"></a>
+  <a target="code" href="/home/janek/Projects/Chess/algorithms/minimax.py" type="text/plain"><tt>algorithms.minimax</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#algorithms">algorithms</a>
+ &#8226;   <a href="#algorithms.evaluation">algorithms.evaluation</a>
+ &#8226;   <a href="#copy">copy</a>
+ &#8226;   <a href="#engine.board_and_fields">engine.board_and_fields</a>
+ &#8226;   <a href="#engine.engine">engine.engine</a>
  &#8226;   <a href="#os">os</a>
  &#8226;   <a href="#sys">sys</a>
 
   </div>
   <div class="import">
 imported by:
+    <a href="#algorithms.ai_game">algorithms.ai_game</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="algorithms.monte_carlo_tree_search"></a>
+  <a target="code" href="/home/janek/Projects/Chess/algorithms/monte_carlo_tree_search.py" type="text/plain"><tt>algorithms.monte_carlo_tree_search</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
     <a href="#algorithms">algorithms</a>
- &#8226;   <a href="#normal_games.test_mode_normal_game">normal_games.test_mode_normal_game</a>
+ &#8226;   <a href="#algorithms.evaluation">algorithms.evaluation</a>
+ &#8226;   <a href="#copy">copy</a>
+ &#8226;   <a href="#engine.engine">engine.engine</a>
+ &#8226;   <a href="#engine.fen_operations">engine.fen_operations</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#algorithms.ai_game">algorithms.ai_game</a>
 
   </div>
 
@@ -3635,6 +3712,9 @@ imports:
   <div class="import">
 imported by:
     <a href="#_sre">_sre</a>
+ &#8226;   <a href="#algorithms.ai_game">algorithms.ai_game</a>
+ &#8226;   <a href="#algorithms.minimax">algorithms.minimax</a>
+ &#8226;   <a href="#algorithms.monte_carlo_tree_search">algorithms.monte_carlo_tree_search</a>
  &#8226;   <a href="#argparse">argparse</a>
  &#8226;   <a href="#collections">collections</a>
  &#8226;   <a href="#dataclasses">dataclasses</a>
@@ -7137,16 +7217,20 @@ imported by:
 imports:
     <a href="#copy">copy</a>
  &#8226;   <a href="#engine">engine</a>
+ &#8226;   <a href="#engine.fen_operations">engine.fen_operations</a>
  &#8226;   <a href="#engine.figures">engine.figures</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#algorithms.evaluation">algorithms.evaluation</a>
+    <a href="#algorithms.ai_game">algorithms.ai_game</a>
+ &#8226;   <a href="#algorithms.evaluation">algorithms.evaluation</a>
+ &#8226;   <a href="#algorithms.minimax">algorithms.minimax</a>
  &#8226;   <a href="#custom_board_game.board_maker">custom_board_game.board_maker</a>
  &#8226;   <a href="#custom_board_game.normal_game_custom_board">custom_board_game.normal_game_custom_board</a>
  &#8226;   <a href="#engine.engine">engine.engine</a>
  &#8226;   <a href="#engine.fen_operations">engine.fen_operations</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
  &#8226;   <a href="#multiplayer.client">multiplayer.client</a>
  &#8226;   <a href="#multiplayer.server">multiplayer.server</a>
  &#8226;   <a href="#normal_games.normal_game">normal_games.normal_game</a>
@@ -7170,9 +7254,12 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#algorithms.evaluation">algorithms.evaluation</a>
+    <a href="#algorithms.ai_game">algorithms.ai_game</a>
+ &#8226;   <a href="#algorithms.minimax">algorithms.minimax</a>
+ &#8226;   <a href="#algorithms.monte_carlo_tree_search">algorithms.monte_carlo_tree_search</a>
  &#8226;   <a href="#custom_board_game.board_maker">custom_board_game.board_maker</a>
  &#8226;   <a href="#custom_board_game.normal_game_custom_board">custom_board_game.normal_game_custom_board</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
  &#8226;   <a href="#multiplayer.client">multiplayer.client</a>
  &#8226;   <a href="#multiplayer.server">multiplayer.server</a>
  &#8226;   <a href="#normal_games.normal_game">normal_games.normal_game</a>
@@ -7194,9 +7281,12 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#custom_board_game.board_maker">custom_board_game.board_maker</a>
+    <a href="#algorithms.monte_carlo_tree_search">algorithms.monte_carlo_tree_search</a>
+ &#8226;   <a href="#custom_board_game.board_maker">custom_board_game.board_maker</a>
  &#8226;   <a href="#custom_board_game.normal_game_custom_board">custom_board_game.normal_game_custom_board</a>
+ &#8226;   <a href="#engine.board_and_fields">engine.board_and_fields</a>
  &#8226;   <a href="#engine.engine">engine.engine</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
  &#8226;   <a href="#multiplayer.server">multiplayer.server</a>
  &#8226;   <a href="#normal_games.test_mode_normal_game">normal_games.test_mode_normal_game</a>
 
@@ -7214,12 +7304,14 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#algorithms.evaluation">algorithms.evaluation</a>
+    <a href="#algorithms.ai_game">algorithms.ai_game</a>
+ &#8226;   <a href="#algorithms.evaluation">algorithms.evaluation</a>
  &#8226;   <a href="#custom_board_game.board_maker">custom_board_game.board_maker</a>
  &#8226;   <a href="#custom_board_game.normal_game_custom_board">custom_board_game.normal_game_custom_board</a>
  &#8226;   <a href="#engine.board_and_fields">engine.board_and_fields</a>
  &#8226;   <a href="#engine.engine">engine.engine</a>
  &#8226;   <a href="#engine.fen_operations">engine.fen_operations</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
  &#8226;   <a href="#multiplayer.client">multiplayer.client</a>
  &#8226;   <a href="#multiplayer.server">multiplayer.server</a>
  &#8226;   <a href="#normal_games.normal_game">normal_games.normal_game</a>
@@ -7653,6 +7745,44 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="grandmaster"></a>
+  <a target="code" href="/home/janek/Projects/Chess/grandmaster/__init__.py" type="text/plain"><tt>grandmaster</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imported by:
+    <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="grandmaster.grandmaster_game"></a>
+  <a target="code" href="/home/janek/Projects/Chess/grandmaster/grandmaster_game.py" type="text/plain"><tt>grandmaster.grandmaster_game</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#engine.board_and_fields">engine.board_and_fields</a>
+ &#8226;   <a href="#engine.engine">engine.engine</a>
+ &#8226;   <a href="#engine.fen_operations">engine.fen_operations</a>
+ &#8226;   <a href="#engine.figures">engine.figures</a>
+ &#8226;   <a href="#grandmaster">grandmaster</a>
+ &#8226;   <a href="#graphics">graphics</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#pathlib">pathlib</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#time">time</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#launcher">launcher</a>
+ &#8226;   <a href="#launcher.py">launcher.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="graphics"></a>
   <a target="code" href="/home/janek/Projects/Chess/graphics.py" type="text/plain"><tt>graphics</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -7660,11 +7790,16 @@ imports:
     <a href="#json">json</a>
  &#8226;   <a href="#pygame">pygame</a>
  &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#time">time</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#custom_board_game.normal_game_custom_board">custom_board_game.normal_game_custom_board</a>
+    <a href="#algorithms.ai_game">algorithms.ai_game</a>
+ &#8226;   <a href="#custom_board_game.normal_game_custom_board">custom_board_game.normal_game_custom_board</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
+ &#8226;   <a href="#launcher">launcher</a>
+ &#8226;   <a href="#launcher.py">launcher.py</a>
  &#8226;   <a href="#multiplayer.client">multiplayer.client</a>
  &#8226;   <a href="#multiplayer.server">multiplayer.server</a>
  &#8226;   <a href="#normal_games.normal_game">normal_games.normal_game</a>
@@ -8833,6 +8968,7 @@ imported by:
     <a href="#charset_normalizer.models">charset_normalizer.models</a>
  &#8226;   <a href="#custom_board_game.board_maker">custom_board_game.board_maker</a>
  &#8226;   <a href="#custom_board_game.normal_game_custom_board">custom_board_game.normal_game_custom_board</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
  &#8226;   <a href="#graphics">graphics</a>
  &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
  &#8226;   <a href="#json.decoder">json.decoder</a>
@@ -8925,8 +9061,11 @@ imported by:
   <a target="code" href="/home/janek/Projects/Chess/launcher.py" type="text/plain"><tt>launcher</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#custom_board_game.board_maker">custom_board_game.board_maker</a>
+    <a href="#algorithms.ai_game">algorithms.ai_game</a>
+ &#8226;   <a href="#custom_board_game.board_maker">custom_board_game.board_maker</a>
  &#8226;   <a href="#custom_board_game.normal_game_custom_board">custom_board_game.normal_game_custom_board</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
+ &#8226;   <a href="#graphics">graphics</a>
  &#8226;   <a href="#json">json</a>
  &#8226;   <a href="#multiplayer.client">multiplayer.client</a>
  &#8226;   <a href="#multiplayer.server">multiplayer.server</a>
@@ -9084,6 +9223,7 @@ imported by:
 imported by:
     <a href="#_pydatetime">_pydatetime</a>
  &#8226;   <a href="#_pydecimal">_pydecimal</a>
+ &#8226;   <a href="#algorithms.monte_carlo_tree_search">algorithms.monte_carlo_tree_search</a>
  &#8226;   <a href="#asyncio.tasks">asyncio.tasks</a>
  &#8226;   <a href="#asyncio.windows_events">asyncio.windows_events</a>
  &#8226;   <a href="#fractions">fractions</a>
@@ -16941,7 +17081,7 @@ imported by:
  &#8226;   <a href="#_colorize">_colorize</a>
  &#8226;   <a href="#_pyrepl.pager">_pyrepl.pager</a>
  &#8226;   <a href="#_strptime">_strptime</a>
- &#8226;   <a href="#algorithms.evaluation">algorithms.evaluation</a>
+ &#8226;   <a href="#algorithms.minimax">algorithms.minimax</a>
  &#8226;   <a href="#argparse">argparse</a>
  &#8226;   <a href="#asyncio.base_events">asyncio.base_events</a>
  &#8226;   <a href="#asyncio.base_subprocess">asyncio.base_subprocess</a>
@@ -17529,7 +17669,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#importlib.metadata">importlib.metadata</a>
+    <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
+ &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
  &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
  &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
  &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
@@ -18471,8 +18612,10 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#custom_board_game.board_maker">custom_board_game.board_maker</a>
+    <a href="#algorithms.ai_game">algorithms.ai_game</a>
+ &#8226;   <a href="#custom_board_game.board_maker">custom_board_game.board_maker</a>
  &#8226;   <a href="#custom_board_game.normal_game_custom_board">custom_board_game.normal_game_custom_board</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
  &#8226;   <a href="#graphics">graphics</a>
  &#8226;   <a href="#launcher">launcher</a>
  &#8226;   <a href="#launcher.py">launcher.py</a>
@@ -19218,7 +19361,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#concurrent.futures.process">concurrent.futures.process</a>
+    <a href="#algorithms.ai_game">algorithms.ai_game</a>
+ &#8226;   <a href="#concurrent.futures.process">concurrent.futures.process</a>
  &#8226;   <a href="#concurrent.futures.thread">concurrent.futures.thread</a>
  &#8226;   <a href="#more_itertools.more">more_itertools.more</a>
  &#8226;   <a href="#multiprocessing.dummy">multiprocessing.dummy</a>
@@ -19275,8 +19419,10 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#email.generator">email.generator</a>
+    <a href="#algorithms.monte_carlo_tree_search">algorithms.monte_carlo_tree_search</a>
+ &#8226;   <a href="#email.generator">email.generator</a>
  &#8226;   <a href="#email.utils">email.utils</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
  &#8226;   <a href="#more_itertools.more">more_itertools.more</a>
  &#8226;   <a href="#more_itertools.recipes">more_itertools.recipes</a>
  &#8226;   <a href="#secrets">secrets</a>
@@ -20138,7 +20284,7 @@ imported by:
  &#8226;   <a href="#_pydatetime">_pydatetime</a>
  &#8226;   <a href="#_pydecimal">_pydecimal</a>
  &#8226;   <a href="#_pyrepl.pager">_pyrepl.pager</a>
- &#8226;   <a href="#algorithms.evaluation">algorithms.evaluation</a>
+ &#8226;   <a href="#algorithms.minimax">algorithms.minimax</a>
  &#8226;   <a href="#argparse">argparse</a>
  &#8226;   <a href="#ast">ast</a>
  &#8226;   <a href="#asyncio">asyncio</a>
@@ -20495,6 +20641,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#_threading_local">_threading_local</a>
+ &#8226;   <a href="#algorithms.ai_game">algorithms.ai_game</a>
  &#8226;   <a href="#asyncio.base_events">asyncio.base_events</a>
  &#8226;   <a href="#asyncio.events">asyncio.events</a>
  &#8226;   <a href="#asyncio.mixins">asyncio.mixins</a>
@@ -20560,6 +20707,7 @@ imported by:
     <a href="#_datetime">_datetime</a>
  &#8226;   <a href="#_pydatetime">_pydatetime</a>
  &#8226;   <a href="#_strptime">_strptime</a>
+ &#8226;   <a href="#algorithms.ai_game">algorithms.ai_game</a>
  &#8226;   <a href="#asyncio.base_events">asyncio.base_events</a>
  &#8226;   <a href="#asyncio.windows_events">asyncio.windows_events</a>
  &#8226;   <a href="#concurrent.futures._base">concurrent.futures._base</a>
@@ -20569,6 +20717,8 @@ imported by:
  &#8226;   <a href="#email.generator">email.generator</a>
  &#8226;   <a href="#email.utils">email.utils</a>
  &#8226;   <a href="#gc">gc</a>
+ &#8226;   <a href="#grandmaster.grandmaster_game">grandmaster.grandmaster_game</a>
+ &#8226;   <a href="#graphics">graphics</a>
  &#8226;   <a href="#gzip">gzip</a>
  &#8226;   <a href="#http.cookiejar">http.cookiejar</a>
  &#8226;   <a href="#http.server">http.server</a>
