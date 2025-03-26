@@ -36,10 +36,10 @@ class MinimaxThread(threading.Thread):
 
 # Dodaj nową klasę po MinimaxThread
 class MonteCarloThread(threading.Thread):
-    def __init__(self, board, simulations, turn, result_queue):
+    def __init__(self, board, max_depth, turn, result_queue):
         super().__init__()
         self.board = copy.deepcopy(board)
-        self.simulations = simulations
+        self.max_depth = max_depth
         self.turn = turn
         self.result_queue = result_queue
         self._stop_event = threading.Event()
@@ -55,7 +55,7 @@ class MonteCarloThread(threading.Thread):
             mc_obj = Mcts(self.turn)
             # Sprawdzamy czy wątek nie został zatrzymany przed każdą symulacją
             if not self.stopped():
-                move = mc_obj.pick_best_move(self.board, self.simulations)
+                move = mc_obj.pick_best_move(self.board, 500, self.max_depth)
                 if not self.stopped():
                     self.result_queue.put(move)
         except Exception as e:
@@ -269,7 +269,7 @@ def main():
                 if not calculating:
                     calculating = True
                     result_queue = queue.Queue()
-                    monte_carlo_thread = MonteCarloThread(main_board, 20, turn, result_queue)
+                    monte_carlo_thread = MonteCarloThread(main_board, 200, turn, result_queue)
                     monte_carlo_thread.start()
                 
                 try:

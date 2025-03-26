@@ -61,30 +61,33 @@ class Mcts:
         color - kolor, którym będzie grało AI
         """
         self.root = Node(0, 0, "root", (0,0,0,0), "w" if color == "b" else "b") #Korzeń drzewa (kolor korzenia musi być odwrotny, ponieważ zmienia sie on co ruch)
-    def expand_tree(self, board):
+    def expand_tree(self, board, max_depth):
         new_board = copy.deepcopy(board)
         # Wybór (selection) 
         current_node = self.root
         while len(current_node.children) > 0:
-            max_choice_factor = 0
+            max_choice_factor = -1
             chosen_node = self.root
+            depth = 0
             for child in current_node.children:
-                # Liczymy wzór UCT na zmiennych z następnego ruchu, stąd +0.5 przy wygranych  
-                choice_factor = ((child.wins + 0.5) / (child.games+1)) + math.sqrt(2) * math.sqrt(math.log(child.parent.games + 1) / (child.games +1))
+                # Liczymy wzór UCT 
+                if child.games > 0 and child.parent.games > 0: 
+                    choice_factor = ((child.wins) / (child.games)) + math.sqrt(2) * math.sqrt(math.log(child.parent.games) / (child.games))
+                else:
+                    choice_factor = float("inf")
                 if choice_factor > max_choice_factor:
                     choice_factor = max_choice_factor
                     chosen_node = child
             engine.tryMove(chosen_node.color, new_board, *chosen_node.move)
             current_node = chosen_node
+            depth += 1
+            if depth >= max_depth:
+                current_node = self.root
         # Rozrost (expansion)
-        for i in range (random.randint(1,4)):
-            moves=new_board.get_all_moves('b' if current_node.color == "w" else "w")
-            key = random.sample(sorted(moves), 1)
-            move = random.sample(moves[key[0]], 1) 
-            new_node = Node(0,0,current_node, (*key[0],*move[0]),'b' if current_node.color == "w" else "w")
-            current_node.children += [new_node]
+        if current_node.games == 0:
+            self.whole_expand(new_board,current_node)
+            current_node = current_node.children[1]
         # Symulacja (playout)
-        current_node = new_node
         result = (1,1,1)
         move_color = self.root.color
         counter = 0
@@ -108,19 +111,38 @@ class Mcts:
             current_node.parent.games += current_node.games - current_node.parent.games 
             current_node.parent.wins += current_node.wins - current_node.parent.wins
             current_node = current_node.parent
-    def pick_best_move(self,board,limit):
+    def pick_best_move(self,board,limit, max_depth):
         counter = 0
         while limit > counter:
-            self.expand_tree(board)
+            self.expand_tree(board, max_depth)
             counter += 1
         max_played_games = 0
         for child in self.root.children:
             if child.games > max_played_games:
                 chosen_child = child
         return chosen_child.move
-    
+    def random_expand(self, board, node):
+        """
+        Funkcja powiększająca drzewo, wariant losujący 8 z możliwych dzieci, dzięki czemu znacznie szybszy
+        """
+        for i in range (random.randint(1,8)):
+            moves=board.get_all_moves('b' if node.color == "w" else "w")
+            key = random.sample(sorted(moves), 1)
+            move = random.sample(moves[key[0]], 1) 
+            new_node = Node(0,0,node, (*key[0],*move[0]),'b' if node.color == "w" else "w")
+            node.children += [new_node]
+    def whole_expand(self, board, node):
+        """
+        Funkcja powiększająca drzewo, wariant uwzględniający wszystkie możliwości UWAGA: Bardzo obciąża komputer
+        """
+        moves = board.get_all_moves('b' if node.color == "w" else "w")
+        for key in moves:
+            for move in moves[key]:
+                new_node = Node(0,0,node, (*key,*move),'b' if node.color == "w" else "w")
+                node.children += [new_node]
+                
 class Node:
-    def __init__(self, games:int, wins:int, parent, move:tuple, color:str):
+    def __init__(self, games:int, wins:int, parent, move:tuple, color:str, ):
         """
             Klasa reprezentująca węzły drzewa \n
             Args:
