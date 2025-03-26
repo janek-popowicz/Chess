@@ -399,68 +399,88 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
 
 def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
     """
-    Wyświetla efektowne okno dialogowe do wpisania nazwy arcymistrza.
-
-    Args:
-        screen (pygame.Surface): Powierzchnia ekranu gry.
-        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
-
-    Returns:
-        str: Nazwa wybranego arcymistrza.
+    Wyświetla okno dialogowe do wyboru arcymistrza z portretami i polem tekstowym.
+    Dostosowane do rozdzielczości 1260x960.
     """
     font = pygame.font.Font(None, 48)
-    small_font = pygame.font.Font(None, 24)
+    small_font = pygame.font.Font(None, 32)
     
+    # Lista dostępnych arcymistrzów
+    grandmasters = [
+        "kasparov", "fischer", "carlsen", "hikaru", 
+        "capablanca", "mikhail", "morphy paul", "alekhine",
+        "viswanathan", "polgar", "botvinnik", "caruana"
+    ]
+    
+    # Stałe do pozycjonowania
+    PORTRAIT_SIZE = int(SQUARE_SIZE * 1.8)  # Nieco mniejsze portrety
+    GRID_START_X = (1260 - (4 * PORTRAIT_SIZE + 3 * 40)) // 2  # Wycentrowanie siatki
+    GRID_START_Y = 150  # Rozpoczęcie siatki portretów
+    SPACING = 40  # Odstęp między portretami
+    
+    # Ładowanie portretów
+    portraits = {}
+    for gm in grandmasters:
+        try:
+            portrait = pygame.image.load(f"grandmaster/portraits/{gm.lower()}.png")
+            portrait = pygame.transform.scale(portrait, (PORTRAIT_SIZE, PORTRAIT_SIZE))
+            portraits[gm] = portrait
+        except:
+            placeholder = pygame.Surface((PORTRAIT_SIZE, PORTRAIT_SIZE))
+            placeholder.fill(pygame.Color("gray40"))
+            name_text = small_font.render(gm, True, pygame.Color("white"))
+            name_rect = name_text.get_rect(center=(PORTRAIT_SIZE//2, PORTRAIT_SIZE//2))
+            placeholder.blit(name_text, name_rect)
+            portraits[gm] = placeholder
+
     grandmaster_name = ""
     cursor_visible = True
     last_cursor_toggle = time.time()
-    
-    # Lista przykładowych arcymistrzów
-    examples = ["np. Kasparov", "np. Fischer", "np. Carlsen", "np. Nakamura"]
-    current_example = 0
-    last_example_change = time.time()
-    
     clock = pygame.time.Clock()
-    background_offset = 0
 
     while True:
         current_time = time.time()
-        
-        # Animowane tło szachownicy
         screen.fill(pygame.Color("gray20"))
-        background_offset = (background_offset + 0.5) % (SQUARE_SIZE * 2)
-        for i in range(-1, screen.get_width() // SQUARE_SIZE + 1):
-            for j in range(-1, screen.get_height() // SQUARE_SIZE + 1):
-                if (i + j) % 2 == 0:
-                    rect = pygame.Rect(
-                        i * SQUARE_SIZE + background_offset,
-                        j * SQUARE_SIZE + background_offset,
-                        SQUARE_SIZE,
-                        SQUARE_SIZE
-                    )
-                    pygame.draw.rect(screen, pygame.Color("gray40"), rect)
 
         # Tytuł
         title_text = font.render("Wybierz Arcymistrza", True, pygame.Color("gold"))
-        title_rect = title_text.get_rect(center=(screen.get_width() // 2, SQUARE_SIZE * 2))
-        
-        # Efekt cienia dla tytułu
-        shadow_text = font.render("Wybierz Arcymistrza", True, pygame.Color("darkgoldenrod"))
-        shadow_rect = shadow_text.get_rect(center=(title_rect.centerx + 2, title_rect.centery + 2))
-        screen.blit(shadow_text, shadow_rect)
+        title_rect = title_text.get_rect(center=(1260 // 2, 80))
         screen.blit(title_text, title_rect)
 
-        # Pole tekstowe
+        # Rysowanie portretów w siatce 3x4
+        portrait_rects = {}
+        for i, gm in enumerate(grandmasters):
+            row = i // 4
+            col = i % 4
+            x = GRID_START_X + col * (PORTRAIT_SIZE + SPACING)
+            y = GRID_START_Y + row * (PORTRAIT_SIZE + SPACING)
+            
+            portrait_rect = portraits[gm].get_rect(topleft=(x, y))
+            portrait_rects[gm] = portrait_rect
+            
+            # Ramka podświetlenia
+            mouse_pos = pygame.mouse.get_pos()
+            if portrait_rect.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, pygame.Color("gold"), portrait_rect.inflate(6, 6), 3)
+            
+            screen.blit(portraits[gm], portrait_rect)
+            
+            # Imię pod portretem
+            name_text = small_font.render(gm.title(), True, pygame.Color("white"))
+            name_rect = name_text.get_rect(center=(x + PORTRAIT_SIZE//2, y + PORTRAIT_SIZE + 25))
+            screen.blit(name_text, name_rect)
+
+        # Pole tekstowe na dole - przesunięte o 50 pikseli w dół
         input_rect = pygame.Rect(
-            SQUARE_SIZE * 2,
-            screen.get_height() // 2 - SQUARE_SIZE,
-            SQUARE_SIZE * 8,
-            SQUARE_SIZE
+            330,  # Wycentrowane w oknie
+            850,  # 800 + 50 (przesunięte niżej)
+            600,  # Szerokość pola
+            50    # Wysokość pola
         )
         pygame.draw.rect(screen, pygame.Color("white"), input_rect)
         pygame.draw.rect(screen, pygame.Color("gold"), input_rect, 3)
 
-        # Tekst wejściowy z migającym kursorem
+        # Tekst wejściowy
         if current_time - last_cursor_toggle > 0.5:
             cursor_visible = not cursor_visible
             last_cursor_toggle = current_time
@@ -470,18 +490,9 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
         text_rect = text_surface.get_rect(center=input_rect.center)
         screen.blit(text_surface, text_rect)
 
-        # Wyświetlanie przykładów
-        if not grandmaster_name:
-            if current_time - last_example_change > 2.0:
-                current_example = (current_example + 1) % len(examples)
-                last_example_change = current_time
-            example_text = small_font.render(examples[current_example], True, pygame.Color("lightgray"))
-            example_rect = example_text.get_rect(center=(input_rect.centerx, input_rect.bottom + 20))
-            screen.blit(example_text, example_rect)
-
-        # Instrukcja
-        instruction_text = small_font.render("Naciśnij ENTER aby zatwierdzić", True, pygame.Color("lightgray"))
-        screen.blit(instruction_text, (SQUARE_SIZE * 2, screen.get_height() - SQUARE_SIZE * 2))
+        # Instrukcja - przesunięta o 50 pikseli w dół
+        instruction_text = small_font.render("Kliknij na portret lub wpisz nazwę i naciśnij ENTER", True, pygame.Color("lightgray"))
+        screen.blit(instruction_text, (SQUARE_SIZE * 2, screen.get_height() - SQUARE_SIZE))  # Było screen.get_height() - SQUARE_SIZE * 1.5
 
         pygame.display.flip()
         clock.tick(60)
@@ -490,6 +501,11 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Sprawdzenie kliknięcia na portret
+                for gm, rect in portrait_rects.items():
+                    if rect.collidepoint(event.pos):
+                        return gm.lower()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN and grandmaster_name:
                     return grandmaster_name.lower()

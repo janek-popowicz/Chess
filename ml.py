@@ -508,7 +508,7 @@ def main():
         
         if choice == '1':
             print("Starting training...")
-            training_progress = ai.train(num_episodes=1000)
+            training_progress = ai.train(num_episodes=100000)
             print("Training completed. Progress:", training_progress)
             # Auto-save after training
             ai.save_model()
