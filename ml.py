@@ -55,11 +55,7 @@ class ChessQLearningAI:
             for x, field in enumerate(row):
                 if field.figure:
                     # Use a tuple with piece info and board coordinates
-                    state.append((
-                        field.figure.return_figure(), 
-                        y, 
-                        x
-                    ))
+                    state.append((field.figure.return_figure(), y, x))
                 else:
                     state.append(None)
         return tuple(state)
@@ -148,7 +144,7 @@ class ChessQLearningAI:
         
         # Game state rewards
         if self.board.incheck:
-            reward -= 200 if turn == 'w' else 200  # Penalty for being in check
+            reward -= 200  # Penalty for being in check
         
         # Normalize rewards
         total_reward = (material_reward + position_reward + reward) / 100.0
@@ -167,11 +163,18 @@ class ChessQLearningAI:
         """
         old_q_value = self.q_table.get((state, move), 0)
         
+        # Determine next turn based on current board state
+        start_square = self.board.board_state[move[0]][move[1]]
+        if start_square and start_square.figure:
+            next_turn = 'b' if start_square.figure.color == 'w' else 'w'
+        else:
+            # If no figure found, alternate based on reward
+            next_turn = 'b' if reward > 0 else 'w'
+        
         # Find maximum Q-value for next state
+        next_moves = self.get_possible_moves(next_turn)
         max_next_q_value = max(
-            [self.q_table.get((next_state, next_move), 0) 
-             for next_move in self.get_possible_moves('w' if move[0] < 4 else 'b')]
-            or [0]
+            [self.q_table.get((next_state, nm), 0) for nm in next_moves] or [0]
         )
         
         # Q-learning update rule with adaptive learning
@@ -181,7 +184,7 @@ class ChessQLearningAI:
         
         self.q_table[(state, move)] = new_q_value
         
-        # Update best moves memory
+        # Update best moves memory if positive reward
         if reward > 0:
             self.best_moves_memory[state] = move
         
@@ -218,7 +221,6 @@ class ChessQLearningAI:
             
             while move_count < max_moves:
                 possible_moves = self.get_possible_moves(turn)
-                
                 if not possible_moves:
                     break
                 
@@ -331,6 +333,7 @@ class ChessQLearningAI:
         # This is a placeholder. You'll need to implement actual game simulation
         # based on your specific chess engine and game rules
         return random.choice(['win', 'loss', 'draw'])
+    
     def play_interactive_game(self, human_color='w'):
         """
         Play an interactive chess game against the trained AI.
@@ -344,7 +347,7 @@ class ChessQLearningAI:
         
         print("Welcome to Chess AI Interaction!")
         print(f"You are playing as {human_color} (White or Black)")
-        print("Enter moves in algebraic notation (e.g., 'e2e4')")
+        print("Enter moves in algebraic notation (e.g., 'e2e4')\n")
         
         while True:
             # Display current board state
@@ -368,17 +371,15 @@ class ChessQLearningAI:
                     
                     if result[0] in ['checkmate', 'stalemate']:
                         print(f"Game over: {result[0]}")
+                        self.display_board()
                         break
                 
                 except Exception as e:
                     print(f"Error processing your move: {e}")
                     continue
-            
-            # AI's turn
             else:
-                # Use trained model to choose move
+                # AI's turn
                 ai_move = self.choose_move(current_turn)
-                
                 print(f"AI moves: {self.format_move(ai_move)}")
                 
                 # Execute AI move
@@ -386,9 +387,9 @@ class ChessQLearningAI:
                 
                 # Check game end conditions
                 result = engine.afterMove(current_turn, self.board, *ai_move)
-                
                 if result[0] in ['checkmate', 'stalemate']:
                     print(f"Game over: {result[0]}")
+                    self.display_board()
                     break
             
             # Switch turns
@@ -406,7 +407,6 @@ class ChessQLearningAI:
         """
         while True:
             move = input("Enter your move (e.g., 'e2e4'): ").lower().strip()
-            
             # Convert algebraic notation to board coordinates
             try:
                 start_x = ord(move[0]) - ord('a')
@@ -416,30 +416,51 @@ class ChessQLearningAI:
                 
                 # Validate move is in possible moves
                 possible_moves = self.get_possible_moves(turn)
-                
-                # Check if the move is in possible moves
                 if (start_y, start_x, target_y, target_x) in possible_moves:
                     return (start_y, start_x, target_y, target_x)
                 else:
                     print("Invalid move. Try again.")
-            
             except (IndexError, ValueError):
                 print("Invalid move format. Use algebraic notation like 'e2e4'.")
     
     def display_board(self):
         """
-        Display the current board state in a readable format.
+        Display the chess board in a style similar to the provided screenshot.
+        White is always at the bottom (ranks 1 -> 8 bottom to top).
         """
-        print("\n  a b c d e f g h")
-        for y, row in enumerate(self.board.board_state):
-            row_display = [f"{8-y} "]
-            for field in row:
+        print("\n   Current Board Position:\n")
+        
+        # Top file letters
+        files_header = "     a    b    c    d    e    f    g    h"
+        print(files_header)
+        
+        # Górna linia
+        print("   +----+----+----+----+----+----+----+----+")
+        
+        # Rysowanie rzędów od 8 do 1
+        for rank in range(8, 0, -1):
+            row_str = f" {rank} |"
+            for file in range(8):
+                field = self.board.board_state[8 - rank][file]
                 if field.figure:
-                    row_display.append(field.figure.return_figure())
+                    color = 'w' if field.figure.color == 'w' else 'b'
+                    # np. 'wP', 'bR', 'wK' itp.
+                    piece_str = color + field.figure.return_figure()
+                    row_str += f" {piece_str:2} |"
                 else:
-                    row_display.append('.')
-            print(' '.join(row_display))
-        print()
+                    row_str += "    |"
+            row_str += f" {rank}"
+            print(row_str)
+            print("   +----+----+----+----+----+----+----+----+")
+        
+        # Dolna linia z oznaczeniem kolumn
+        print(files_header + "\n")
+        
+        # Jeśli jest check, wyświetl komunikat
+        if self.board.incheck:
+            print(" * CHECK! *")
+        
+        print("-" * 45)
     
     def format_move(self, move):
         """
@@ -491,7 +512,40 @@ class ChessQLearningAI:
             print(f"Error loading model: {e}")
             return False
 
-# Example usage
+def get_ai_move(board, color):
+    """
+    Get a move from the trained AI for the given board state and color.
+    
+    Args:
+        board: The current chess board
+        color (str): Color to play ('w' or 'b')
+    
+    Returns:
+        tuple: Move as (start_y, start_x, target_y, target_x) or None if no move found
+    """
+    try:
+        # Create AI instance
+        ai = ChessQLearningAI(board)
+        
+        # Try to load trained model
+        if not ai.load_model():
+            print("No trained model found. Cannot make a move.")
+            return None
+            
+        # Get move from AI
+        move = ai.choose_move(color)
+        return move
+        
+    except Exception as e:
+        print(f"Error getting AI move: {e}")
+        return None
+
+# Example usage:
+# move = get_ai_move(my_board, 'w')
+# if move:
+#     start_y, start_x, target_y, target_x = move
+#     # Make the move on your board
+
 def main():
     ai = ChessQLearningAI(board_and_fields.Board())
     
@@ -508,7 +562,7 @@ def main():
         
         if choice == '1':
             print("Starting training...")
-            training_progress = ai.train(num_episodes=100000)
+            training_progress = ai.train(num_episodes=350)
             print("Training completed. Progress:", training_progress)
             # Auto-save after training
             ai.save_model()
@@ -527,4 +581,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-# Test the Q-learning AI
