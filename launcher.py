@@ -23,7 +23,7 @@ def main():
     pygame.display.set_icon(icon_logo)
     
     # Ustawienia ekranu
-    screen = pygame.display.set_mode((1600, 1000))
+    screen = pygame.display.set_mode((1260, 960))
     pygame.display.set_caption("Chess Game Launcher")
     config = load_config()
     volume = config["volume"]
@@ -66,9 +66,9 @@ def main():
     pygame.mixer.music.play(start=5)
     pygame.mixer.music.set_volume(volume)
 
-    # Load the background image
+    #Dodanie tła
     background = pygame.image.load("background.png")
-    background = pygame.transform.scale(background, (1600, 1000))  # Ensure the image fits the screen size
+    background = pygame.transform.scale(background, (1260, 960))
 
     while running:
         mouse_pos = pygame.mouse.get_pos()
@@ -85,7 +85,7 @@ def main():
                         running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for i, (text_white, text_gray) in enumerate(menu_texts):
-                    text_rect = text_white.get_rect(center=(800, 150 + i * 100))
+                    text_rect = text_white.get_rect(center=(630, 150 + i * 100))
                     if text_rect.collidepoint(mouse_pos):
                         selected_option = i
                         if do_an_action(selected_option, screen) == False:
@@ -93,7 +93,7 @@ def main():
 
         # Sprawdzenie kolizji myszy z opcjami menu
         for i, (text_white, text_gray) in enumerate(menu_texts):
-            text_rect = text_white.get_rect(center=(800, 150 + i * 100))
+            text_rect = text_white.get_rect(center=(630, 150 + i * 100))
             if text_rect.collidepoint(mouse_pos):
                 selected_option = i
 
@@ -148,10 +148,10 @@ def draw_menu(selected_option:int, screen, menu_texts, background, text_white, t
     Args:
         selected_option (int): numer wybranej opcji z listy menu_options
     """
-    screen.blit(background, (0, 0))  # Draw the background image first
+    screen.blit(background, (0, 0))
     for i, (text_white, text_gray) in enumerate(menu_texts):
         text = text_white if i == selected_option else text_gray
-        text_rect = text.get_rect(center=(800, 150 + i * 100))
+        text_rect = text.get_rect(center=(630, 150 + i * 100))
         screen.blit(text, text_rect)
     pygame.display.flip()
 
