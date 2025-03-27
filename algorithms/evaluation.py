@@ -40,15 +40,16 @@ QUEEN = [
 ]
 
 ROOK = [
-    [  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0],
-    [  2.5,   5.0,   5.0,   5.0,   5.0,   5.0,   5.0,   2.5],
-    [ -2.5,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -2.5],
-    [ -2.5,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -2.5],
-    [ -2.5,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -2.5],
-    [ -2.5,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -2.5],
-    [ -2.5,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,  -2.5],
-    [  0.0,   0.0,   0.0,   2.5,   2.5,   0.0,   0.0,   0.0]
+    [  0.0,   0.0,   0.0,   5.0,   5.0,   0.0,   0.0,   0.0],
+    [  0.0,   0.0,   0.0,  10.0,  10.0,   0.0,   0.0,   0.0],
+    [  0.0,   0.0,   0.0,  10.0,  10.0,   0.0,   0.0,   0.0],
+    [  5.0,  10.0,  10.0,  20.0,  20.0,  10.0,  10.0,   5.0],
+    [  5.0,  10.0,  10.0,  20.0,  20.0,  10.0,  10.0,   5.0],
+    [  0.0,   0.0,   0.0,  10.0,  10.0,   0.0,   0.0,   0.0],
+    [  0.0,   0.0,   0.0,  10.0,  10.0,   0.0,   0.0,   0.0],
+    [  0.0,   0.0,   0.0,   5.0,   5.0,   0.0,   0.0,   0.0]
 ]
+
 
 BISHOP = [
     [-10.0,  -5.0,  -5.0,  -5.0,  -5.0,  -5.0,  -5.0, -10.0],
@@ -97,11 +98,11 @@ def ocena_materiału(board):
     waga_białych = 0
     waga_czarnych = 0
     figures_values = {
-        'p': 10,
-        'N': 30,
-        'B': 30,
-        'R': 50,
-        'Q': 90,
+        'p': 75,
+        'N': 225,
+        'B': 225,
+        'R': 375,
+        'Q': 675,
         'K': 0
     }
     for i in range(8):
@@ -165,7 +166,7 @@ def bonus_squares(board):
             else:
                 if color == 'b':
                     if piece_type == 'p':
-                        bonus_czarnych += PAWN_DOWN[i][j] 
+                        bonus_czarnych += PAWN_UP[i][j] 
                     elif piece_type == 'N':
                         bonus_czarnych += KNIGHT[i][j] 
                     elif piece_type == 'B':
@@ -175,20 +176,20 @@ def bonus_squares(board):
                     elif piece_type == 'Q':
                         bonus_czarnych += QUEEN[i][j] 
                     elif piece_type == 'K':
-                        bonus_czarnych += KING_DOWN[i][j] 
+                        bonus_czarnych += KING_UP[i][j] 
                 else:
                     if piece_type == 'p':
-                        bonus_czarnych += PAWN_UP[i][j]
+                        bonus_białych += PAWN_UP[i][j]
                     elif piece_type == 'N':
-                        bonus_czarnych += KNIGHT[i][j] 
+                        bonus_białych += KNIGHT[i][j] 
                     elif piece_type == 'B':
-                        bonus_czarnych += BISHOP[i][j] 
+                        bonus_białych += BISHOP[i][j] 
                     elif piece_type == 'R':
-                        bonus_czarnych += ROOK[i][j]
+                        bonus_białych += ROOK[i][j]
                     elif piece_type == 'Q':
-                        bonus_czarnych += QUEEN[i][j] 
+                        bonus_białych += QUEEN[i][j] 
                     elif piece_type == 'K':
-                        bonus_czarnych += KING_UP[i][j] 
+                        bonus_białych += KING_UP[i][j] 
     return [bonus_białych, bonus_czarnych]
 
 
