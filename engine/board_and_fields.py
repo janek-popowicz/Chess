@@ -56,6 +56,12 @@ class Board:
         self.moves_algebraic = []
         self.halfmove_clock = 0
         self.fen_history = [fen_operations.board_to_fen_inverted(self,"w")]
+        self.piece_cords = []
+        for row in range(0,8):
+            for col in range(0,8):
+                if self.board_state[row][col].figure:
+                    self.piece_cords.append((row, col))
+
     def make_move(self, y1: int, x1: int, y2: int, x2: int) -> None:
         """
         Wykonuje ruch na planszy.
@@ -68,8 +74,6 @@ class Board:
         """
         self.board_state[y2][x2].figure = self.board_state[y1][x1].figure
         self.board_state[y1][x1].figure = None
-
-
         
     def get_regular_moves(self, field):
         """
@@ -85,9 +89,7 @@ class Board:
         if field.figure == None:
             print("Na tym polu nie ma figury!",end=" ")
             return []
-        movescheme = []
-        for direction in field.figure.move_scheme:
-            movescheme.append(direction)
+        movescheme =copy.deepcopy(field.figure.move_scheme)
         if field.figure.type == 'p':
             if field.figure.has_moved == False:
                 if field.figure.color == 'w':
@@ -99,8 +101,8 @@ class Board:
                 field_to_check_x = field.x + direction[0] * distance
                 field_to_check_y= field.y + direction[1] * distance
                 #Sprawdzanie, czy koordynaty pola nie wyszły poza szachownicę
-                if field_to_check_y > 7 or field_to_check_y < 0 or field_to_check_x > 7 or field_to_check_x < 0:
-                    break 
+                if field_to_check_x not in range(0,8) or field_to_check_y not in range(0,8):
+                    break
                 field_to_check = self.board_state[field_to_check_y][field_to_check_x]
                 #Sprawdzanie, czy na danym polu jest jakaś figura
                 if field_to_check.figure:
@@ -193,12 +195,10 @@ class Board:
         Args:
             color (str): Kolor króla do sprawdzenia.
         """
-        for y in range(0,8):
-            for x in range(0,8):
-                tile = self.board_state[y][x]
-                if tile.figure:
-                    if tile.figure.type == 'K' and tile.figure.color == color:
-                        king_position = tile
+        for cord in self.piece_cords:
+            tile = self.board_state[cord[0]][cord[1]]
+            if tile.figure.type == 'K' and tile.figure.color == color:
+                    king_position = tile
         if self.is_attacked(king_position):
             if self.incheck == False:
                 self.incheck = True
@@ -215,12 +215,13 @@ class Board:
             list: Lista wszystkich możliwych ruchów.
         """
         all_moves = {}
-        for y in range(0,8):
-            for x in range(0,8):
-                field = self.board_state[y][x]
-                if field.figure:
-                    if field.figure.color == turn:
-                            all_moves[(y,x)] = self.get_legal_moves(field,turn)
+        for i in range(len(self.piece_cords)):
+                cord = self.piece_cords[i]
+                field = self.board_state[cord[0]][cord[1]]
+                # self.print_board()
+                if field.figure.color == turn:
+                        all_moves[(cord[0],cord[1])] = self.get_legal_moves(field,turn)
+                self.piece_cords.sort()
         remove_list =[]
         for i in all_moves:
             if all_moves[i] == []:
@@ -255,12 +256,16 @@ class Board:
                             if figure2.type == 'K':
                                 self.incheck = True
                                 continue
+                        self.piece_cords.remove((field.y,field.x))
+                        self.piece_cords.append((move[0],move[1]))
                         self.make_move(field.y,field.x,move[0],move[1])
                         self.is_in_check(turn)
                         if not self.incheck:
                             legal_cords.append(move)
                         self.board_state[field.y][field.x].figure = figure1
                         self.board_state[move[0]][move[1]].figure = figure2
+                        self.piece_cords.remove((move[0],move[1]))
+                        self.piece_cords.append((field.y,field.x))
             # Sprawdzanie roszady
             if field.figure.type == "K":
                 self.is_in_check(turn)

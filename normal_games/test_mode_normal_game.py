@@ -5,12 +5,13 @@ import os
 from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
-from algorithms import evaluation
+from algorithms.evaluation import *
 from engine.fen_operations import *
 
 def main():
     running = True
     main_board = board_and_fields.Board()
+    print(main_board.piece_cords)
     turn = 'b'
 
     while running:
@@ -21,15 +22,16 @@ def main():
             print("Szach!", end=" ")
         moving = True
         while moving:
-            print(evaluation.Evaluation(main_board).ocena_materiału())
+            print(get_evaluation(main_board))
             y1 = int(input("Wprowadź rząd figury, którą chcesz przesunąć: "))
             x1 = int(input("Wprowadź kolumnę figury, którą chcesz przesunąć: "))
             y2 = int(input("Wprowadź rząd, na który chcesz przesunąć figurę: "))
             x2 = int(input("Wprowadź kolumnę, na którą chcesz przesunąć figurę: "))
             moving = not tryMove(turn, main_board, y1, x1, y2, x2)
-        print(afterMove(turn, main_board, y1, x1, y2, x2))
-        print(board_to_fen(main_board.board_state))
         print(main_board.moves_algebraic)
+        print(board_to_fen(main_board.board_state))
+        print(afterMove(turn, main_board, y1, x1, y2, x2))
+        print(main_board.piece_cords)
         whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
         if whatAfter == "promotion":
             main_board.print_board()

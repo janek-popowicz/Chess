@@ -13,7 +13,7 @@ class Minimax:
     """
     Klasa implementująca algorytm Minimax z przycinaniem alfa-beta oraz ograniczeniem czasowym.
     """
-    def __init__(self, main_board, depth, color, time_limit=0.00001):
+    def __init__(self, main_board, depth, color, time_limit=0.01):
         """
         Inicjalizuje obiekt Minimax.
 
@@ -125,7 +125,10 @@ class Minimax:
                     (y1, x1) = figure 
                     (y2, x2) = move 
 
-                    new_board.make_move(y1, x1, y2, x2)
+                    new_board.make_move(y1,x1,y2,x2)
+                    new_board.piece_cords.remove((y1,x1))
+                    if (y2,x2) not in new_board.piece_cords:
+                        new_board.piece_cords.append((y2,x2))
 
                     eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, False)
 
@@ -155,8 +158,11 @@ class Minimax:
 
                     (y1, x1) = figure 
                     (y2, x2) = move 
-
-                    new_board.make_move(y1, x1, y2, x2)
+                    board.print_board()
+                    new_board.make_move(y1,x1,y2,x2)
+                    new_board.piece_cords.remove((y1,x1))
+                    if (y2,x2) not in new_board.piece_cords:
+                        new_board.piece_cords.append((y2,x2))
 
                     eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, True)
 

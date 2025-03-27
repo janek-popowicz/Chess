@@ -92,6 +92,10 @@ def main(player_color, grandmaster_name):
     winner = ""
     in_check = None
 
+    if player_color == 'w':
+        is_reversed = False
+    else:
+        is_reversed = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -100,8 +104,14 @@ def main(player_color, grandmaster_name):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 print(pos)
-                col = 7 - (pos[0] // SQUARE_SIZE)
-                row = 7 - (pos[1] // SQUARE_SIZE)
+                # Modify click detection based on board orientation
+                if is_reversed:
+                    col = pos[0] // SQUARE_SIZE
+                    row = pos[1] // SQUARE_SIZE
+                else:
+                    col = 7 - (pos[0] // SQUARE_SIZE)
+                    row = 7 - (pos[1] // SQUARE_SIZE)
+                
                 if col < 8 and row < 8:
                     if selected_piece:
                         if turn == player_color and tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
@@ -157,7 +167,7 @@ def main(player_color, grandmaster_name):
             else:
                 black_time += move_time
             draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
-            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+            draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
             pygame.display.flip()
             time.sleep(1)
             grandmaster_move = get_grandmaster_move(main_board, grandmaster_color, grandmaster_moves)
@@ -209,12 +219,12 @@ def main(player_color, grandmaster_name):
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
-                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)
         except TypeError:
             pass
         except AttributeError:
             pass
-        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+        draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
         pygame.display.flip()
         clock.tick(60)
     
