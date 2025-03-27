@@ -6,6 +6,7 @@ from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from graphics import *
+from algorithms.evaluation import get_evaluation  # Import evaluation function
 
 server_connected_event = threading.Event()  # Zamiast zmiennej server_connected
 
@@ -184,6 +185,7 @@ def main():
     )
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
+    ping_start_time = time.time()
     # Czasy graczy
     start_time = time.time()
     black_time = 0
@@ -191,8 +193,21 @@ def main():
     result = ""
     winner = ""
     in_check = None
+
+    # Add ping timing variables
+    last_ping_time = time.time()
+    ping_interval = 2.0  # Send ping every 2 seconds
+    ping_start_time = 0
+
     while running:
+        current_time = time.time()
         
+        # Send ping every 2 seconds
+        if current_time - last_ping_time >= ping_interval:
+            client.sendall("ping".encode('utf-8'))
+            ping_start_time = current_time
+            last_ping_time = current_time
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -255,6 +270,8 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+                    disconnect()
+        
         try:
             data = client.recv(1024).decode('utf-8')
             if data:
@@ -279,6 +296,10 @@ def main():
                     start_time = time.time()
                 elif data == "undo_reject":
                     print("❌ Cofnięcie ruchu zostało odrzucone.")
+                elif data == "pong":
+                    ping_time = (time.time() - ping_start_time) * 1000  # Convert to milliseconds
+                    print(f"Ping: {ping_time:.2f} ms")
+                    client.sendall(("ptime " + str(ping_time)).encode('utf-8'))
                 else:
                     print(f"📩 Otrzymano ruch: {data}")
                     data = data.split()
@@ -330,11 +351,15 @@ def main():
             current_black_time = black_time + (current_time - start_time)
             current_white_time = white_time
 
-        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn=='w' else GRAY),(8*SQUARE_SIZE+10,height - 150)),
-                             (font.render(format_time(current_black_time), True, YELLOW if turn=='b' else GRAY),(8*SQUARE_SIZE+10,80)))
+        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
+
+        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
+                              (8 * SQUARE_SIZE + 10, height - 150)),
+                             (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), 
+                              (8 * SQUARE_SIZE + 10, 80)))
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
-        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation, ping=int(ping_time) if 'ping_time' in locals() else None)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == 'w':
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)

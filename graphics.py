@@ -8,7 +8,10 @@ import pygame
 import json
 import sys
 import time
-
+import tkinter as tk
+from tkinter import filedialog
+from pathlib import Path
+import subprocess
 CONFIG_FILE = "config.json"
 
 def load_config():
@@ -16,13 +19,19 @@ def load_config():
     Ładuje konfigurację gry z pliku JSON.
 
     Returns:
-        dict: Słownik zawierający ustawienia gry (np. głośność, rozdzielczość, ikony, podświetlanie).
+        dict: Słownik zawierający ustawienia gry.
     """
     try:
         with open(CONFIG_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return {"volume": 0.5, "resolution": "1260x960", "icons": "classic", "highlight": 0}
+        return {
+            "volume": 0.5, 
+            "resolution": "1260x960", 
+            "icons": "classic", 
+            "highlight": 0,
+            "nerd_view": False  # Add default nerd_view setting
+        }
 
 def draw_board(screen, SQUARE_SIZE, main_board, in_check):
     """
@@ -42,7 +51,7 @@ def draw_board(screen, SQUARE_SIZE, main_board, in_check):
                 color = pygame.Color("red")
             pygame.draw.rect(screen, color, pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-def draw_pieces(screen, board, SQUARE_SIZE, pieces):
+def draw_pieces(screen, board, SQUARE_SIZE, pieces, is_reversed=False):
     """
     Rysuje figury na szachownicy.
 
@@ -51,14 +60,21 @@ def draw_pieces(screen, board, SQUARE_SIZE, pieces):
         board (Board): Obiekt planszy szachowej.
         SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
         pieces (dict): Słownik zawierający obrazy figur.
+        is_reversed (bool, optional): Czy plansza ma być odwrócona. Defaults to False.
     """
     for r in range(8):
         for c in range(8):
             piece = board.get_piece(r, c)
             if piece != "--":
-                screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                if is_reversed:
+                    x = c * SQUARE_SIZE
+                    y = r * SQUARE_SIZE
+                else:
+                    x = (7-c) * SQUARE_SIZE
+                    y = (7-r) * SQUARE_SIZE
+                screen.blit(pieces[piece], pygame.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE))
 
-def highlight_moves(screen, field, square_size: int, board, color_move, color_take):
+def highlight_moves(screen, field, square_size: int, board, color_move, color_take, is_reversed=False):
     """
     Podświetla możliwe ruchy dla wybranej figury.
 
@@ -69,6 +85,7 @@ def highlight_moves(screen, field, square_size: int, board, color_move, color_ta
         board (Board): Obiekt planszy szachowej.
         color_move (tuple): Kolor podświetlenia dla możliwych ruchów.
         color_take (tuple): Kolor podświetlenia dla możliwych bić.
+        is_reversed (bool, optional): Czy plansza ma być odwrócona. Defaults to False.
     """
     try:
         cords = board.get_legal_moves(field, field.figure.color)
@@ -82,9 +99,18 @@ def highlight_moves(screen, field, square_size: int, board, color_move, color_ta
                 highlighted_tile.fill(color_take)
         if field.figure.type == 'p' and (field.x - cord[1]) != 0:
             highlighted_tile.fill(color_take)
-        screen.blit(highlighted_tile, (((7-cord[1]) * square_size), ((7-cord[0]) * square_size)))
+            
+        # Calculate position based on is_reversed
+        if is_reversed:
+            x = cord[1] * square_size
+            y = cord[0] * square_size
+        else:
+            x = (7-cord[1]) * square_size
+            y = (7-cord[0]) * square_size
+            
+        screen.blit(highlighted_tile, (x, y))
 
-def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text):
+def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text, nerd_view=False, evaluation=None, ping=None):
     """
     Rysuje interfejs użytkownika obok szachownicy.
 
@@ -97,29 +123,61 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_che
         player_times (tuple): Czas gry dla obu graczy.
         in_check (str): Kolor gracza, którego król jest szachowany ('w' lub 'b').
         check_text (pygame.Surface): Tekst informujący o szachu.
+        nerd_view (bool, optional): Czy wyświetlać dodatkowe informacje. Defaults to False.
+        evaluation (float, optional): Ocena pozycji. Defaults to None.
+        ping (int, optional): Ping w ms. Defaults to None.
     """
-    # Rysowanie tła interfejsu
-    pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE * 8, 0, 200, SQUARE_SIZE * 8))
 
-    # Wyświetlanie informacji o aktualnej turze
+    # In files where you're using draw_interface (like normal_game.py, client.py, etc.)
+    config = load_config()
+    nerd_view = config.get("nerd_view", False)  # Get nerd_view from config with False as default
+
+    # Czarny prostokąt z prawej - tło
+    pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE * 8, 0, 200, SQUARE_SIZE * 8))
+    # teksty tur graczy
     if turn == 'w':
         screen.blit(texts[0][0], texts[0][1])
     else:
         screen.blit(texts[1][0], texts[1][1])
 
-    # Wyświetlanie czasów graczy
-    screen.blit(player_times[0][0], player_times[0][1])  # Czas białego gracza
-    screen.blit(player_times[1][0], player_times[1][1])  # Czas czarnego gracza
-
-    # Wyświetlanie przycisku "Wyjście"
+    #czasty graczy
+    screen.blit(player_times[0][0], player_times[0][1])
+    screen.blit(player_times[1][0], player_times[1][1])
     screen.blit(texts[2][0], texts[2][1])
-
-    # Wyświetlanie przycisku "Cofnij ruch"
     screen.blit(texts[3][0], texts[3][1])
 
-    # Wyświetlanie informacji o szachu
+    # Wyświetlanie tekstu o szachu
     if in_check:
         screen.blit(check_text, (8 * SQUARE_SIZE + 10, 150))
+
+    # Dodaj wyświetlanie informacji dla trybu nerd
+    if nerd_view:
+        small_font = pygame.font.Font(None, 28)
+        
+        # Wyświetl evaluation jeśli dostępne
+        if evaluation is not None:
+            # Evaluation dla białych (dodatni = przewaga białych)
+            eval_color_white = pygame.Color("green") if evaluation > 0 else pygame.Color("red")
+            eval_text_white = small_font.render(f"Eval (white): +{evaluation:.2f}" if evaluation > 0 
+                                              else f"Eval (white): {evaluation:.2f}", True, eval_color_white)
+            screen.blit(eval_text_white, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4))
+
+            # Evaluation dla czarnych (odwrotność białych)
+            black_eval = -evaluation
+            eval_color_black = pygame.Color("green") if black_eval > 0 else pygame.Color("red")
+            eval_text_black = small_font.render(f"Eval (black): +{black_eval:.2f}" if black_eval > 0 
+                                              else f"Eval (black): {black_eval:.2f}", True, eval_color_black)
+            screen.blit(eval_text_black, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4.3))
+
+        # Wyświetl ping jeśli dostępny
+        if ping is not None:
+            ping_color = pygame.Color("white")
+            if ping > 200:  # Wysoki ping
+                ping_color = pygame.Color("red")
+            elif ping > 100:  # Średni ping
+                ping_color = pygame.Color("yellow")
+            ping_text = small_font.render(f"Ping: {ping}ms", True, ping_color)
+            screen.blit(ping_text, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 6.6))
 
 def format_time(seconds):
     """
@@ -255,7 +313,7 @@ def confirm_undo_dialog(screen, SQUARE_SIZE: int) -> bool:
     option_rects = []
     for i, option in enumerate(options):
         text = font.render(option, True, pygame.Color("white"))
-        rect = text.get_rect(center=(SQUARE_SIZE * 4, SQUARE_SIZE * (3 + i)))
+        rect = text.getRect(center=(SQUARE_SIZE * 4, SQUARE_SIZE * (3 + i)))
         option_rects.append((text, rect))
 
     while True:
@@ -399,13 +457,12 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
 
 def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
     """
-    Wyświetla okno dialogowe do wyboru arcymistrza z portretami i polem tekstowym.
-    Dostosowane do rozdzielczości 1260x960.
+    Wyświetla dialog wyboru arcymistrza z portretami lub wyborem pliku.
     """
     font = pygame.font.Font(None, 48)
     small_font = pygame.font.Font(None, 32)
     
-    # Lista dostępnych arcymistrzów
+    # Lista predefiniowanych arcymistrzów
     grandmasters = [
         "kasparov", "fischer", "carlsen", "hikaru", 
         "capablanca", "mikhail", "morphy paul", "alekhine",
@@ -413,13 +470,24 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
     ]
     
     # Stałe do pozycjonowania
-    PORTRAIT_SIZE = int(SQUARE_SIZE * 1.8)  # Nieco mniejsze portrety
-    GRID_START_X = (1260 - (4 * PORTRAIT_SIZE + 3 * 40)) // 2  # Wycentrowanie siatki
-    GRID_START_Y = 150  # Rozpoczęcie siatki portretów
-    SPACING = 40  # Odstęp między portretami
+    PORTRAIT_SIZE = int(SQUARE_SIZE * 1.8)
+    GRID_START_X = (1260 - (4 * PORTRAIT_SIZE + 3 * 40)) // 2
+    GRID_START_Y = 150
+    SPACING = 40
+    
+    # Przycisk "Wybierz plik"
+    BUTTON_WIDTH = 400
+    BUTTON_HEIGHT = 80
+    button_rect = pygame.Rect(
+        (1260 - BUTTON_WIDTH) // 2,
+        850,
+        BUTTON_WIDTH,
+        BUTTON_HEIGHT
+    )
     
     # Ładowanie portretów
     portraits = {}
+    portrait_rects = {}
     for gm in grandmasters:
         try:
             portrait = pygame.image.load(f"grandmaster/portraits/{gm.lower()}.png")
@@ -433,22 +501,16 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
             placeholder.blit(name_text, name_rect)
             portraits[gm] = placeholder
 
-    grandmaster_name = ""
-    cursor_visible = True
-    last_cursor_toggle = time.time()
-    clock = pygame.time.Clock()
-
     while True:
-        current_time = time.time()
         screen.fill(pygame.Color("gray20"))
-
+        
         # Tytuł
         title_text = font.render("Wybierz Arcymistrza", True, pygame.Color("gold"))
         title_rect = title_text.get_rect(center=(1260 // 2, 80))
         screen.blit(title_text, title_rect)
-
-        # Rysowanie portretów w siatce 3x4
-        portrait_rects = {}
+        
+        # Rysowanie portretów
+        mouse_pos = pygame.mouse.get_pos()
         for i, gm in enumerate(grandmasters):
             row = i // 4
             col = i % 4
@@ -458,63 +520,49 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
             portrait_rect = portraits[gm].get_rect(topleft=(x, y))
             portrait_rects[gm] = portrait_rect
             
-            # Ramka podświetlenia
-            mouse_pos = pygame.mouse.get_pos()
             if portrait_rect.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, pygame.Color("gold"), portrait_rect.inflate(6, 6), 3)
             
             screen.blit(portraits[gm], portrait_rect)
-            
-            # Imię pod portretem
             name_text = small_font.render(gm.title(), True, pygame.Color("white"))
             name_rect = name_text.get_rect(center=(x + PORTRAIT_SIZE//2, y + PORTRAIT_SIZE + 25))
             screen.blit(name_text, name_rect)
-
-        # Pole tekstowe na dole - przesunięte o 50 pikseli w dół
-        input_rect = pygame.Rect(
-            330,  # Wycentrowane w oknie
-            850,  # 800 + 50 (przesunięte niżej)
-            600,  # Szerokość pola
-            50    # Wysokość pola
-        )
-        pygame.draw.rect(screen, pygame.Color("white"), input_rect)
-        pygame.draw.rect(screen, pygame.Color("gold"), input_rect, 3)
-
-        # Tekst wejściowy
-        if current_time - last_cursor_toggle > 0.5:
-            cursor_visible = not cursor_visible
-            last_cursor_toggle = current_time
-
-        display_text = grandmaster_name + ("|" if cursor_visible else " ")
-        text_surface = font.render(display_text, True, pygame.Color("black"))
-        text_rect = text_surface.get_rect(center=input_rect.center)
-        screen.blit(text_surface, text_rect)
-
-        # Instrukcja - przesunięta o 50 pikseli w dół
-        instruction_text = small_font.render("Kliknij na portret lub wpisz nazwę i naciśnij ENTER", True, pygame.Color("lightgray"))
-        screen.blit(instruction_text, (SQUARE_SIZE * 2, screen.get_height() - SQUARE_SIZE))  # Było screen.get_height() - SQUARE_SIZE * 1.5
-
+        
+        # Przycisk "Wybierz własny plik"
+        if button_rect.collidepoint(mouse_pos):
+            color = pygame.Color("gold")
+        else:
+            color = pygame.Color("white")
+        pygame.draw.rect(screen, color, button_rect, 3)
+        button_text = font.render("Wybierz własny plik", True, color)
+        button_text_rect = button_text.get_rect(center=button_rect.center)
+        screen.blit(button_text, button_text_rect)
+        
         pygame.display.flip()
-        clock.tick(60)
-
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                return None
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                # Sprawdzenie kliknięcia na portret
+                # Sprawdzenie kliknięcia na portrety
                 for gm, rect in portrait_rects.items():
                     if rect.collidepoint(event.pos):
                         return gm.lower()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN and grandmaster_name:
-                    return grandmaster_name.lower()
-                elif event.key == pygame.K_BACKSPACE:
-                    grandmaster_name = grandmaster_name[:-1]
-                elif event.key == pygame.K_ESCAPE:
-                    return ""
-                elif len(grandmaster_name) < 20 and event.unicode.isalnum() or event.unicode in [' ', '-']:
-                    grandmaster_name += event.unicode
+                
+                # Sprawdzenie kliknięcia na przycisk
+                if button_rect.collidepoint(event.pos):
+                    root = tk.Tk()
+                    root.withdraw()
+                    file_path = filedialog.askopenfilename(
+                        initialdir="grandmaster/json/",
+                        title="Wybierz plik JSON z ruchami arcymistrza",
+                        filetypes=(("JSON files", "*.json"), ("All files", "*.*"))
+                    )
+                    if file_path:
+                        return Path(file_path).stem
+            
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return None
 
 def choose_custom_board_mode(screen, SQUARE_SIZE: int) -> str:
     """
@@ -577,3 +625,40 @@ def choose_custom_board_mode(screen, SQUARE_SIZE: int) -> str:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return None
+
+def choose_pgn_file_dialog(screen, SQUARE_SIZE: int) -> str:
+    """
+    Opens system's native file dialog to select a PGN file.
+    Returns the filename without extension.
+    """
+    # Hide the main tkinter window
+    root = tk.Tk()
+    root.withdraw()
+
+    # Open the file dialog
+    file_path = filedialog.askopenfilename(
+        initialdir="grandmaster/pgn/",
+        title="Wybierz plik PGN",
+        filetypes=(("PGN files", "*.pgn"), ("All files", "*.*"))
+    )
+    
+    if file_path:
+        # Extract filename without extension and directory path
+        filename = Path(file_path).stem
+        # Check if file exists in the correct directory
+        if Path(f"grandmaster/pgn/{filename}.pgn").exists():
+            return filename
+        else:
+            # Show error message on pygame screen
+            font = pygame.font.Font(None, 48)
+            error_text = font.render("Plik musi być w katalogu grandmaster/pgn/", True, (255, 0, 0))
+            error_rect = error_text.get_rect(center=(screen.get_width()//2, screen.get_height()//2))
+            
+            screen.fill((32, 32, 32))
+            screen.blit(error_text, error_rect)
+            pygame.display.flip()
+            
+            # Wait for a moment
+            pygame.time.wait(2000)
+            
+    return None

@@ -15,6 +15,7 @@ import grandmaster.grandmaster_game
 import algorithms.algorithms_game
 import settings
 import graphics
+import grandmaster.pgn_to_fen
 
 # Funkcja główna
 def main():
@@ -48,7 +49,8 @@ def main():
         "Graj w sieci lokalnej", #4
         "Ustawienia", #5
         "Wyjście do systemu", #6
-        "Tryb terminalowy" #7
+        "Tryb terminalowy", #7
+        "Konwerter PGN do FEN" #8
     ]
 
     selected_option = 0
@@ -83,6 +85,10 @@ def main():
                 elif event.key == pygame.K_RETURN:
                     if do_an_action(selected_option, screen) == False:
                         running = False
+                    else:
+                        # Restart the main function
+                        pygame.quit()
+                        return main()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for i, (text_white, text_gray) in enumerate(menu_texts):
                     text_rect = text_white.get_rect(center=(630, 50 + i * 100))
@@ -90,6 +96,10 @@ def main():
                         selected_option = i
                         if do_an_action(selected_option, screen) == False:
                             running = False
+                        else:
+                            # Restart the main function
+                            pygame.quit()
+                            return main()
 
         # Sprawdzenie kolizji myszy z opcjami menu
         for i, (text_white, text_gray) in enumerate(menu_texts):
@@ -108,6 +118,7 @@ def main():
 def do_an_action(selected_option, screen):
     if selected_option == 0: # Normalna gra
         normal_games.normal_game.main()
+        return True
     elif selected_option == 1: # Niestandardowa plansza
         pygame.mixer.music.stop()
         choice = graphics.choose_custom_board_mode(screen, 100)
@@ -115,14 +126,17 @@ def do_an_action(selected_option, screen):
             custom_board_game.normal_game_custom_board.main()
         elif choice == "create":
             custom_board_game.board_maker.main()
+        return True
     elif selected_option == 2: # Bot
         pygame.mixer.music.stop()
         algorithms.algorithms_game.main()
+        return True
     elif selected_option == 3: # Arcymistrz
         pygame.mixer.music.stop()
         player_color = graphics.choose_color_dialog(screen, 100)
         grandmaster_name = graphics.choose_grandmaster_dialog(screen, 100)
         grandmaster.grandmaster_game.main(player_color, grandmaster_name)
+        return True
     elif selected_option == 4: # Gra w sieci
         server_or_client = graphics.choose_color_dialog(screen, 100)
         if server_or_client == "w":
@@ -131,13 +145,20 @@ def do_an_action(selected_option, screen):
         elif server_or_client == "b":
             import multiplayer.server
             multiplayer.server.main()
+        return True
     elif selected_option == 5: # Ustawienia
         pygame.mixer.music.stop()
         settings.main()
+        return True
     elif selected_option == 6: # Wyjście
         return False
     elif selected_option == 7: # Tryb terminalowy
         normal_games.test_mode_normal_game.main()
+        return True
+    elif selected_option == 8: # Konwerter PGN do FEN
+        pygame.mixer.music.stop()
+        grandmaster.pgn_to_fen.main()
+        return True
     return True
 
 
@@ -181,4 +202,8 @@ def load_config():
         return {"volume": 0.5, "resolution": "1260x960"}
 
 
-main()
+# Start the launcher
+if __name__ == "__main__":
+    while True:
+        main()
+        break

@@ -11,6 +11,7 @@ from engine.figures import *
 from graphics import *
 from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
+from algorithms.evaluation import get_evaluation  # Import evaluation function
 
 class MinimaxThread(threading.Thread):
     def __init__(self, board, depth, turn, result_queue):
@@ -28,7 +29,7 @@ class MinimaxThread(threading.Thread):
         return self._stop_event.is_set()
 
     def run(self):
-        minimax_obj = Minimax(self.board, self.depth, self.turn)
+        minimax_obj = Minimax(self.board, self.depth, self.turn, 1000000)  # Dodano czas dla algorytmu Minimax
         minimax_obj.should_stop = self.stopped  # Przekazujemy metodę sprawdzającą zatrzymanie
         move = minimax_obj.get_best_move()
         if not self.stopped():
@@ -103,8 +104,11 @@ def main():
     selected_piece = None
     clock = pygame.time.Clock()
 
+    minimax_thread = None
+    monte_carlo_thread = None
     player_turn = choose_color_dialog(screen, SQUARE_SIZE)
     algorithm = choose_algorithm_dialog(screen, SQUARE_SIZE)
+
 
     # Teksty interfejsu
     texts = (
@@ -313,11 +317,13 @@ def main():
 
         # Przed renderowaniem
         current_time = time.time()
+        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
         player_times_font = update_time_display(white_time, black_time, current_time, start_time, turn)
 
         # Rendering zawsze na końcu pętli
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
         
         # Dodanie podświetlania ruchów
         try:
@@ -328,7 +334,7 @@ def main():
             pass
 
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
-        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
         
         if calculating:
             calculating_text = font.render("Obliczanie...", True, WHITE)
