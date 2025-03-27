@@ -33,7 +33,7 @@ def load_config():
             "nerd_view": False  # Add default nerd_view setting
         }
 
-def draw_board(screen, SQUARE_SIZE, main_board, in_check):
+def draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed=False):
     """
     Rysuje szachownicę na ekranie.
 
@@ -42,14 +42,43 @@ def draw_board(screen, SQUARE_SIZE, main_board, in_check):
         SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
         main_board (Board): Obiekt planszy szachowej.
         in_check (str): Kolor gracza, którego król jest szachowany ('w' lub 'b').
+        is_reversed (bool, optional): Czy plansza ma być odwrócona. Defaults to False.
     """
     colors = [pygame.Color("white"), pygame.Color("gray")]
+    coord_font = pygame.font.Font(None, 24)  # Smaller font for coordinates
+    
+    # Draw squares
     for r in range(8):
         for c in range(8):
             color = colors[(r + c) % 2]
             if in_check and main_board.board_state[r][c].figure and main_board.board_state[r][c].figure.type == 'K' and main_board.board_state[r][c].figure.color == in_check:
                 color = pygame.Color("red")
-            pygame.draw.rect(screen, color, pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                
+            if is_reversed:
+                x = c * SQUARE_SIZE
+                y = r * SQUARE_SIZE
+            else:
+                x = (7-c) * SQUARE_SIZE
+                y = (7-r) * SQUARE_SIZE
+                
+            pygame.draw.rect(screen, color, pygame.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE))
+            
+            # Draw coordinates in the corners of border squares
+            coord_color = colors[(r + c + 1) % 2]  # Opposite color of square
+            
+            # Numbers (1-8) on leftmost squares
+            numbers = ("1", "2", "3", "4", "5", "6", "7", "8")
+            letters = ("a", "b", "c", "d", "e", "f", "g", "h")
+            if (c == 0 and is_reversed) or (c == 7 and not is_reversed):
+                number = numbers[r] if is_reversed else numbers[r]  # '1' through '8'
+                num_surf = coord_font.render(number, True, coord_color)
+                screen.blit(num_surf, (x + 4, y + 4))
+            
+            # Letters (a-h) on bottom squares
+            if (r == 7 and is_reversed) or (r == 0 and not is_reversed):
+                letter = letters[7-c] if is_reversed else letters[7-c]  # 'a' through 'h'
+                let_surf = coord_font.render(letter, True, coord_color)
+                screen.blit(let_surf, (x + SQUARE_SIZE - 15, y + SQUARE_SIZE - 20))
 
 def draw_pieces(screen, board, SQUARE_SIZE, pieces, is_reversed=False):
     """
