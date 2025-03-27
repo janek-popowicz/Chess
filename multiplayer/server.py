@@ -264,6 +264,12 @@ def main():
                     start_time = time.time()
                 elif data == "undo_reject":
                     print("❌ Cofnięcie ruchu zostało odrzucone.")
+                elif data.startswith("ping"):
+                    conn.sendall("pong".encode('utf-8'))
+                elif data.startswith("ptime"):
+                    ping_time = data.split(' ')[1]
+                    ping_time = float(ping_time[:4])
+                    print(f"Ping: {ping_time:.2f} ms")
                 else:
                     data = data.split()
                     selected_piece = (int(data[0]), int(data[1]))

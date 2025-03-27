@@ -184,6 +184,7 @@ def main():
     )
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
+    ping_start_time = time.time()
     # Czasy graczy
     start_time = time.time()
     black_time = 0
@@ -191,8 +192,21 @@ def main():
     result = ""
     winner = ""
     in_check = None
+
+    # Add ping timing variables
+    last_ping_time = time.time()
+    ping_interval = 2.0  # Send ping every 2 seconds
+    ping_start_time = 0
+
     while running:
+        current_time = time.time()
         
+        # Send ping every 2 seconds
+        if current_time - last_ping_time >= ping_interval:
+            client.sendall("ping".encode('utf-8'))
+            ping_start_time = current_time
+            last_ping_time = current_time
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -255,6 +269,8 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+                    disconnect()
+        
         try:
             data = client.recv(1024).decode('utf-8')
             if data:
@@ -279,6 +295,10 @@ def main():
                     start_time = time.time()
                 elif data == "undo_reject":
                     print("❌ Cofnięcie ruchu zostało odrzucone.")
+                elif data == "pong":
+                    ping_time = (time.time() - ping_start_time) * 1000  # Convert to milliseconds
+                    print(f"Ping: {ping_time:.2f} ms")
+                    client.sendall(("ptime " + str(ping_time)).encode('utf-8'))
                 else:
                     print(f"📩 Otrzymano ruch: {data}")
                     data = data.split()
