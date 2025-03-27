@@ -232,7 +232,7 @@ def main():
                 if not calculating:
                     calculating = True
                     result_queue = queue.Queue()
-                    minimax_thread = MinimaxThread(main_board, 3, "b" if turn == "w" else "w", result_queue)
+                    minimax_thread = MinimaxThread(main_board, 3,turn, result_queue)
                     minimax_thread.start()
                 print("Wejdź do try pls")
                 try:
@@ -265,6 +265,7 @@ def main():
                                 in_check = None
                         else:
                             pass
+                            print("Bad move! aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                         start_time = time.time()
                 except queue.Empty:
                     print("Queue empty! aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")

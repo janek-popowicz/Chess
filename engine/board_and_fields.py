@@ -215,12 +215,13 @@ class Board:
             list: Lista wszystkich możliwych ruchów.
         """
         all_moves = {}
-        for y in range(0,8):
-            for x in range(0,8):
-                field = self.board_state[y][x]
-                if field.figure:
-                    if field.figure.color == turn:
-                            all_moves[(y,x)] = self.get_legal_moves(field,turn)
+        for i in range(len(self.piece_cords)):
+                cord = self.piece_cords[i]
+                field = self.board_state[cord[0]][cord[1]]
+                # self.print_board()
+                if field.figure.color == turn:
+                        all_moves[(cord[0],cord[1])] = self.get_legal_moves(field,turn)
+                self.piece_cords.sort()
         remove_list =[]
         for i in all_moves:
             if all_moves[i] == []:
