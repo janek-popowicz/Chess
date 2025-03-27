@@ -28,7 +28,7 @@ class MinimaxThread(threading.Thread):
         return self._stop_event.is_set()
 
     def run(self):
-        minimax_obj = Minimax(self.board, self.depth, self.turn)
+        minimax_obj = Minimax(self.board, self.depth, self.turn,0.00001)  # Dodano czas dla algorytmu Minimax
         minimax_obj.should_stop = self.stopped  # Przekazujemy metodę sprawdzającą zatrzymanie
         move = minimax_obj.get_best_move()
         if not self.stopped():
