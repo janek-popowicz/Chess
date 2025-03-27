@@ -56,8 +56,8 @@ def main():
     running = True
     fen = load_custom_board("custom_board.fen")
     print(fen)
-    board_state = fen_to_board_state(fen)
-    main_board = board_and_fields.Board(board_state)
+    main_board = board_and_fields.Board()
+    fen_to_board(fen, main_board)
     turn = 'w'
     selected_piece = None
     clock = pygame.time.Clock()
