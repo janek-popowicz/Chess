@@ -141,6 +141,8 @@ def main():
 
     # Process the PGN file
     pgn_path = Path(f"grandmaster/pgn/{grandmaster}.pgn")
+    print(pgn_path)
+    print(grandmaster)
     try:
         with open(pgn_path, "r") as pgn_file:
             pgn_data = pgn_file.read()
@@ -201,7 +203,7 @@ def main():
             
             # Wykonaj ruch na planszy
             try:
-                print(f"Ruch: {current_move}")
+                #print(f"Ruch: {current_move}")
                 cords = engine.notation_to_cords(main_board, current_move, turn)
                 y1, x1, y2, x2 = cords
                 if tryMove(turn, main_board, y1, x1, y2, x2):
@@ -233,7 +235,20 @@ def main():
             
     
     if running:
-        # Show completion message only if not quit
+        # Save the fen_moves dictionary to JSON file
+        json_path = Path(f"grandmaster/json/{grandmaster}.json")
+        try:
+            # Create directory if it doesn't exist
+            json_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Save to JSON file with proper formatting
+            with open(json_path, "w", encoding='utf-8') as f:
+                json.dump(fen_moves, f, indent=4)
+            print(f"Successfully saved moves to {json_path}")
+        except Exception as e:
+            print(f"Error saving JSON file: {e}")
+
+        # Show completion message
         screen.fill((32, 32, 32))
         font = pygame.font.Font(None, 48)
         text = font.render("Konwersja zakończona!", True, (255, 215, 0))

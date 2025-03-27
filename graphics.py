@@ -45,7 +45,7 @@ def draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed=False):
         is_reversed (bool, optional): Czy plansza ma być odwrócona. Defaults to False.
     """
     colors = [pygame.Color("white"), pygame.Color("gray")]
-    coord_font = pygame.font.Font(None, 24)  # Smaller font for coordinates
+    coord_font = pygame.font.Font(None, 34)  # Smaller font for coordinates
     
     # Draw squares
     for r in range(8):
@@ -72,13 +72,13 @@ def draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed=False):
             if (c == 0 and is_reversed) or (c == 7 and not is_reversed):
                 number = numbers[r] if is_reversed else numbers[r]  # '1' through '8'
                 num_surf = coord_font.render(number, True, coord_color)
-                screen.blit(num_surf, (x + 4, y + 4))
+                screen.blit(num_surf, (x + 1, y + 1))
             
             # Letters (a-h) on bottom squares
             if (r == 7 and is_reversed) or (r == 0 and not is_reversed):
                 letter = letters[7-c] if is_reversed else letters[7-c]  # 'a' through 'h'
                 let_surf = coord_font.render(letter, True, coord_color)
-                screen.blit(let_surf, (x + SQUARE_SIZE - 15, y + SQUARE_SIZE - 20))
+                screen.blit(let_surf, (x + SQUARE_SIZE - 25, y + SQUARE_SIZE - 30))
 
 def draw_pieces(screen, board, SQUARE_SIZE, pieces, is_reversed=False):
     """

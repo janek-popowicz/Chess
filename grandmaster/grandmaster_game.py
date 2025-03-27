@@ -34,6 +34,51 @@ def get_grandmaster_move(board, turn, grandmaster_moves):
         return moves_list[randint(1,len(moves_list))-1]  # Bierzemy losowy ruch
     return None
 
+def update_times_display(white_time, black_time, current_time, start_time, turn, player_color, font, SQUARE_SIZE, YELLOW, GRAY, height):
+    """
+    Returns tuple of time displays with player's time at bottom and grandmaster's time at top.
+    
+    Args:
+        white_time (float): White player's total time
+        black_time (float): Black player's total time
+        current_time (float): Current timestamp
+        start_time (float): Turn start timestamp
+        turn (str): Current turn ('w' or 'b')
+        player_color (str): Human player's color ('w' or 'b')
+        font (pygame.font.Font): Font for rendering text
+        SQUARE_SIZE (int): Size of a chess square
+        YELLOW (pygame.Color): Color for active player
+        GRAY (pygame.Color): Color for inactive player
+        height (int): Screen height for positioning
+    """
+    # Calculate current times
+    if turn == 'w':
+        current_white_time = white_time + (current_time - start_time)
+        current_black_time = black_time
+    else:
+        current_black_time = black_time + (current_time - start_time)
+        current_white_time = white_time
+    
+    # Determine display positions based on player color
+    if player_color == 'w':
+        return (
+            # Grandmaster's time (black) at top
+            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
+             (8 * SQUARE_SIZE + 10, 80)),
+            # Player's time (white) at bottom
+            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
+             (8 * SQUARE_SIZE + 10, height - 150))
+        )
+    else:
+        return (
+            # Grandmaster's time (white) at top
+            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
+             (8 * SQUARE_SIZE + 10, 80)),
+            # Player's time (black) at bottom
+            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
+             (8 * SQUARE_SIZE + 10, height - 150))
+        )
+
 # Funkcja główna
 def main(player_color, grandmaster_name):
     pygame.init()
@@ -205,15 +250,10 @@ def main(player_color, grandmaster_name):
 
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
-        if turn == 'w':
-            current_white_time = white_time + (current_time - start_time)
-            current_black_time = black_time
-        else:
-            current_black_time = black_time + (current_time - start_time)
-            current_white_time = white_time
-
-        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn=='w' else GRAY),(8*SQUARE_SIZE+10,height - 150)),
-                             (font.render(format_time(current_black_time), True, YELLOW if turn=='b' else GRAY),(8*SQUARE_SIZE+10,80)))
+        player_times_font = update_times_display(
+            white_time, black_time, current_time, start_time, turn, player_color,
+            font, SQUARE_SIZE, YELLOW, GRAY, height
+        )
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
