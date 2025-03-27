@@ -515,3 +515,65 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
                     return ""
                 elif len(grandmaster_name) < 20 and event.unicode.isalnum() or event.unicode in [' ', '-']:
                     grandmaster_name += event.unicode
+
+def choose_custom_board_mode(screen, SQUARE_SIZE: int) -> str:
+    """
+    Wyświetla dialog wyboru trybu dla niestandardowej planszy.
+    
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu
+        SQUARE_SIZE (int): Rozmiar pojedynczego pola
+        
+    Returns:
+        str: 'play' dla gry z własną planszą lub 'create' dla kreatora planszy
+    """
+    font = pygame.font.Font(None, 74)
+    clock = pygame.time.Clock()
+    
+    # Opcje
+    options = ["Graj z własną planszą", "Kreator planszy"]
+    selected = None
+    
+    # Przyciski
+    button_width = 600
+    button_height = 100
+    button_spacing = 50
+    
+    buttons = []
+    for i, text in enumerate(options):
+        x = (1260 - button_width) // 2
+        y = 300 + i * (button_height + button_spacing)
+        buttons.append(pygame.Rect(x, y, button_width, button_height))
+
+    while True:
+        screen.fill(pygame.Color("gray20"))
+        
+        # Tytuł
+        title = font.render("Wybierz tryb", True, pygame.Color("gold"))
+        title_rect = title.get_rect(center=(1260 // 2, 150))
+        screen.blit(title, title_rect)
+        
+        # Rysowanie przycisków
+        mouse_pos = pygame.mouse.get_pos()
+        for i, (button, text) in enumerate(zip(buttons, options)):
+            color = pygame.Color("gold") if button.collidepoint(mouse_pos) else pygame.Color("white")
+            pygame.draw.rect(screen, color, button, 3)
+            
+            text_surf = font.render(text, True, color)
+            text_rect = text_surf.get_rect(center=button.center)
+            screen.blit(text_surf, text_rect)
+        
+        pygame.display.flip()
+        clock.tick(60)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                for i, button in enumerate(buttons):
+                    if button.collidepoint(event.pos):
+                        return "play" if i == 0 else "create"
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return None

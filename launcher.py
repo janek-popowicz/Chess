@@ -12,6 +12,7 @@ import normal_games.test_mode_normal_game
 import custom_board_game.board_maker
 import custom_board_game.normal_game_custom_board
 import grandmaster.grandmaster_game
+import algorithms.algorithms_game
 import settings
 import graphics
 
@@ -41,14 +42,13 @@ def main():
     # Opcje menu
     menu_options = [
         "Graj z przyjacielem na tym komputerze", #0
-        "Graj z własną planszą",#1
-        "Kreator planszy",#2
-        "Graj z botem",#3
-        "Graj z arcymistrzem",#4
-        "Graj w sieci lokalnej",#5
-        "Ustawienia",#6
-        "Wyjście do systemu",#7
-        "Tryb terminalowy"#8
+        "Niestandardowa plansza", #1
+        "Graj z botem", #2
+        "Graj z arcymistrzem", #3
+        "Graj w sieci lokalnej", #4
+        "Ustawienia", #5
+        "Wyjście do systemu", #6
+        "Tryb terminalowy" #7
     ]
 
     selected_option = 0
@@ -108,25 +108,22 @@ def main():
 def do_an_action(selected_option, screen):
     if selected_option == 0: # Normalna gra
         normal_games.normal_game.main()
-    elif selected_option == 1: # Custom board game
+    elif selected_option == 1: # Niestandardowa plansza
         pygame.mixer.music.stop()
-        custom_board_game.normal_game_custom_board.main()
-    elif selected_option == 2: # Board maker
+        choice = graphics.choose_custom_board_mode(screen, 100)
+        if choice == "play":
+            custom_board_game.normal_game_custom_board.main()
+        elif choice == "create":
+            custom_board_game.board_maker.main()
+    elif selected_option == 2: # Bot
         pygame.mixer.music.stop()
-        custom_board_game.board_maker.main()
-    elif selected_option == 4: # Arcymistrz
+        algorithms.algorithms_game.main()
+    elif selected_option == 3: # Arcymistrz
         pygame.mixer.music.stop()
         player_color = graphics.choose_color_dialog(screen, 100)
         grandmaster_name = graphics.choose_grandmaster_dialog(screen, 100)
         grandmaster.grandmaster_game.main(player_color, grandmaster_name)
-    elif selected_option == 6: # Ustawienia
-        pygame.mixer.music.stop()
-        settings.main()
-    elif selected_option == 7: #Wyjście do systemu
-        return False
-    elif selected_option == 8:
-        normal_games.test_mode_normal_game.main()
-    elif selected_option == 5:
+    elif selected_option == 4: # Gra w sieci
         server_or_client = graphics.choose_color_dialog(screen, 100)
         if server_or_client == "w":
             import multiplayer.client
@@ -134,25 +131,45 @@ def do_an_action(selected_option, screen):
         elif server_or_client == "b":
             import multiplayer.server
             multiplayer.server.main()
-    elif selected_option == 3:
-        import algorithms.ai_game
-        algorithms.ai_game.main()
+    elif selected_option == 5: # Ustawienia
+        pygame.mixer.music.stop()
+        settings.main()
+    elif selected_option == 6: # Wyjście
+        return False
+    elif selected_option == 7: # Tryb terminalowy
+        normal_games.test_mode_normal_game.main()
     return True
 
 
 
 # Funkcja do rysowania menu
 def draw_menu(selected_option:int, screen, menu_texts, background, text_white, text_gray, BLACK)->None:
-    """rysuje menu i renderuje tekst
+    """rysuje menu i renderuje tekst z czarnym tłem pod wybraną opcją
 
     Args:
         selected_option (int): numer wybranej opcji z listy menu_options
     """
     screen.blit(background, (0, 0))
+    
+    # Get mouse position for hover effect
+    mouse_pos = pygame.mouse.get_pos()
+    
     for i, (text_white, text_gray) in enumerate(menu_texts):
         text = text_white if i == selected_option else text_gray
         text_rect = text.get_rect(center=(630, 50 + i * 100))
-        screen.blit(text, text_rect)
+        
+        # Check if mouse is hovering over option or if option is selected
+        if text_rect.collidepoint(mouse_pos) or i == selected_option:
+            # Draw black background rectangle slightly larger than text
+            background_rect = text_rect.inflate(20, 10)  # Make background slightly bigger than text
+            background_surface = pygame.Surface((background_rect.width, background_rect.height))
+            background_surface.fill(BLACK)
+            background_surface.set_alpha(200)  # Semi-transparent black
+            screen.blit(background_surface, background_rect)
+            screen.blit(text_white, text_rect)  # Use white text for highlighted options
+        else:
+            screen.blit(text_gray, text_rect)
+            
     pygame.display.flip()
 
 
