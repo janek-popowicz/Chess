@@ -342,7 +342,7 @@ def confirm_undo_dialog(screen, SQUARE_SIZE: int) -> bool:
     option_rects = []
     for i, option in enumerate(options):
         text = font.render(option, True, pygame.Color("white"))
-        rect = text.getRect(center=(SQUARE_SIZE * 4, SQUARE_SIZE * (3 + i)))
+        rect = text.get_rect(center=(SQUARE_SIZE * 4, SQUARE_SIZE * (3 + i)))
         option_rects.append((text, rect))
 
     while True:

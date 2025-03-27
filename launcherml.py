@@ -21,7 +21,7 @@ def main():
         if choice == '1':
             print("Starting training...")
             ai = ml.ChessQLearningAI(ml.board_and_fields.Board())
-            training_progress = ai.train(num_episodes=350)
+            training_progress = ai.train(num_episodes=200)
             print("Training completed. Progress:", training_progress)
             ai.save_model()  # Auto-save after training
         elif choice == '2':
