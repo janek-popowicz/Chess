@@ -224,8 +224,8 @@ def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
                         main_board.board_state[y][x].figure.can_enpassant = 0
                 if main_board.board_state[y][x].figure.type != 'K':
                     only_kings = False
-                if only_kings:
-                    return ("stalemate",0,0)
+    if only_kings:
+        return ("stalemate",0,0)
     #Sprawdzanie enpassant
     if destination_tile.figure:
         if destination_tile.figure.type == 'p' :

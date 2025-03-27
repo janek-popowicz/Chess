@@ -1,1 +1,0 @@
-#mode do grania już z AI w gre 

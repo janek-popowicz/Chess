@@ -270,11 +270,10 @@ class Board:
                         if self.board_state[field.y][x_to_check].figure:
                             if self.board_state[field.y][x_to_check].figure.type == 'R' and self.board_state[field.y][x_to_check].figure.color == field.figure.color:
                                 if field.figure.has_moved == False and self.board_state[field.y][x_to_check].figure.has_moved == False:
-                                    space_free = False
+                                    space_free = True
                                     tile_to_check_y = field.y
                                     for i in range (1,(field.x - x_to_check)*(-j)):
                                         tile_to_check_x = field.x + i * j
-                                        space_free = True
                                         if self.board_state[tile_to_check_y][tile_to_check_x].figure or self.is_attacked(self.board_state[tile_to_check_y][tile_to_check_x],turn):
                                             space_free = False
                                             break

@@ -11,6 +11,8 @@ from engine.figures import *
 from graphics import *
 from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
+import ai_model.ml as ml
+
 
 
 # Funkcja główna
@@ -73,9 +75,9 @@ def main():
     in_check = None
 
     # Dodaj zmienne do obsługi wątku
-    minimax_thread = None
+    #minimax_thread = None
     result_queue = queue.Queue()
-    calculating = False
+    #calculating = False
 
     # Aktualizacja wyświetlania czasów
     def update_time_display(white_time, black_time, current_time, start_time, turn):
@@ -97,13 +99,13 @@ def main():
         # Obsługa zdarzeń zawsze na początku pętli
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                if minimax_thread and minimax_thread.is_alive():
+                '''if minimax_thread and minimax_thread.is_alive():
                     minimax_thread.stop()
                     minimax_thread.join(timeout=0.1)
                 # W obsłudze wyjścia
                 if monte_carlo_thread and monte_carlo_thread.is_alive():
                     monte_carlo_thread.stop()
-                    monte_carlo_thread.join(timeout=0.1)
+                    monte_carlo_thread.join(timeout=0.1)'''
                 running = False
                 return
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -111,9 +113,7 @@ def main():
                 # Obsługa przycisków zawsze dostępna
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20:
                     if pos[1] >= height - 80:  # Przycisk "Wyjście"
-                        if minimax_thread and minimax_thread.is_alive():
-                            minimax_thread.stop()
-                            minimax_thread.join(timeout=0.1)
+                        
                         running = False
                         return
                     elif height - 130 <= pos[1] < height - 80:  # Przycisk "Cofnij ruch"
@@ -166,94 +166,46 @@ def main():
                             selected_piece = (row, col)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    if minimax_thread and minimax_thread.is_alive():
+                    '''if minimax_thread and minimax_thread.is_alive():
                         minimax_thread.stop()
-                        minimax_thread.join(timeout=0.1)
+                        minimax_thread.join(timeout=0.1)'''
                     running = False
                 # W obsłudze wyjścia
-                    if monte_carlo_thread and monte_carlo_thread.is_alive():
+                    '''if monte_carlo_thread and monte_carlo_thread.is_alive():
                         monte_carlo_thread.stop()
-                        monte_carlo_thread.join(timeout=0.1)
+                        monte_carlo_thread.join(timeout=0.1)'''
 
         # Ruch AI w osobnym bloku
         if turn != player_turn:
-            if algorithm == "minimax":
-                if not calculating:
-                    calculating = True
-                    result_queue = queue.Queue()
-                    minimax_thread = MinimaxThread(main_board, 3, turn, result_queue)
-                    minimax_thread.start()
-                
-                try:
-                    move = result_queue.get_nowait()
-                    calculating = False
-                    if move:
-                        from_row, from_col, to_row, to_col = move
-                        if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
-                            if turn == 'w':
-                                white_time += time.time() - start_time
-                            else:
-                                black_time += time.time() - start_time
-                            turn = 'w' if turn == 'b' else 'b'
-                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                            if whatAfter == "promotion":
-                                promotion_choice = '10'  # Zawsze promuj do królowej
-                                promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
-                                whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                            if whatAfter == "checkmate":
-                                result = "Szach Mat!"
-                                winner = "Białe" if turn == 'b' else "Czarne"
-                                running = False
-                            elif whatAfter == "stalemate":
-                                result = "Pat"
-                                winner = "Remis"
-                                running = False
-                            elif whatAfter == "check":
-                                in_check = turn
-                            else:
-                                in_check = None
-                        start_time = time.time()
-                except queue.Empty:
-                    pass  # Kontynuuj bez blokowania
+            #move - ai move 
+            move = ml.get_ai_move(main_board, turn)
+            if move:
+                from_row, from_col, to_row, to_col = move
+                if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
+                    if turn == 'w':
+                        white_time += time.time() - start_time
+                    else:
+                        black_time += time.time() - start_time
+                    turn = 'w' if turn == 'b' else 'b'
+                    whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                    if whatAfter == "promotion":
+                        promotion_choice = '10'  # Zawsze promuj do królowej
+                        promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
+                        whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                    if whatAfter == "checkmate":
+                        result = "Szach Mat!"
+                        winner = "Białe" if turn == 'b' else "Czarne"
+                        running = False
+                    elif whatAfter == "stalemate":
+                        result = "Pat"
+                        winner = "Remis"
+                        running = False
+                    elif whatAfter == "check":
+                        in_check = turn
+                    else:
+                        in_check = None
+                start_time = time.time()
 
-            elif algorithm == "monte_carlo":
-                if not calculating:
-                    calculating = True
-                    result_queue = queue.Queue()
-                    monte_carlo_thread = MonteCarloThread(main_board, 200, turn, result_queue)
-                    monte_carlo_thread.start()
-                
-                try:
-                    move = result_queue.get_nowait()
-                    calculating = False
-                    if move:
-                        from_row, from_col, to_row, to_col = move
-                        if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
-                            if turn == 'w':
-                                white_time += time.time() - start_time
-                            else:
-                                black_time += time.time() - start_time
-                            turn = 'w' if turn == 'b' else 'b'
-                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                            if whatAfter == "promotion":
-                                promotion_choice = '10'  # Zawsze promuj do królowej
-                                promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
-                                whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                            if whatAfter == "checkmate":
-                                result = "Szach Mat!"
-                                winner = "Białe" if turn == 'b' else "Czarne"
-                                running = False
-                            elif whatAfter == "stalemate":
-                                result = "Pat"
-                                winner = "Remis"
-                                running = False
-                            elif whatAfter == "check":
-                                in_check = turn
-                            else:
-                                in_check = None
-                        start_time = time.time()
-                except queue.Empty:
-                    pass  # Kontynuuj bez blokowania
                         
 
         # Przed renderowaniem
@@ -275,24 +227,12 @@ def main():
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
         draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
         
-        if calculating:
-            calculating_text = font.render("Obliczanie...", True, WHITE)
-            screen.blit(calculating_text, (8 * SQUARE_SIZE + 10, height - 200))
-            dots = "." * ((int(time.time() * 2) % 4))
-            calculating_dots = font.render(dots, True, WHITE)
-            screen.blit(calculating_dots, (8 * SQUARE_SIZE + 150, height - 200))
+
 
         pygame.display.flip()
         clock.tick(60)
     
-    # Upewnij się, że wątek zostanie zakończony przy wyjściu
-    if minimax_thread and minimax_thread.is_alive():
-        minimax_thread.stop()
-        minimax_thread.join(timeout=0.1)
-    # W obsłudze wyjścia
-    if monte_carlo_thread and monte_carlo_thread.is_alive():
-        monte_carlo_thread.stop()
-        monte_carlo_thread.join(timeout=0.1)
+
 
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
     return
