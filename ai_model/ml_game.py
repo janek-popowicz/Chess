@@ -13,7 +13,37 @@ from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
 import ai_model.ml as ml
 
+def choose_color_dialog(screen, square_size):
+    """
+    Wyświetla dialog wyboru koloru gracza (białe lub czarne).
+    
+    :param screen: Obiekt ekranu Pygame.
+    :param square_size: Rozmiar pola szachowego.
+    :return: Wybrany kolor ('w' dla białych, 'b' dla czarnych).
+    """
+    font = pygame.font.Font(None, 48)
+    white_text = font.render("Play as White", True, (255, 255, 255))
+    black_text = font.render("Play as Black", True, (0, 0, 0))
+    white_rect = white_text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 3))
+    black_rect = black_text.get_rect(center=(screen.get_width() // 2, 2 * screen.get_height() // 3))
 
+    while True:
+        screen.fill((50, 50, 50))
+        pygame.draw.rect(screen, (200, 200, 200), white_rect.inflate(20, 20))
+        pygame.draw.rect(screen, (50, 50, 50), black_rect.inflate(20, 20))
+        screen.blit(white_text, white_rect)
+        screen.blit(black_text, black_rect)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if white_rect.collidepoint(event.pos):
+                    return 'w'
+                elif black_rect.collidepoint(event.pos):
+                    return 'b'
 
 # Funkcja główna
 def main():
@@ -54,8 +84,9 @@ def main():
     selected_piece = None
     clock = pygame.time.Clock()
 
+    # Wybór koloru gracza
     player_turn = choose_color_dialog(screen, SQUARE_SIZE)
-    algorithm = choose_algorithm_dialog(screen, SQUARE_SIZE)
+    flip_board = player_turn == 'b'  # Odwrócenie planszy, jeśli gracz gra czarnymi
 
     # Teksty interfejsu
     texts = (
@@ -124,13 +155,13 @@ def main():
                 
                 # Obsługa ruchów gracza tylko w jego turze
                 if turn == player_turn:
-                    col = 7 - (pos[0] // SQUARE_SIZE)
-                    row = 7 - (pos[1] // SQUARE_SIZE)
+                    col = 7 - (pos[0] // SQUARE_SIZE) if flip_board else (pos[0] // SQUARE_SIZE)
+                    row = 7 - (pos[1] // SQUARE_SIZE) if flip_board else (pos[1] // SQUARE_SIZE)
                     if col < 8 and row < 8:
                         if selected_piece:
                             if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                                draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
-                                draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+                                draw_board(screen, SQUARE_SIZE, main_board, main_board.incheck, flip_board)
+                                draw_pieces(screen, main_board, SQUARE_SIZE, pieces, flip_board)
                                 move_time = time.time() - start_time
                                 if turn == 'w':
                                     white_time += move_time
@@ -214,17 +245,17 @@ def main():
 
         # Rendering zawsze na końcu pętli
         screen.fill(BLACK)
-        draw_board(screen, SQUARE_SIZE, main_board, in_check)
+        draw_board(screen, SQUARE_SIZE, main_board, in_check, flip_board)
         
         # Dodanie podświetlania ruchów
         try:
             if selected_piece and (config["highlight_enemy"] or main_board.get_piece(selected_piece[0], selected_piece[1])[0] == turn):
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]], 
-                              SQUARE_SIZE, main_board, HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+                              SQUARE_SIZE, main_board, HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, flip_board)
         except (TypeError, AttributeError):
             pass
 
-        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+        draw_pieces(screen, main_board, SQUARE_SIZE, pieces, flip_board)
         draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
         
 
