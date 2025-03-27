@@ -136,8 +136,7 @@ def bonus_squares(board):
                 continue
             color = field.figure.color
             piece_type = field.figure.type
-            if player_color == "white":
-                if color == 'w':
+            if color == 'w':
                     if piece_type == 'p':
                         bonus_białych += PAWN_DOWN[i][j] 
                     elif piece_type == 'N':
@@ -150,7 +149,7 @@ def bonus_squares(board):
                         bonus_białych += QUEEN[i][j] 
                     elif piece_type == 'K':
                         bonus_białych += KING_DOWN[i][j] 
-                else:
+            else:
                     if piece_type == 'p':
                         bonus_czarnych += PAWN_UP[i][j] 
                     elif piece_type == 'N':
@@ -163,8 +162,8 @@ def bonus_squares(board):
                         bonus_czarnych += QUEEN[i][j]
                     elif piece_type == 'K':
                         bonus_czarnych += KING_UP[i][j]
-            else:
-                if color == 'b':
+            
+            '''if color == 'b':
                     if piece_type == 'p':
                         bonus_czarnych += PAWN_UP[i][j] 
                     elif piece_type == 'N':
@@ -177,7 +176,7 @@ def bonus_squares(board):
                         bonus_czarnych += QUEEN[i][j] 
                     elif piece_type == 'K':
                         bonus_czarnych += KING_UP[i][j] 
-                else:
+            else:
                     if piece_type == 'p':
                         bonus_białych += PAWN_UP[i][j]
                     elif piece_type == 'N':
@@ -189,7 +188,7 @@ def bonus_squares(board):
                     elif piece_type == 'Q':
                         bonus_białych += QUEEN[i][j] 
                     elif piece_type == 'K':
-                        bonus_białych += KING_UP[i][j] 
+                        bonus_białych += KING_UP[i][j] '''
     return [bonus_białych, bonus_czarnych]
 
 
