@@ -51,27 +51,25 @@ def notation_to_cords(board, notation: str, turn: str):
             break
     #Szukanie figur określonych w notacji
     candidate_figures = []
-    for row in range(0,8):
-        for col in range(0,8):
-            field = board.board_state[row][col]
-            if field.figure:
-                if field.figure.color == turn and field.figure.type == notation[0]:
+    for cord in board.piece_cords:
+                figure = board.board_state[cord[0]][cord[1]].figure 
+                if figure.color == turn and figure.type == notation[0]:
                     #Dostosowanie pól do sprawdzenia dla pionków
                     directions_to_check = copy.copy(movescheme)
                     if notation[0] == 'p':
-                        if field.figure.has_moved:
+                        if figure.has_moved:
                             directions_to_check[1] = (0,0,0) #zamiast usuwać ten kierunek, ustawiamy go na (0,0,0), aby zachować spójność indeksów
                         if "x" in notation:
                             directions_to_check[0] = (0,0,0)
                             directions_to_check[1] = (0,0,0)
-                        elif not field.figure.can_enpassant:
+                        elif not figure.can_enpassant:
                             directions_to_check[2] = (0,0,0)
                             directions_to_check[3] = (0,0,0)
                     #Sprawdzanie, czy pole docelowe jest w ruchach danej figury
                     for direction in directions_to_check:
                         for distance in range(1,direction[2]+1):
-                            field_to_check_x = field.x + direction[1] * distance
-                            field_to_check_y= field.y + direction[0] * distance
+                            field_to_check_x = cord[1] + direction[1] * distance
+                            field_to_check_y= cord[0] + direction[0] * distance
                             #Sprawdzanie, czy koordynaty pola nie wyszły poza szachownicę
                             if field_to_check_y > 7 or field_to_check_y < 0 or field_to_check_x > 7 or field_to_check_x < 0:
                                 break
@@ -80,25 +78,25 @@ def notation_to_cords(board, notation: str, turn: str):
                             if field_to_check == target_field:
                                 if notation[2] == "x" and notation[0] == "p":
                                     #sprawdzamy specjalny przypadek - en passant
-                                    if not target_field.figure and field.figure.can_enpassant:
-                                        candidate_figures.append((field.y,field.x))
+                                    if not target_field.figure and figure.can_enpassant:
+                                        candidate_figures.append((cord[0],cord[1]))
                                 if field_to_check.figure and "x" in notation:
-                                    candidate_figures.append((field.y,field.x))
+                                    candidate_figures.append((cord[0],cord[1]))
                                 elif field_to_check.figure == None and "x" not in notation:
-                                    candidate_figures.append((field.y,field.x))
+                                    candidate_figures.append((cord[0],cord[1]))
                             if field_to_check.figure:
                                 break
     if len(candidate_figures) > 1:
         if notation[1].isdigit():
             spec = notation[1] -1
-            for figure in candidate_figures():
-                if figure[0] != spec:
-                    candidate_figures.remove(figure)
+            for candidate_figure in candidate_figures():
+                if candidate_figure[0] != spec:
+                    candidate_figures.remove(candidate_figure)
         else:
             spec = 7-(ord(notation[1]) - 97)
-            for figure in candidate_figures:
-                if figure[1] != spec:
-                    candidate_figures.remove(figure)
+            for candidate_figure in candidate_figures:
+                if candidate_figure[1] != spec:
+                    candidate_figures.remove(candidate_figure)
         if len(candidate_figures) > 1:
             return "Nie wykonano ruchu, potrzeba więcej informacji"
     if len(candidate_figures) == 1:
@@ -151,6 +149,10 @@ Returns:
                 main_board.board_state[start_tile.y][start_tile.x + direction].figure = destination_tile.figure
                 destination_tile.figure = None
                 start_tile.figure = None
+                main_board.piece_cords.remove((start_tile.y, start_tile.x))
+                main_board.piece_cords.remove((destination_tile.y,destination_tile.x))
+                main_board.piece_cords.append((start_tile.y,start_tile.x + 2*direction))
+                main_board.piece_cords.append((start_tile.y,start_tile.x + direction))
                 if start_tile.y - destination_tile.y == 3:
                     main_board.moves_algebraic[-1] = "O-O"
                 else:
@@ -165,7 +167,11 @@ Returns:
                         start_tile.figure.can_enpassant = 0
                         main_board.board_state[start_tile.y][destination_tile.x].figure = None
                         main_board.moves_algebraic[-1] = str(start_tile.x) + main_board.moves_algebraic[-1]
+                        main_board.piece_cords.remove((start_tile.y, destination_tile.x))
         main_board.make_move(y1, x1, y2, x2)
+        main_board.piece_cords.remove((y1,x1))
+        if (y2,x2) not in main_board.piece_cords:
+            main_board.piece_cords.append((y2,x2))
         if destination_tile.figure:
             if destination_tile.figure.type in ['p','K','R']:
                 destination_tile.figure.has_moved = True
@@ -188,13 +194,13 @@ def undoMove(main_board: board_and_fields.Board) -> bool:
     if len(main_board.fen_history) > 0:
         fen_operations.fen_to_board(main_board.fen_history[-2],main_board)
         main_board.fen_history.pop()
-        # main_board.print_board()
+        main_board.print_board()
         main_board.moves_algebraic.pop()
         return True
     else:
         return False
 
-def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
+def afterMove(turn: str, board, y1: int, x1: int, y2: int, x2: int) -> str:
     """
     Sprawdza stan planszy po wykonaniu ruchu.
 
@@ -209,21 +215,24 @@ def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
     Returns:
         str: Komunikat wskazujący wynik ruchu (np. "checkmate", "stalemate", "check").
     """
-    start_tile = main_board.board_state[y1][x1]
-    destination_tile = main_board.board_state[y2][x2]
+    start_tile = board.board_state[y1][x1]
+    destination_tile = board.board_state[y2][x2]
     available_moves = []
     only_kings = True 
-    for y in range(0,8):
-        for x in range(0,8):
-            if main_board.board_state[y][x].figure:
-                if main_board.board_state[y][x].figure.color == turn:
-                    available_moves+=main_board.get_legal_moves(main_board.board_state[y][x],turn)
-                if main_board.board_state[y][x].figure.type == 'p':
-                    #Sprawdzanie flag enpassant
-                    if main_board.board_state[y][x].figure.can_enpassant:
-                        main_board.board_state[y][x].figure.can_enpassant = 0
-                if main_board.board_state[y][x].figure.type != 'K':
-                    only_kings = False
+    i=0
+    while i < len(board.piece_cords):
+        cord = board.piece_cords[i]
+        field = board.board_state[cord[0]][cord[1]]
+        if field.figure.color == turn:
+            available_moves+=board.get_legal_moves(field,turn)
+        if field.figure.type == 'p':
+            #Sprawdzanie flag enpassant
+            if field.figure.can_enpassant:
+                field.figure.can_enpassant = 0
+        if field.figure.type != 'K':
+            only_kings = False
+        i +=1 
+        board.piece_cords.sort()
     if only_kings:
         return ("stalemate",0,0)
     #Sprawdzanie enpassant
@@ -233,24 +242,24 @@ def afterMove(turn: str, main_board, y1: int, x1: int, y2: int, x2: int) -> str:
                 direction_x = -1
                 for i in range(2):
                     if destination_tile.x + direction_x >= 0 and destination_tile.x + direction_x <= 7:
-                        if main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure:
-                            if (main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.type == 'p' 
-                            and main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.color != destination_tile.figure.color):
-                                main_board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.can_enpassant = -direction_x
+                        if board.board_state[destination_tile.y][destination_tile.x + direction_x].figure:
+                            if (board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.type == 'p' 
+                            and board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.color != destination_tile.figure.color):
+                                board.board_state[destination_tile.y][destination_tile.x + direction_x].figure.can_enpassant = -direction_x
                     direction_x = 1
         #Sprawdzanie promocji pionków
             if destination_tile.y in [0,7]:
                 return("promotion", destination_tile.y, destination_tile.x)
         if available_moves == []:
-            main_board.is_in_check(turn)
-            if main_board.incheck == True:
-                main_board.print_board()
+            board.is_in_check(turn)
+            if board.incheck == True:
+                board.print_board()
                 return("checkmate", 0, 0)
             else:
-                main_board.print_board()
+                board.print_board()
                 return("stalemate", 0, 0)
-        main_board.is_in_check(turn)
-        if main_board.incheck == True:
+        board.is_in_check(turn)
+        if board.incheck == True:
             return ("check",0,0)
     return(1,1,1)
 

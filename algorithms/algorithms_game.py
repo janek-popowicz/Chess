@@ -29,7 +29,7 @@ class MinimaxThread(threading.Thread):
         return self._stop_event.is_set()
 
     def run(self):
-        minimax_obj = Minimax(self.board, self.depth, self.turn,2)  # Dodano czas dla algorytmu Minimax
+        minimax_obj = Minimax(self.board, self.depth, self.turn, 1000000)  # Dodano czas dla algorytmu Minimax
         minimax_obj.should_stop = self.stopped  # Przekazujemy metodę sprawdzającą zatrzymanie
         move = minimax_obj.get_best_move()
         if not self.stopped():
@@ -56,7 +56,7 @@ class MonteCarloThread(threading.Thread):
             mc_obj = Mcts(self.turn)
             # Sprawdzamy czy wątek nie został zatrzymany przed każdą symulacją
             if not self.stopped():
-                move = mc_obj.pick_best_move(self.board, 500, self.max_depth)
+                move = mc_obj.pick_best_move(self.board, 50, self.max_depth)
                 if not self.stopped():
                     self.result_queue.put(move)
         except Exception as e:
@@ -96,6 +96,8 @@ def main():
     for piece in pieces_short:
         pieces[piece] = pygame.transform.scale(pygame.image.load("pieces/" + icon_type + "/" + piece + ".png"), (SQUARE_SIZE-10, SQUARE_SIZE-10))
     
+    minimax_thread = 0
+    monte_carlo_thread = 0
     running = True
     main_board = Board()
     turn = 'w'
@@ -174,7 +176,7 @@ def main():
                             if undoMove(main_board):
                                 turn = 'w' if turn == 'b' else 'b'
                                 start_time = time.time()
-                
+                 
                 # Obsługa ruchów gracza tylko w jego turze
                 if turn == player_turn:
                     col = 7 - (pos[0] // SQUARE_SIZE)
@@ -234,9 +236,9 @@ def main():
                 if not calculating:
                     calculating = True
                     result_queue = queue.Queue()
-                    minimax_thread = MinimaxThread(main_board, 3, turn, result_queue)
+                    minimax_thread = MinimaxThread(main_board, 3,turn, result_queue)
                     minimax_thread.start()
-                
+                print("Wejdź do try pls")
                 try:
                     move = result_queue.get_nowait()
                     calculating = False
@@ -265,15 +267,19 @@ def main():
                                 in_check = turn
                             else:
                                 in_check = None
+                        else:
+                            pass
+                            print("Bad move! aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                         start_time = time.time()
                 except queue.Empty:
+                    print("Queue empty! aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                     pass  # Kontynuuj bez blokowania
 
             elif algorithm == "monte_carlo":
                 if not calculating:
                     calculating = True
                     result_queue = queue.Queue()
-                    monte_carlo_thread = MonteCarloThread(main_board, 200, turn, result_queue)
+                    monte_carlo_thread = MonteCarloThread(main_board, 10, turn, result_queue)
                     monte_carlo_thread.start()
                 
                 try:
