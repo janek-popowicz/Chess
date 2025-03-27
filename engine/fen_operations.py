@@ -40,17 +40,17 @@ main_board = board_and_fields.Board(board_state)
     board_state.reverse()
     board.board_state = board_state
     char = -1
-    for i in range(0,1):
+    for i in [0,1]:
+        while fen[char] != " ":     
+            char += -1
         char += -1
-        if char != " ":
-            continue
-    castling_str = ""
     if fen[char] != "-":
         passed_over_tile = (int(fen[char])-1,104 - ord(fen[char-1])) 
         char += -1
     else:
         passed_over_tile = (-1,-1)
     char += -2
+    castling_str = ""
     while fen[char] != " ":
         castling_str = fen[char] + castling_str
         char += -1
