@@ -11,6 +11,7 @@ import time
 import tkinter as tk
 from tkinter import filedialog
 from pathlib import Path
+import subprocess
 CONFIG_FILE = "config.json"
 
 def load_config():
@@ -401,13 +402,12 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
 
 def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
     """
-    Wyświetla okno dialogowe do wyboru arcymistrza z portretami i polem tekstowym.
-    Dostosowane do rozdzielczości 1260x960.
+    Wyświetla dialog wyboru arcymistrza z portretami lub wyborem pliku.
     """
     font = pygame.font.Font(None, 48)
     small_font = pygame.font.Font(None, 32)
     
-    # Lista dostępnych arcymistrzów
+    # Lista predefiniowanych arcymistrzów
     grandmasters = [
         "kasparov", "fischer", "carlsen", "hikaru", 
         "capablanca", "mikhail", "morphy paul", "alekhine",
@@ -415,13 +415,24 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
     ]
     
     # Stałe do pozycjonowania
-    PORTRAIT_SIZE = int(SQUARE_SIZE * 1.8)  # Nieco mniejsze portrety
-    GRID_START_X = (1260 - (4 * PORTRAIT_SIZE + 3 * 40)) // 2  # Wycentrowanie siatki
-    GRID_START_Y = 150  # Rozpoczęcie siatki portretów
-    SPACING = 40  # Odstęp między portretami
+    PORTRAIT_SIZE = int(SQUARE_SIZE * 1.8)
+    GRID_START_X = (1260 - (4 * PORTRAIT_SIZE + 3 * 40)) // 2
+    GRID_START_Y = 150
+    SPACING = 40
+    
+    # Przycisk "Wybierz plik"
+    BUTTON_WIDTH = 400
+    BUTTON_HEIGHT = 80
+    button_rect = pygame.Rect(
+        (1260 - BUTTON_WIDTH) // 2,
+        850,
+        BUTTON_WIDTH,
+        BUTTON_HEIGHT
+    )
     
     # Ładowanie portretów
     portraits = {}
+    portrait_rects = {}
     for gm in grandmasters:
         try:
             portrait = pygame.image.load(f"grandmaster/portraits/{gm.lower()}.png")
@@ -435,22 +446,16 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
             placeholder.blit(name_text, name_rect)
             portraits[gm] = placeholder
 
-    grandmaster_name = ""
-    cursor_visible = True
-    last_cursor_toggle = time.time()
-    clock = pygame.time.Clock()
-
     while True:
-        current_time = time.time()
         screen.fill(pygame.Color("gray20"))
-
+        
         # Tytuł
         title_text = font.render("Wybierz Arcymistrza", True, pygame.Color("gold"))
         title_rect = title_text.get_rect(center=(1260 // 2, 80))
         screen.blit(title_text, title_rect)
-
-        # Rysowanie portretów w siatce 3x4
-        portrait_rects = {}
+        
+        # Rysowanie portretów
+        mouse_pos = pygame.mouse.get_pos()
         for i, gm in enumerate(grandmasters):
             row = i // 4
             col = i % 4
@@ -460,63 +465,49 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
             portrait_rect = portraits[gm].get_rect(topleft=(x, y))
             portrait_rects[gm] = portrait_rect
             
-            # Ramka podświetlenia
-            mouse_pos = pygame.mouse.get_pos()
             if portrait_rect.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, pygame.Color("gold"), portrait_rect.inflate(6, 6), 3)
             
             screen.blit(portraits[gm], portrait_rect)
-            
-            # Imię pod portretem
             name_text = small_font.render(gm.title(), True, pygame.Color("white"))
             name_rect = name_text.get_rect(center=(x + PORTRAIT_SIZE//2, y + PORTRAIT_SIZE + 25))
             screen.blit(name_text, name_rect)
-
-        # Pole tekstowe na dole - przesunięte o 50 pikseli w dół
-        input_rect = pygame.Rect(
-            330,  # Wycentrowane w oknie
-            850,  # 800 + 50 (przesunięte niżej)
-            600,  # Szerokość pola
-            50    # Wysokość pola
-        )
-        pygame.draw.rect(screen, pygame.Color("white"), input_rect)
-        pygame.draw.rect(screen, pygame.Color("gold"), input_rect, 3)
-
-        # Tekst wejściowy
-        if current_time - last_cursor_toggle > 0.5:
-            cursor_visible = not cursor_visible
-            last_cursor_toggle = current_time
-
-        display_text = grandmaster_name + ("|" if cursor_visible else " ")
-        text_surface = font.render(display_text, True, pygame.Color("black"))
-        text_rect = text_surface.get_rect(center=input_rect.center)
-        screen.blit(text_surface, text_rect)
-
-        # Instrukcja - przesunięta o 50 pikseli w dół
-        instruction_text = small_font.render("Kliknij na portret lub wpisz nazwę i naciśnij ENTER", True, pygame.Color("lightgray"))
-        screen.blit(instruction_text, (SQUARE_SIZE * 2, screen.get_height() - SQUARE_SIZE))  # Było screen.get_height() - SQUARE_SIZE * 1.5
-
+        
+        # Przycisk "Wybierz własny plik"
+        if button_rect.collidepoint(mouse_pos):
+            color = pygame.Color("gold")
+        else:
+            color = pygame.Color("white")
+        pygame.draw.rect(screen, color, button_rect, 3)
+        button_text = font.render("Wybierz własny plik", True, color)
+        button_text_rect = button_text.get_rect(center=button_rect.center)
+        screen.blit(button_text, button_text_rect)
+        
         pygame.display.flip()
-        clock.tick(60)
-
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                return None
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                # Sprawdzenie kliknięcia na portret
+                # Sprawdzenie kliknięcia na portrety
                 for gm, rect in portrait_rects.items():
                     if rect.collidepoint(event.pos):
                         return gm.lower()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN and grandmaster_name:
-                    return grandmaster_name.lower()
-                elif event.key == pygame.K_BACKSPACE:
-                    grandmaster_name = grandmaster_name[:-1]
-                elif event.key == pygame.K_ESCAPE:
-                    return ""
-                elif len(grandmaster_name) < 20 and event.unicode.isalnum() or event.unicode in [' ', '-']:
-                    grandmaster_name += event.unicode
+                
+                # Sprawdzenie kliknięcia na przycisk
+                if button_rect.collidepoint(event.pos):
+                    root = tk.Tk()
+                    root.withdraw()
+                    file_path = filedialog.askopenfilename(
+                        initialdir="grandmaster/json/",
+                        title="Wybierz plik JSON z ruchami arcymistrza",
+                        filetypes=(("JSON files", "*.json"), ("All files", "*.*"))
+                    )
+                    if file_path:
+                        return Path(file_path).stem
+            
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return None
 
 def choose_custom_board_mode(screen, SQUARE_SIZE: int) -> str:
     """
