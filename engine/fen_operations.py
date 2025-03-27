@@ -55,39 +55,34 @@ main_board = board_and_fields.Board(board_state)
         castling_str = fen[char] + castling_str
         char += -1
     turn = fen[char - 1]
+    rook_positions = {(0,0):"K", (0,7):"Q",(7,0):"k",(7,7):"q"}
+    for cord in board.piece_cords:
+        field = board.board_state[cord[0]][cord[1]]
+        if field.figure:
+            if field.figure.type == "R":
+                if (cord[0],cord[1]) in rook_positions:
+                    color = "w" if rook_positions[(cord[0],cord[1])].isupper() else "b"
+                    if rook_positions[(cord[0],cord[1])] not in castling_str or field.figure.color != color:
+                        field.figure.has_moved = True
+            elif field.figure.type == "K":
+                if field.figure.color == "w" and ("K" not in castling_str and "Q" not in castling_str):
+                    field.figure.has_moved = True
+                elif ("k" not in castling_str and "k" not in castling_str):
+                    field.figure.has_moved = True
+            elif field.figure.type == "p":
+                if field.figure.color == turn:
+                    direction = 1 if turn == "w" else -1
+                    if passed_over_tile[0] - cord[0] == direction:
+                        field.figure.can_enpassant = passed_over_tile[1] - (cord[1])
+                if field.figure.color == "w" and field.y != 1:
+                    field.figure.has_moved = True
+                elif field.figure.color == "b" and field.y != 6:
+                    field.figure.has_moved = True
+    board.piece_cords = []
     for row in range(0,8):
         for col in range(0,8):
-            field = board.board_state[row][col]
-            if field.figure:
-                if field.figure.type == "R":
-                    if (row,col) == (0,0):
-                        if "K" not in castling_str or field.figure.color != "w":
-                            field.figure.has_moved = True
-                    if (row,col) == (0,7):
-                        if "Q" not in castling_str or field.figure.color != "w":
-                            field.figure.has_moved = True
-                    if (row,col) == (7,0):
-                        if "k" not in castling_str or field.figure.color != "b":
-                            field.figure.has_moved = True
-                    if (row,col) == (7,7):
-                        if "q" not in castling_str or field.figure.color != "b":
-                            field.figure.has_moved = True
-                elif field.figure.type == "K":
-                    if field.figure.color == "w":
-                        if row != 0 or col != 3 or ("K" not in castling_str and "Q" not in castling_str):
-                            field.figure.has_moved = True
-                    else:
-                        if row != 7 or col != 3 or ("k" not in castling_str and "k" not in castling_str):
-                            field.figure.has_moved = True
-                elif field.figure.type == "p":
-                    if field.figure.color == turn:
-                        direction = 1 if turn == "w" else -1
-                        if passed_over_tile[0] - row == direction:
-                            field.figure.can_enpassant = passed_over_tile[1] - col
-                    if field.figure.color == "w" and field.y != 1:
-                        field.figure.has_moved = True
-                    elif field.figure.color == "b" and field.y != 6:
-                        field.figure.has_moved = True
+            if board.board_state[row][col].figure:
+                board.piece_cords.append((row, col))
 
 def board_to_fen(board_state:list)->str:
     """Z listy obiektów zwraca fena. Zastosowanie: tylko dla board_makera, nie dla czegokolwiek innego, bo:

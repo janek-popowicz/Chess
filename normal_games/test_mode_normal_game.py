@@ -5,7 +5,7 @@ import os
 from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
-from algorithms import evaluation
+from algorithms.evaluation import *
 from engine.fen_operations import *
 
 def main():
@@ -21,7 +21,7 @@ def main():
             print("Szach!", end=" ")
         moving = True
         while moving:
-            print(evaluation.Evaluation(main_board).ocena_materiału())
+            print(get_evaluation(main_board))
             y1 = int(input("Wprowadź rząd figury, którą chcesz przesunąć: "))
             x1 = int(input("Wprowadź kolumnę figury, którą chcesz przesunąć: "))
             y2 = int(input("Wprowadź rząd, na który chcesz przesunąć figurę: "))
