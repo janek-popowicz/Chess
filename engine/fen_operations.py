@@ -60,22 +60,24 @@ main_board = board_and_fields.Board(board_state)
             field = board.board_state[row][col]
             if field.figure:
                 if field.figure.type == "R":
-                    if row != 0 and field.figure.color == "w":
-                        if col != 0 or "K" not in castling_str:
+                    if (row,col) == (0,0):
+                        if "K" not in castling_str or field.figure.color != "w":
                             field.figure.has_moved = True
-                        if col != 7 or "Q" not in castling_str:
+                    if (row,col) == (0,7):
+                        if "Q" not in castling_str or field.figure.color != "w":
                             field.figure.has_moved = True
-                    if row != 7 and field.figure.color == "b":
-                        if col != 0 or "k" not in castling_str:
+                    if (row,col) == (7,0):
+                        if "k" not in castling_str or field.figure.color != "b":
                             field.figure.has_moved = True
-                        if col != 0 or "q" not in castling_str:
-                            field.figure.has_moved = True                  
+                    if (row,col) == (7,7):
+                        if "q" not in castling_str or field.figure.color != "b":
+                            field.figure.has_moved = True
                 elif field.figure.type == "K":
                     if field.figure.color == "w":
-                        if row != 0 or col != 3 or "K" not in castling_str or "Q" not in castling_str:
+                        if row != 0 or col != 3 or ("K" not in castling_str and "Q" not in castling_str):
                             field.figure.has_moved = True
                     else:
-                        if row != 7 or col != 3 or "k" not in castling_str or "k" not in castling_str:
+                        if row != 7 or col != 3 or ("k" not in castling_str and "k" not in castling_str):
                             field.figure.has_moved = True
                 elif field.figure.type == "p":
                     if field.figure.color == turn:
