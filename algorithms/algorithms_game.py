@@ -11,6 +11,7 @@ from engine.figures import *
 from graphics import *
 from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
+from algorithms.evaluation import get_evaluation  # Import evaluation function
 
 class MinimaxThread(threading.Thread):
     def __init__(self, board, depth, turn, result_queue):
@@ -307,11 +308,13 @@ def main():
 
         # Przed renderowaniem
         current_time = time.time()
+        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
         player_times_font = update_time_display(white_time, black_time, current_time, start_time, turn)
 
         # Rendering zawsze na końcu pętli
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
         
         # Dodanie podświetlania ruchów
         try:
@@ -322,7 +325,7 @@ def main():
             pass
 
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
-        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
         
         if calculating:
             calculating_text = font.render("Obliczanie...", True, WHITE)

@@ -9,7 +9,7 @@ def load_config():
         with open(CONFIG_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return {"volume": 0.5, "resolution": "1260x960", "icons": "classic", "highlight_enemy": 0}
+        return {"volume": 0.5, "resolution": "1260x960", "icons": "classic", "highlight_enemy": 0, "nerd_view": 0}
 
 def save_config(config):
     with open(CONFIG_FILE, "w") as file:
@@ -41,8 +41,10 @@ def main():
 
     # Podświetlenie figur przeciwnika
     highlight_enemy = tk.BooleanVar(value=config["highlight_enemy"])
-    tk.Checkbutton(root, variable=highlight_enemy, text="Czy podświetlać figury przeciwnika?",onvalue=1,offvalue=0).grid(row=3, column=1, padx=10, pady=10)
+    tk.Checkbutton(root, variable=highlight_enemy, text="Podświetlanie figur przeciwnika",onvalue=1,offvalue=0).grid(row=3, column=1, padx=10, pady=10)
     
+    nerd_view = tk.BooleanVar(value=config["nerd_view"])
+    tk.Checkbutton(root, variable=nerd_view, text="Widok dla nerdów",onvalue=1,offvalue=0).grid(row=4, column=1, padx=10, pady=10)
 
     # Zapisz i Zastosuj
     def save_and_apply():
@@ -50,6 +52,7 @@ def main():
         config["resolution"] = resolution.get()
         config["icons"] = icons.get()
         config["highlight_enemy"] = highlight_enemy.get()
+        config["nerd_view"] = nerd_view.get()
         save_config(config)
         apply_settings(config["volume"], config["resolution"], config["icons"],config["highlight_enemy"])
         root.destroy()

@@ -10,6 +10,7 @@ from engine.figures import *
 from engine.fen_operations import *
 from graphics import *
 from random import randint
+from algorithms.evaluation import get_evaluation  # Import evaluation function
 
 
 def load_grandmaster_moves(grandmaster_name):
@@ -202,11 +203,15 @@ def main(player_color, grandmaster_name):
             current_black_time = black_time + (current_time - start_time)
             current_white_time = white_time
 
-        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn=='w' else GRAY),(8*SQUARE_SIZE+10,height - 150)),
-                             (font.render(format_time(current_black_time), True, YELLOW if turn=='b' else GRAY),(8*SQUARE_SIZE+10,80)))
+        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
+
+        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
+                              (8 * SQUARE_SIZE + 10, height - 150)),
+                             (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), 
+                              (8 * SQUARE_SIZE + 10, 80)))
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
-        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
