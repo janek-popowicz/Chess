@@ -29,7 +29,7 @@ class MinimaxThread(threading.Thread):
         return self._stop_event.is_set()
 
     def run(self):
-        minimax_obj = Minimax(self.board, self.depth, self.turn,0.00001)  # Dodano czas dla algorytmu Minimax
+        minimax_obj = Minimax(self.board, self.depth, self.turn,2)  # Dodano czas dla algorytmu Minimax
         minimax_obj.should_stop = self.stopped  # Przekazujemy metodę sprawdzającą zatrzymanie
         move = minimax_obj.get_best_move()
         if not self.stopped():
@@ -102,8 +102,11 @@ def main():
     selected_piece = None
     clock = pygame.time.Clock()
 
+    minimax_thread = None
+    monte_carlo_thread = None
     player_turn = choose_color_dialog(screen, SQUARE_SIZE)
     algorithm = choose_algorithm_dialog(screen, SQUARE_SIZE)
+
 
     # Teksty interfejsu
     texts = (

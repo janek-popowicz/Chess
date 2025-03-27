@@ -51,7 +51,7 @@ def draw_board(screen, SQUARE_SIZE, main_board, in_check):
                 color = pygame.Color("red")
             pygame.draw.rect(screen, color, pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-def draw_pieces(screen, board, SQUARE_SIZE, pieces):
+def draw_pieces(screen, board, SQUARE_SIZE, pieces, is_reversed=False):
     """
     Rysuje figury na szachownicy.
 
@@ -60,14 +60,21 @@ def draw_pieces(screen, board, SQUARE_SIZE, pieces):
         board (Board): Obiekt planszy szachowej.
         SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
         pieces (dict): Słownik zawierający obrazy figur.
+        is_reversed (bool, optional): Czy plansza ma być odwrócona. Defaults to False.
     """
     for r in range(8):
         for c in range(8):
             piece = board.get_piece(r, c)
             if piece != "--":
-                screen.blit(pieces[piece], pygame.Rect((7-c)*SQUARE_SIZE, (7-r)*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                if is_reversed:
+                    x = c * SQUARE_SIZE
+                    y = r * SQUARE_SIZE
+                else:
+                    x = (7-c) * SQUARE_SIZE
+                    y = (7-r) * SQUARE_SIZE
+                screen.blit(pieces[piece], pygame.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE))
 
-def highlight_moves(screen, field, square_size: int, board, color_move, color_take):
+def highlight_moves(screen, field, square_size: int, board, color_move, color_take, is_reversed=False):
     """
     Podświetla możliwe ruchy dla wybranej figury.
 
@@ -78,6 +85,7 @@ def highlight_moves(screen, field, square_size: int, board, color_move, color_ta
         board (Board): Obiekt planszy szachowej.
         color_move (tuple): Kolor podświetlenia dla możliwych ruchów.
         color_take (tuple): Kolor podświetlenia dla możliwych bić.
+        is_reversed (bool, optional): Czy plansza ma być odwrócona. Defaults to False.
     """
     try:
         cords = board.get_legal_moves(field, field.figure.color)
@@ -91,7 +99,16 @@ def highlight_moves(screen, field, square_size: int, board, color_move, color_ta
                 highlighted_tile.fill(color_take)
         if field.figure.type == 'p' and (field.x - cord[1]) != 0:
             highlighted_tile.fill(color_take)
-        screen.blit(highlighted_tile, (((7-cord[1]) * square_size), ((7-cord[0]) * square_size)))
+            
+        # Calculate position based on is_reversed
+        if is_reversed:
+            x = cord[1] * square_size
+            y = cord[0] * square_size
+        else:
+            x = (7-cord[1]) * square_size
+            y = (7-cord[0]) * square_size
+            
+        screen.blit(highlighted_tile, (x, y))
 
 def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text, nerd_view=False, evaluation=None, ping=None):
     """
@@ -143,14 +160,14 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_che
             eval_color_white = pygame.Color("green") if evaluation > 0 else pygame.Color("red")
             eval_text_white = small_font.render(f"Eval (white): +{evaluation:.2f}" if evaluation > 0 
                                               else f"Eval (white): {evaluation:.2f}", True, eval_color_white)
-            screen.blit(eval_text_white, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 6))
+            screen.blit(eval_text_white, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4))
 
             # Evaluation dla czarnych (odwrotność białych)
             black_eval = -evaluation
             eval_color_black = pygame.Color("green") if black_eval > 0 else pygame.Color("red")
             eval_text_black = small_font.render(f"Eval (black): +{black_eval:.2f}" if black_eval > 0 
                                               else f"Eval (black): {black_eval:.2f}", True, eval_color_black)
-            screen.blit(eval_text_black, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 6.3))
+            screen.blit(eval_text_black, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4.3))
 
         # Wyświetl ping jeśli dostępny
         if ping is not None:

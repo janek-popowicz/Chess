@@ -13,7 +13,7 @@ class Minimax:
     """
     Klasa implementująca algorytm Minimax z przycinaniem alfa-beta oraz ograniczeniem czasowym.
     """
-    def __init__(self, main_board, depth, color, time_limit=0.00001):
+    def __init__(self, main_board, depth, color, time_limit=0.01):
         """
         Inicjalizuje obiekt Minimax.
 
