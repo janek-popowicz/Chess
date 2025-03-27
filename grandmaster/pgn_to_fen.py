@@ -18,6 +18,10 @@ import re
 
 import re
 
+import tkinter as tk
+from tkinter import filedialog
+import pygame
+
 def parse_pgn(pgn_text, grandmaster_name_fragment):
     # Podział na gry na podstawie wyników (0-1, 1-0, 1/2-1/2)
     games = re.split(r'(?:1-0|0-1|1/2-1/2)', pgn_text.replace("\n", " ").strip())
@@ -76,20 +80,34 @@ def parse_pgn(pgn_text, grandmaster_name_fragment):
     
     return extracted_games
 
-def main(grandmaster):
-    # Wczytanie pliku PGN
-    pgn_path = Path(f"grandmaster/pgn/{grandmaster}.pgn")
-    with open(pgn_path, "r") as pgn_file:
-        pgn_data = pgn_file.read()
+def main():
+    # Initialize pygame for the dialog
+    pygame.init()
+    screen = pygame.display.set_mode((1260, 960))
+    pygame.display.set_caption("PGN to FEN Converter")
 
-    # Przetworzenie gier z pliku PGN
+    # Show file dialog
+    from graphics import choose_pgn_file_dialog
+    grandmaster = choose_pgn_file_dialog(screen, 100)
+    
+    if not grandmaster:  # User cancelled or error occurred
+        pygame.quit()
+        return
+
+    # Process the PGN file
+    pgn_path = Path(f"grandmaster/pgn/{grandmaster}.pgn")
+    try:
+        with open(pgn_path, "r") as pgn_file:
+            pgn_data = pgn_file.read()
+    except FileNotFoundError:
+        print(f"Error: File {pgn_path} not found")
+        pygame.quit()
+        return
+
+    # Process games from PGN file
     games = parse_pgn(pgn_data, grandmaster)
 
-    # for game in games:
-    #     print("\n\n", game)
-    # print(len(games))
-
-    # Słownik do przechowywania FENów i ruchów arcymistrza
+    # Dictionary to store FENs and grandmaster moves
     fen_moves = {}
     
     for game in games:

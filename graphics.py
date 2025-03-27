@@ -8,7 +8,9 @@ import pygame
 import json
 import sys
 import time
-
+import tkinter as tk
+from tkinter import filedialog
+from pathlib import Path
 CONFIG_FILE = "config.json"
 
 def load_config():
@@ -577,3 +579,40 @@ def choose_custom_board_mode(screen, SQUARE_SIZE: int) -> str:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return None
+
+def choose_pgn_file_dialog(screen, SQUARE_SIZE: int) -> str:
+    """
+    Opens system's native file dialog to select a PGN file.
+    Returns the filename without extension.
+    """
+    # Hide the main tkinter window
+    root = tk.Tk()
+    root.withdraw()
+
+    # Open the file dialog
+    file_path = filedialog.askopenfilename(
+        initialdir="grandmaster/pgn/",
+        title="Wybierz plik PGN",
+        filetypes=(("PGN files", "*.pgn"), ("All files", "*.*"))
+    )
+    
+    if file_path:
+        # Extract filename without extension and directory path
+        filename = Path(file_path).stem
+        # Check if file exists in the correct directory
+        if Path(f"grandmaster/pgn/{filename}.pgn").exists():
+            return filename
+        else:
+            # Show error message on pygame screen
+            font = pygame.font.Font(None, 48)
+            error_text = font.render("Plik musi być w katalogu grandmaster/pgn/", True, (255, 0, 0))
+            error_rect = error_text.get_rect(center=(screen.get_width()//2, screen.get_height()//2))
+            
+            screen.fill((32, 32, 32))
+            screen.blit(error_text, error_rect)
+            pygame.display.flip()
+            
+            # Wait for a moment
+            pygame.time.wait(2000)
+            
+    return None
