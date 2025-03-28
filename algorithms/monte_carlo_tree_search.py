@@ -89,7 +89,7 @@ class Mcts:
                 current_node = self.root
         # Rozrost (expansion)
         if current_node.games == 0:
-            self.random_expands(new_board,current_node)
+            self.random_expand(new_board,current_node)
             current_node = current_node.children[random.randint(0, len(current_node.children))]
             engine.tryMove(current_node.color, new_board, *current_node.move)
         # Symulacja (playout)
