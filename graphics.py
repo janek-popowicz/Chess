@@ -156,11 +156,6 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_che
         evaluation (float, optional): Ocena pozycji. Defaults to None.
         ping (int, optional): Ping w ms. Defaults to None.
     """
-
-    # In files where you're using draw_interface (like normal_game.py, client.py, etc.)
-    config = load_config()
-    nerd_view = config.get("nerd_view", False)  # Get nerd_view from config with False as default
-
     # Czarny prostokąt z prawej - tło
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE * 8, 0, 200, SQUARE_SIZE * 8))
     # teksty tur graczy
@@ -169,7 +164,7 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_che
     else:
         screen.blit(texts[1][0], texts[1][1])
 
-    #czasty graczy
+    # czasy graczy
     screen.blit(player_times[0][0], player_times[0][1])
     screen.blit(player_times[1][0], player_times[1][1])
     screen.blit(texts[2][0], texts[2][1])
@@ -183,20 +178,19 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_che
     if nerd_view:
         small_font = pygame.font.Font(None, 28)
         
-        # Wyświetl evaluation jeśli dostępne
-        if evaluation is not None:
-            # Evaluation dla białych (dodatni = przewaga białych)
-            eval_color_white = pygame.Color("green") if evaluation > 0 else pygame.Color("red")
-            eval_text_white = small_font.render(f"Eval (white): +{evaluation:.2f}" if evaluation > 0 
-                                              else f"Eval (white): {evaluation:.2f}", True, eval_color_white)
-            screen.blit(eval_text_white, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4))
+        # Ustawienie stałej wartości oceny
+        evaluation = 10  # Ocena dla białych
+        black_eval = -evaluation  # Ocena dla czarnych
 
-            # Evaluation dla czarnych (odwrotność białych)
-            black_eval = -evaluation
-            eval_color_black = pygame.Color("green") if black_eval > 0 else pygame.Color("red")
-            eval_text_black = small_font.render(f"Eval (black): +{black_eval:.2f}" if black_eval > 0 
-                                              else f"Eval (black): {black_eval:.2f}", True, eval_color_black)
-            screen.blit(eval_text_black, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4.3))
+        # Wyświetl evaluation dla białych
+        eval_color_white = pygame.Color("green") if evaluation > 0 else pygame.Color("red")
+        eval_text_white = small_font.render(f"Eval (white): +{evaluation:.2f}", True, eval_color_white)
+        screen.blit(eval_text_white, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4))
+
+        # Wyświetl evaluation dla czarnych
+        eval_color_black = pygame.Color("green") if black_eval > 0 else pygame.Color("red")
+        eval_text_black = small_font.render(f"Eval (black): {black_eval:.2f}", True, eval_color_black)
+        screen.blit(eval_text_black, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4.3))
 
         # Wyświetl ping jeśli dostępny
         if ping is not None:
@@ -648,9 +642,9 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
             portrait_rects[gm] = portrait_rect
             
             if portrait_rect.collidepoint(mouse_pos):
-                if last_hovered != rect:
+                if last_hovered != portrait_rect:  # Poprawka: użycie portrait_rect zamiast rect
                     menu_cursor_sound.play()
-                    last_hovered = rect
+                    last_hovered = portrait_rect
                 pygame.draw.rect(screen, pygame.Color("gold"), portrait_rect.inflate(6, 6), 3)
             
             screen.blit(portraits[gm], portrait_rect)
