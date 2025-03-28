@@ -72,6 +72,14 @@ def main():
     background = pygame.image.load("background.png")
     background = pygame.transform.scale(background, (1260, 960))
 
+    # Load menu sounds
+    try:
+        menu_cursor_sound = pygame.mixer.Sound("sounds/menu_cursor.mp3")
+        menu_cursor_sound.set_volume(volume)
+    except:
+        print("Warning: Could not load menu sound effect")
+        menu_cursor_sound = None
+
     while running:
         mouse_pos = pygame.mouse.get_pos()
         for event in pygame.event.get():
@@ -80,8 +88,12 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     selected_option = (selected_option - 1) % len(menu_options)
+                    if menu_cursor_sound:
+                        menu_cursor_sound.play()
                 elif event.key == pygame.K_DOWN:
                     selected_option = (selected_option + 1) % len(menu_options)
+                    if menu_cursor_sound:
+                        menu_cursor_sound.play()
                 elif event.key == pygame.K_RETURN:
                     if do_an_action(selected_option, screen) == False:
                         running = False
@@ -104,7 +116,9 @@ def main():
         # Sprawdzenie kolizji myszy z opcjami menu
         for i, (text_white, text_gray) in enumerate(menu_texts):
             text_rect = text_white.get_rect(center=(630, 50 + i * 100))
-            if text_rect.collidepoint(mouse_pos):
+            if text_rect.collidepoint(mouse_pos) and selected_option != i:
+                if menu_cursor_sound:
+                    menu_cursor_sound.play()
                 selected_option = i
 
         # Draw background and menu
