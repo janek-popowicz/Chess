@@ -57,6 +57,8 @@ def main():
 
         # Remove algorithm choice, keep only color selection
         player_turn = choose_color_dialog(screen, SQUARE_SIZE)
+        if player_turn == None:
+            return
         is_reversed = player_turn == 'b'
 
         # Remove algorithm-specific variables
