@@ -234,37 +234,71 @@ def promotion_dialog(screen, SQUARE_SIZE: int, color: str) -> str:
     Returns:
         str: Wybrana figura ('1' dla skoczka, '2' dla gońca, '3' dla wieży, '4' dla królowej).
     """
-    font = pygame.font.Font(None, 36)
+    font = pygame.font.Font(None, 48)
+    button_font = pygame.font.Font(None, 36)
 
-    dialog_text = "Pionek dotarł do końca planszy. Wybierz figurę do odzyskania."
+    # Tekst pytania
+    dialog_text = "Wybierz figurę do promocji:"
     dialog = font.render(dialog_text, True, pygame.Color("white"))
 
-    options = ["1. Koń", "2. Goniec", "3. Wieża", "4. Królowa"]
+    # Opcje figur
+    options = [
+        ("1. Skoczek", pygame.Color("blue")),
+        ("2. Goniec", pygame.Color("green")),
+        ("3. Wieża", pygame.Color("purple")),
+        ("4. Królowa", pygame.Color("gold"))
+    ]
+    button_width = SQUARE_SIZE * 2
+    button_height = SQUARE_SIZE * 2
+    spacing = SQUARE_SIZE // 2
+    total_width = len(options) * button_width + (len(options) - 1) * spacing
+    start_x = (screen.get_width() - total_width) // 2
+    start_y = (screen.get_height() - button_height) // 2
+
     option_rects = []
-    for i, option in enumerate(options):
-        text = font.render(option, True, pygame.Color("white"))
-        rect = text.get_rect(center=(SQUARE_SIZE*4, SQUARE_SIZE*(2+i)))
-        option_rects.append((text, rect))
-    
+    for i, (label, color) in enumerate(options):
+        rect = pygame.Rect(start_x + i * (button_width + spacing), start_y, button_width, button_height)
+        option_rects.append((label, color, rect))
+
+    menu_cursor_sound = pygame.mixer.Sound("sounds/menu_cursor.mp3")
+    menu_cursor_sound.set_volume(0.5)
+    last_hovered = None
+
     while True:
-        screen.fill(pygame.Color("black"))
-        screen.blit(dialog, (100, 100))
-        mouse_pos = pygame.mouse.get_pos()
-        for i, (text, rect) in enumerate(option_rects):
-            if rect.collidepoint(mouse_pos):
-                pygame.draw.rect(screen, pygame.Color("yellow"), rect.inflate(10, 10), 2)
-            screen.blit(text, rect)
-        pygame.display.flip()
+        screen.fill(pygame.Color("gray20"))
         
+        # Wyśrodkowanie napisu "Wybierz figurę do promocji"
+        dialog_x = screen.get_width() // 2 - dialog.get_width() // 2
+        dialog_y = start_y - SQUARE_SIZE * 2
+        screen.blit(dialog, (dialog_x, dialog_y))
+        
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Rysowanie opcji
+        for label, color, rect in option_rects:
+            if rect.collidepoint(mouse_pos):
+                if last_hovered != rect:
+                    menu_cursor_sound.play()
+                    last_hovered = rect
+                pygame.draw.rect(screen, pygame.Color("yellow"), rect.inflate(10, 10), border_radius=15)
+            pygame.draw.rect(screen, color, rect, border_radius=15)
+            pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3, border_radius=15)  # Obrys
+            text = button_font.render(label, True, pygame.Color("black"))
+            text_rect = text.get_rect(center=rect.center)
+            screen.blit(text, text_rect)
+
+        pygame.display.flip()
+
+        # Obsługa zdarzeń
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                for i, (text, rect) in enumerate(option_rects):
+                for label, _, rect in option_rects:
                     if rect.collidepoint(pos):
-                        return options[i][0]  # Zwraca pierwszą literę opcji (1, 2, 3, 4)
+                        return label[0]  # Zwraca pierwszą literę opcji (1, 2, 3, 4)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     return '1'
