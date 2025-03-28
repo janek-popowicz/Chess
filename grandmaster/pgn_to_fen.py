@@ -350,8 +350,8 @@ def main():
             json_path.parent.mkdir(parents=True, exist_ok=True)
             
             # Save to JSON file with proper formatting
-            with open(json_path, "w", encoding='utf-8') as f:
-                json.dump(fen_moves, f, indent=4)
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(fen_moves, f, separators=(',', ':'))
             print(f"Successfully saved moves to {json_path}")
         except Exception as e:
             print(f"Error saving JSON file: {e}")
