@@ -139,68 +139,61 @@ def highlight_moves(screen, field, square_size: int, board, color_move, color_ta
             
         screen.blit(highlighted_tile, (x, y))
 
-def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text, nerd_view=False, evaluation=None, ping=None):
+def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text, evaluation=None, ping=None):
     """
-    Rysuje interfejs użytkownika obok szachownicy.
+    Rysuje interfejs użytkownika obok szachownicy, pokazując obu graczy.
+    """
+    config = load_config()
+    nerd_view = config.get("nerd_view", False)
 
-    Args:
-        screen (pygame.Surface): Powierzchnia ekranu gry.
-        turn (str): Aktualna tura ('w' dla białych, 'b' dla czarnych).
-        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
-        BLACK (tuple): Kolor tła interfejsu.
-        texts (tuple): Teksty wyświetlane w interfejsie.
-        player_times (tuple): Czas gry dla obu graczy.
-        in_check (str): Kolor gracza, którego król jest szachowany ('w' lub 'b').
-        check_text (pygame.Surface): Tekst informujący o szachu.
-        nerd_view (bool, optional): Czy wyświetlać dodatkowe informacje. Defaults to False.
-        evaluation (float, optional): Ocena pozycji. Defaults to None.
-        ping (int, optional): Ping w ms. Defaults to None.
-    """
-    # Czarny prostokąt z prawej - tło
+    # Draw interface background
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE * 8, 0, 200, SQUARE_SIZE * 8))
-    # teksty tur graczy
-    if turn == 'w':
-        screen.blit(texts[0][0], texts[0][1])
-    else:
-        screen.blit(texts[1][0], texts[1][1])
 
-    # czasy graczy
-    screen.blit(player_times[0][0], player_times[0][1])
-    screen.blit(player_times[1][0], player_times[1][1])
-    screen.blit(texts[2][0], texts[2][1])
-    screen.blit(texts[3][0], texts[3][1])
+    # Draw both players, highlight active turn
+    white_color = (255, 215, 0) if turn == 'w' else (200, 200, 200)
+    black_color = (255, 215, 0) if turn == 'b' else (200, 200, 200)
 
-    # Wyświetlanie tekstu o szachu
+    # White player text and evaluation
+    white_text = texts[0][0]  # "Białe"
+    white_time = player_times[0][0]
+    screen.blit(white_text, (SQUARE_SIZE * 8 + 10, 50))
+    screen.blit(white_time, (SQUARE_SIZE * 8 + 10, 100))
+    
+    if nerd_view and evaluation is not None:
+        small_font = pygame.font.Font(None, 28)
+        white_eval = evaluation  # From white's perspective
+        eval_color = pygame.Color("green") if white_eval > 0 else pygame.Color("red")
+        white_eval_text = small_font.render(f"Eval: {white_eval:+.2f}", True, eval_color)
+        screen.blit(white_eval_text, (SQUARE_SIZE * 8 + 10, 75))
+
+    # Black player text and evaluation
+    black_text = texts[1][0]  # "Czarne"
+    black_time = player_times[1][0]
+    screen.blit(black_text, (SQUARE_SIZE * 8 + 10, 200))
+    screen.blit(black_time, (SQUARE_SIZE * 8 + 10, 250))
+    
+    if nerd_view and evaluation is not None:
+        black_eval = -evaluation  # From black's perspective
+        eval_color = pygame.Color("green") if black_eval > 0 else pygame.Color("red")
+        black_eval_text = small_font.render(f"Eval: {black_eval:+.2f}", True, eval_color)
+        screen.blit(black_eval_text, (SQUARE_SIZE * 8 + 10, 225))
+
+    # Draw buttons and check warning
+    screen.blit(texts[2][0], texts[2][1])  # Undo button
+    screen.blit(texts[3][0], texts[3][1])  # Exit button
+
     if in_check:
         screen.blit(check_text, (8 * SQUARE_SIZE + 10, 150))
 
-    # Dodaj wyświetlanie informacji dla trybu nerd
-    if nerd_view:
-        small_font = pygame.font.Font(None, 28)
-        
-        # Ustawienie stałej wartości oceny
-        evaluation = 10  # Ocena dla białych
-        black_eval = -evaluation  # Ocena dla czarnych
-
-        # Wyświetl evaluation dla białych
-        eval_color_white = pygame.Color("green") if evaluation > 0 else pygame.Color("red")
-        eval_text_white = small_font.render(f"Eval (white): +{evaluation:.2f}", True, eval_color_white)
-        screen.blit(eval_text_white, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4))
-
-        # Wyświetl evaluation dla czarnych
-        eval_color_black = pygame.Color("green") if black_eval > 0 else pygame.Color("red")
-        eval_text_black = small_font.render(f"Eval (black): {black_eval:.2f}", True, eval_color_black)
-        screen.blit(eval_text_black, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4.3))
-
-        # Wyświetl ping jeśli dostępny
-        if ping is not None:
-            ping_color = pygame.Color("white")
-            if ping > 200:  # Wysoki ping
-                ping_color = pygame.Color("red")
-            elif ping > 100:  # Średni ping
-                ping_color = pygame.Color("yellow")
-            ping_text = small_font.render(f"Ping: {ping}ms", True, ping_color)
-            screen.blit(ping_text, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 6.6))
+    # Draw ping if enabled and available
+    if nerd_view and ping is not None:
+        ping_color = (
+            pygame.Color("red") if ping > 200
+            else pygame.Color("yellow") if ping > 100
+            else pygame.Color("white")
+        )
+        ping_text = small_font.render(f"Ping: {ping:.2f}ms", True, ping_color)
+        screen.blit(ping_text, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 6.5))
 
 def format_time(seconds):
     """
