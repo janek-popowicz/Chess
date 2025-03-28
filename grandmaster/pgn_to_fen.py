@@ -125,6 +125,108 @@ def draw_loading_screen(screen, progress, text):
     pygame.display.flip()
     return True
 
+def choose_save_option(screen):
+    """Shows an elegant dialog to choose whether to save only grandmaster moves or all moves"""
+    font = pygame.font.Font(None, 48)
+    small_font = pygame.font.Font(None, 32)
+    
+    options = [
+        {
+            "title": "Tylko ruchy arcymistrza",
+            "description": "Zapisz jedynie ruchy wykonane przez arcymistrza",
+            "value": False
+        },
+        {
+            "title": "Ruchy obu graczy",
+            "description": "Zapisz ruchy wykonane przez obu graczy",
+            "value": True
+        }
+    ]
+    
+    selected = None  # Changed from 0 to None to differentiate between hover and selection
+    button_height = 120
+    button_width = 400
+    padding = 20
+    
+    while True:
+        screen.fill((32, 32, 32))
+        
+        # Draw title
+        title = font.render("Wybierz sposób zapisu ruchów:", True, (255, 215, 0))
+        title_rect = title.get_rect(center=(screen.get_width() // 2, 150))
+        screen.blit(title, title_rect)
+        
+        # Get mouse position and check which button is hovered
+        mouse_pos = pygame.mouse.get_pos()
+        hovered = None
+        
+        # First pass - determine if mouse is over any button
+        for i, option in enumerate(options):
+            button_rect = pygame.Rect(
+                screen.get_width() // 2 - button_width // 2,
+                300 + i * (button_height + padding),
+                button_width,
+                button_height
+            )
+            if button_rect.collidepoint(mouse_pos):
+                hovered = i
+                break
+        
+        # Draw options
+        for i, option in enumerate(options):
+            x = screen.get_width() // 2 - button_width // 2
+            y = 300 + i * (button_height + padding)
+            button_rect = pygame.Rect(x, y, button_width, button_height)
+            
+            # Determine button state
+            is_hovered = (i == hovered)
+            is_selected = (i == selected)
+            
+            # Draw button with appropriate style
+            if is_selected:
+                # Selected state
+                pygame.draw.rect(screen, (70, 70, 70), button_rect)
+                pygame.draw.rect(screen, (255, 215, 0), button_rect, 3)
+                text_color = (255, 215, 0)
+            elif is_hovered:
+                # Hover state
+                pygame.draw.rect(screen, (50, 50, 50), button_rect)
+                pygame.draw.rect(screen, (200, 170, 0), button_rect, 2)
+                text_color = (200, 170, 0)
+            else:
+                # Normal state
+                pygame.draw.rect(screen, (45, 45, 45), button_rect)
+                pygame.draw.rect(screen, (100, 100, 100), button_rect, 1)
+                text_color = (180, 180, 180)
+            
+            # Draw texts
+            title_surf = font.render(option["title"], True, text_color)
+            title_rect = title_surf.get_rect(midtop=(button_rect.centerx, button_rect.top + 20))
+            screen.blit(title_surf, title_rect)
+            
+            desc_surf = small_font.render(option["description"], True, text_color)
+            desc_rect = desc_surf.get_rect(midtop=(button_rect.centerx, button_rect.top + 70))
+            screen.blit(desc_surf, desc_rect)
+        
+        pygame.display.flip()
+        
+        # Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return None
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if hovered is not None:
+                    return options[hovered]["value"]
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(options) if selected is not None else len(options) - 1
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(options) if selected is not None else 0
+                elif event.key == pygame.K_RETURN and selected is not None:
+                    return options[selected]["value"]
+                
+        pygame.time.wait(10)
+
 def main():
     # Initialize pygame for the dialog
     pygame.init()
@@ -136,6 +238,12 @@ def main():
     grandmaster = choose_pgn_file_dialog(screen, 100)
     
     if not grandmaster:  # User cancelled or error occurred
+        pygame.quit()
+        return
+
+    # Show save option dialog
+    save_both_colors = choose_save_option(screen)
+    if save_both_colors is None:  # User cancelled or error occurred
         pygame.quit()
         return
 
@@ -193,11 +301,11 @@ def main():
 
             current_move = moves[i]    
             # Zapisujemy FEN i ruch tylko gdy jest ruch arcymistrza
-            if (turn == grandmaster_color):
+            if (turn == grandmaster_color) or save_both_colors:
                 # Pobierz aktualny FEN (bez liczników ruchów)
                 current_fen = board_to_fen_inverted(main_board, turn)
                 fen_parts = current_fen.split(' ')
-                good_fen = f"{fen_parts[0]}"
+                good_fen = f"{fen_parts[0]} {fen_parts[1]}"
                 
                 
             
@@ -207,7 +315,7 @@ def main():
                 cords = engine.notation_to_cords(main_board, current_move, turn)
                 y1, x1, y2, x2 = cords
                 if tryMove(turn, main_board, y1, x1, y2, x2):
-                    if turn == grandmaster_color:
+                    if (turn == grandmaster_color) or save_both_colors:
                         # Dodaj ruch do listy ruchów dla danego FENa
                         if good_fen in fen_moves:
                             if current_move not in fen_moves[good_fen]:
