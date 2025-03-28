@@ -67,7 +67,7 @@ class MonteCarloThread(threading.Thread):
             self.result_queue.put(None)
 
 # Funkcja główna
-def main():
+def main(player_turn, algorithm):
     pygame.init()
     # Ładowanie konfiguracji
     config = load_config()
@@ -109,10 +109,6 @@ def main():
 
     minimax_thread = None
     monte_carlo_thread = None
-    player_turn = choose_color_dialog(screen, SQUARE_SIZE)
-    if player_turn == None:
-        return
-    algorithm = choose_algorithm_dialog(screen, SQUARE_SIZE)
 
     is_reversed = False if player_turn == 'w' else True
 

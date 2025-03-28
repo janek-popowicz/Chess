@@ -17,6 +17,7 @@ import settings
 import graphics
 import grandmaster.pgn_to_fen
 import ai_model.ml_game as ml_game
+from language import global_translations, language_selection_screen  # Add this import at the top
 
 # Funkcja główna
 def main():
@@ -42,18 +43,7 @@ def main():
     font = pygame.font.Font(None, 74)
 
     # Opcje menu
-    menu_options = [
-        "Graj z przyjacielem na tym komputerze", #0
-        "Niestandardowa plansza", #1
-        "Graj z botem", #2
-        "Graj z arcymistrzem", #3
-        "Graj z sieci neuronową", #4
-        "Graj w sieci lokalnej", #5
-        "Ustawienia", #6
-        "Wyjście do systemu", #7
-        "Tryb terminalowy", #8
-        "Konwerter PGN do FEN" #9
-    ]
+    menu_options = global_translations.get('menu_options')
 
     selected_option = 0
     running = True
@@ -71,7 +61,7 @@ def main():
     pygame.mixer.music.set_volume(volume)
 
     #Dodanie tła
-    background = pygame.image.load("background.png")
+    background = pygame.image.load("interface/background.png")
     background = pygame.transform.scale(background, (1260, 960))
 
     # Load menu sounds
@@ -81,6 +71,9 @@ def main():
     except:
         print("Warning: Could not load menu sound effect")
         menu_cursor_sound = None
+
+    # Create language icon rect outside the main loop
+    lang_icon_rect = pygame.Rect(screen.get_width() - 70, screen.get_height() - 70, 50, 50)
 
     while running:
         mouse_pos = pygame.mouse.get_pos()
@@ -103,7 +96,13 @@ def main():
                         # Restart the main function
                         pygame.quit()
                         return main()
+            # Add language icon click handling here
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Check language icon click first
+                if lang_icon_rect.collidepoint(mouse_pos):
+                    language_selection_screen(screen)
+                
+                # Rest of the click handling
                 for i, (text_white, text_gray) in enumerate(menu_texts):
                     text_rect = text_white.get_rect(center=(630, 50 + i * 100))
                     if text_rect.collidepoint(mouse_pos):
@@ -145,7 +144,11 @@ def do_an_action(selected_option, screen):
         return True
     elif selected_option == 2: # Bot
         pygame.mixer.music.stop()
-        algorithms.algorithms_game.main()
+        player_color = graphics.choose_color_dialog(screen, 100)
+        if player_color == None:
+            return True
+        algorithm = graphics.choose_algorithm_dialog(screen, 100)
+        algorithms.algorithms_game.main(player_color, algorithm)
         return True
     elif selected_option == 3: # Arcymistrz
         pygame.mixer.music.stop()
@@ -155,11 +158,7 @@ def do_an_action(selected_option, screen):
         grandmaster_name = graphics.choose_grandmaster_dialog(screen, 100)
         grandmaster.grandmaster_game.main(player_color, grandmaster_name)
         return True
-    elif selected_option == 4: # Sieć neuronowa
-        pygame.mixer.music.stop()
-        ml_game.main()
-        return True
-    elif selected_option == 5: # Gra w sieci
+    elif selected_option == 4: # Gra w sieci
         server_or_client = graphics.choose_color_dialog(screen, 100)
         if server_or_client == None:
             return True
@@ -170,16 +169,16 @@ def do_an_action(selected_option, screen):
             import multiplayer.server
             multiplayer.server.main()
         return True
-    elif selected_option == 6: # Ustawienia
+    elif selected_option == 5: # Ustawienia
         pygame.mixer.music.stop()
         settings.main()
         return True
-    elif selected_option == 7: # Wyjście
+    elif selected_option == 6: # Wyjście
         return False
-    elif selected_option == 8: # Tryb terminalowy
+    elif selected_option == 7: # Tryb terminalowy
         normal_games.test_mode_normal_game.main()
         return True
-    elif selected_option == 9: # Konwerter PGN do FEN
+    elif selected_option == 8: # Konwerter PGN do FEN
         pygame.mixer.music.stop()
         grandmaster.pgn_to_fen.main()
         return True
@@ -189,31 +188,43 @@ def do_an_action(selected_option, screen):
 
 # Funkcja do rysowania menu
 def draw_menu(selected_option:int, screen, menu_texts, background, text_white, text_gray, BLACK)->None:
-    """rysuje menu i renderuje tekst z czarnym tłem pod wybraną opcją
-
-    Args:
-        selected_option (int): numer wybranej opcji z listy menu_options
-    """
+    """rysuje menu i renderuje tekst z czarnym tłem pod wybraną opcją"""
     screen.blit(background, (0, 0))
     
     # Get mouse position for hover effect
     mouse_pos = pygame.mouse.get_pos()
     
+    # Draw menu options
     for i, (text_white, text_gray) in enumerate(menu_texts):
         text = text_white if i == selected_option else text_gray
         text_rect = text.get_rect(center=(630, 50 + i * 100))
         
-        # Check if mouse is hovering over option or if option is selected
         if text_rect.collidepoint(mouse_pos) or i == selected_option:
-            # Draw black background rectangle slightly larger than text
-            background_rect = text_rect.inflate(20, 10)  # Make background slightly bigger than text
+            background_rect = text_rect.inflate(20, 10)
             background_surface = pygame.Surface((background_rect.width, background_rect.height))
             background_surface.fill(BLACK)
-            background_surface.set_alpha(200)  # Semi-transparent black
+            background_surface.set_alpha(200)
             screen.blit(background_surface, background_rect)
-            screen.blit(text_white, text_rect)  # Use white text for highlighted options
+            screen.blit(text_white, text_rect)
         else:
             screen.blit(text_gray, text_rect)
+    
+    # Draw language icon
+    try:
+        lang_icon = pygame.image.load('interface/language.png')
+        lang_icon = pygame.transform.scale(lang_icon, (50, 50))
+        lang_icon_rect = pygame.Rect(screen.get_width() - 70, screen.get_height() - 70, 50, 50)
+        
+        # Add hover effect for language icon
+        if lang_icon_rect.collidepoint(pygame.mouse.get_pos()):
+            hover_surface = pygame.Surface((50, 50))
+            hover_surface.fill((255, 215, 0))  # Gold color
+            hover_surface.set_alpha(100)
+            screen.blit(hover_surface, lang_icon_rect)
+        
+        screen.blit(lang_icon, lang_icon_rect)
+    except:
+        print("Warning: Could not load language icon")
             
     pygame.display.flip()
 
