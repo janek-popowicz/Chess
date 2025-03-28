@@ -8,6 +8,9 @@ import algorithms.evaluation as evaluation
 import engine.board_and_fields as board_and_fields 
 import engine.engine as engine 
 from pathlib import Path
+from engine.fen_operations import *
+from random import randint
+import json
 #json_path = Path(f"algorithms/opening.json")
 
 class Minimax:
@@ -23,7 +26,7 @@ class Minimax:
         :param color: Kolor gracza AI ('w' dla białych, 'b' dla czarnych).
         :param time_limit: Limit czasu na wykonanie ruchu (w sekundach).
         """
-        self.main_board = main_board
+        self.main_board = copy.deepcopy(main_board)  # Make a deep copy to avoid race conditions
         self.depth = depth 
         self.alpha = -100000
         self.beta = 100000
@@ -33,6 +36,7 @@ class Minimax:
         
         self.best_move = None  # Najlepszy ruch znaleziony do tej pory
         self.path = Path(f"algorithms/opening.json")
+        self.should_stop = lambda: False  # Add callback for thread stopping
     
     def get_evaluation_score(self, board, is_maximizing):
         """
@@ -66,6 +70,8 @@ class Minimax:
 
         :return: True, jeśli czas został przekroczony, False w przeciwnym razie.
         """
+        if not self.start_time:
+            return False
         return time.time() - self.start_time >= self.time_limit
         
     def minimax(self, board, depth, alfa, beta, is_maximizing):
@@ -79,72 +85,53 @@ class Minimax:
         :param is_maximizing: Czy obecnie maksymalizujemy wynik.
         :return: Najlepsza ocena i ruch.
         """
+        # Early exit conditions
+        if self.should_stop():
+            return None, None
+
+        if self.is_time_exceeded():
+            return None, None
+
         current_color = self.color if is_maximizing else ('w' if self.color == 'b' else 'b')
         legal_moves = board.get_all_moves(current_color)
 
-        # Sprawdzenie limitu czasu
-        if self.is_time_exceeded():
-            try:
-                if best_move is not None:
-                    return 0, best_move  # Zwróć najlepszy ruch znaleziony do tej pory
-                else:
-                    # Wybierz losowy ruch, jeśli nie znaleziono żadnego
-                    legal_moves_main = self.main_board.get_all_moves(self.color)
-                    moves = legal_moves_main
-                    if moves == {}:
-                        return 0, None
-                    key = random.sample(sorted(moves), 1)
-                    move = random.sample(moves[key[0]], 1) 
-                    final_move = (*key[0], move[0][0], move[0][1])
-                    return 0, final_move
-            except UnboundLocalError:
-                # Obsługa sytuacji, gdy best_move nie jest zdefiniowany
-                legal_moves_main = self.main_board.get_all_moves(self.color)
-                moves = legal_moves_main
-                if moves == {}:
-                    return 0, None
-                key = random.sample(sorted(moves), 1)
-                move = random.sample(moves[key[0]], 1) 
-                final_move = (*key[0], move[0][0], move[0][1])
-                return 0, final_move
-
-        # Warunek zakończenia przeszukiwania
+        # Base case
         if depth == 0 or legal_moves == {}:
             score = self.get_evaluation_score(board, is_maximizing)
             return score, None
 
+        best_move = None
         if is_maximizing:
             max_eval = -float('inf')
-            best_move = None 
-
             for figure in legal_moves:
                 for move in legal_moves[figure]:
-                    if self.is_time_exceeded():  # Sprawdzenie limitu czasu w każdej iteracji
+                    # Check stop conditions
+                    if self.should_stop() or self.is_time_exceeded():
                         return max_eval, best_move
 
                     new_board = copy.deepcopy(board)
-
-                    (y1, x1) = figure 
-                    (y2, x2) = move 
-
-                    new_board.make_move(y1,x1,y2,x2)
-                    new_board.piece_cords.remove((y1,x1))
-                    if (y2,x2) not in new_board.piece_cords:
-                        new_board.piece_cords.append((y2,x2))
+                    y1, x1 = figure
+                    y2, x2 = move
+                    
+                    new_board.make_move(y1, x1, y2, x2)
+                    new_board.piece_cords.remove((y1, x1))
+                    if (y2, x2) not in new_board.piece_cords:
+                        new_board.piece_cords.append((y2, x2))
 
                     eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, False)
 
                     if eval_value > max_eval:
                         max_eval = eval_value
                         best_move = (y1, x1, y2, x2)
-
+                        # Store best move at root level
+                        if depth == self.depth:
+                            self.best_move = best_move
                         alfa = max(alfa, eval_value)
 
-                        if beta <= alfa:
-                            break
+                    if beta <= alfa:
+                        break
                 if beta <= alfa:
                     break
-                    
             return max_eval, best_move
 
         else:
@@ -179,20 +166,47 @@ class Minimax:
                 if beta <= alfa:
                     break
             return min_eval, best_move
-    def check_opening_book(self):
-        """
-        Sprawdza czy aktualna pozycja występuje w bazie debiutów.
+
+    def get_random_move(self):
+        """Helper method to get a random move when interrupted"""
+        legal_moves = self.main_board.get_all_moves(self.color)
+        if not legal_moves:
+            return None
+        figure = random.choice(list(legal_moves.keys()))
+        move = random.choice(legal_moves[figure])
+        return (*figure, *move)
+
+    def check_opening_book(self, board=None, turn=None):
+        """Check opening book for current position"""
+        if board is None:
+            board = self.main_board
+        if turn is None:
+            turn = self.color
+            
+        try:
+            with open(self.path, "r") as f:
+                opening_list = json.load(f)
+        except FileNotFoundError:
+            return None
+
+        current_fen = board_to_fen_inverted(board, turn)
+        fen_parts = current_fen.split(' ')
+        position_fen = f"{fen_parts[0]} {fen_parts[1]}"
         
-        :return: Tuple z koordynatami ruchu lub None jeśli nie znaleziono pozycji
-        """
-        current_position = engine.fen_operations.board_to_fen_inverted(self.main_board, self.turn)
-        for current_position in self.path:
-            if current_position in self.path:
-                moves = self.path[current_position]
-                if moves:
-                    chosen_move = random.choice(moves)
-                    return engine.fen_operations.notation_to_coord(chosen_move)
+        if position_fen in opening_list:
+            moves_list = opening_list[position_fen]
+            return moves_list[randint(0, len(moves_list)-1)]
         return None
+
+    def load_opening_moves():
+        """Wczytuje ruchy arcymistrza z pliku JSON."""
+        json_path = Path(f"algorithms/opening.json")
+        try:
+            with open(json_path, "r") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            print(f"Nie znaleziono pliku z ruchami arcymistrza: {json_path}")
+            return {}
 
     def get_best_move(self):
         """
@@ -201,10 +215,20 @@ class Minimax:
         :return: Najlepszy ruch znaleziony przez algorytm.
         """
         self.start_time = time.time()  # Zapisz czas rozpoczęcia
+        self.best_move = None  # Reset best move
+        
+        # Try opening book first
         opening_move = self.check_opening_book()
         if opening_move is not None:
-            return opening_move
+            return engine.notation_to_cords(self.main_board, opening_move, self.color)
+
+        # Run minimax search
         score, move = self.minimax(self.main_board, self.depth, self.alpha, self.beta, True)
+        
+        # If no move found or interrupted, try random move
+        if move is None:
+            move = self.get_random_move()
+            
         return move
 
 

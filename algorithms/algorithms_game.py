@@ -18,11 +18,12 @@ MONTE_CARLO_DEPTH = 5
 class MinimaxThread(threading.Thread):
     def __init__(self, board, depth, turn, result_queue):
         super().__init__()
-        self.board = copy.deepcopy(board)  # Kopiujemy planszę dla bezpieczeństwa
+        self.board = board
         self.depth = depth
         self.turn = turn
         self.result_queue = result_queue
         self._stop_event = threading.Event()
+        self.daemon = True
 
     def stop(self):
         self._stop_event.set()
@@ -31,9 +32,9 @@ class MinimaxThread(threading.Thread):
         return self._stop_event.is_set()
 
     def run(self):
-        minimax_obj = Minimax(self.board, self.depth, self.turn, 20)  # Dodano czas dla algorytmu Minimax
-        minimax_obj.should_stop = self.stopped  # Przekazujemy metodę sprawdzającą zatrzymanie
-        move = minimax_obj.get_best_move()
+        minimax = Minimax(self.board, self.depth, self.turn)
+        minimax.should_stop = self.stopped
+        move = minimax.get_best_move()
         if not self.stopped():
             self.result_queue.put(move)
 
@@ -196,23 +197,20 @@ def main():
                         return
                     elif height - 130 <= pos[1] < height - 80:  # Przycisk "Cofnij ruch"
                         if confirm_undo_dialog(screen, SQUARE_SIZE):
-                            # Stop and reset minimax thread if running
+                            # Stop minimax thread if running
                             if minimax_thread and minimax_thread.is_alive():
                                 minimax_thread.stop()
                                 minimax_thread.join(timeout=0.1)
-                            if monte_carlo_thread and monte_carlo_thread.is_alive():
-                                monte_carlo_thread.stop()
-                                monte_carlo_thread.join(timeout=0.1)
-                            # Reset all thread-related variables
+                            
+                            # Reset thread variables
                             minimax_thread = None
-                            monte_carlo_thread = None
                             calculating = False
-                            # Clear the result queue
+                            
+                            # Clear result queue
                             while not result_queue.empty():
-                                try:
-                                    result_queue.get_nowait()
-                                except queue.Empty:
-                                    break
+                                result_queue.get_nowait()
+                            
+                            # Perform undo
                             if undoMove(main_board):
                                 turn = 'w' if turn == 'b' else 'b'
                                 start_time = time.time()
@@ -273,27 +271,47 @@ def main():
         if turn != player_turn and running:
             if algorithm == "minimax":
                 if not calculating:
+                    # Clean up previous thread if exists
+                    if minimax_thread and minimax_thread.is_alive():
+                        minimax_thread.stop()
+                        minimax_thread.join(timeout=0.1)
+                    
+                    # Clear queue
+                    while not result_queue.empty():
+                        result_queue.get_nowait()
+                    
+                    # Start new calculation
                     calculating = True
-                    result_queue = queue.Queue()
-                    minimax_thread = MinimaxThread(main_board, 3,turn, result_queue)
+                    minimax_thread = MinimaxThread(
+                        copy.deepcopy(main_board), 
+                        3, 
+                        turn, 
+                        result_queue
+                    )
                     minimax_thread.start()
-                print("Wejdź do try pls")
-                try:
-                    move = result_queue.get_nowait()
+
+                # Check for result
+                if not result_queue.empty():
+                    move = result_queue.get()
                     calculating = False
-                    if move:
-                        from_row, from_col, to_row, to_col = move
-                        if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
+                    
+                    if move and not (minimax_thread and minimax_thread.stopped()):
+                        y1, x1, y2, x2 = move
+                        if tryMove(turn, main_board, y1, x1, y2, x2):
+                            # Handle successful move
                             if turn == 'w':
                                 white_time += time.time() - start_time
                             else:
                                 black_time += time.time() - start_time
                             turn = 'w' if turn == 'b' else 'b'
-                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                            
+                            # Handle promotion and game state
+                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
                             if whatAfter == "promotion":
-                                promotion_choice = '10'  # Zawsze promuj do królowej
-                                promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
-                                whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
+                                promotion(yForPromotion, xForPromotion, main_board, '10')  # Always queen
+                                whatAfter, _, _ = afterMove(turn, main_board, y1, x1, y2, x2)
+                            
+                            # Update game state
                             if whatAfter == "checkmate":
                                 result = "Szach Mat!"
                                 winner = "Białe" if turn == 'b' else "Czarne"
@@ -306,13 +324,8 @@ def main():
                                 in_check = turn
                             else:
                                 in_check = None
-                        else:
-                            pass
-                            print("Bad move! aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-                        start_time = time.time()
-                except queue.Empty:
-                    print("Queue empty! aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-                    pass  # Kontynuuj bez blokowania
+                            
+                            start_time = time.time()
 
             elif algorithm == "monte_carlo":
                 if not calculating:
