@@ -205,9 +205,5 @@ def load_config():
 # Start the launcher
 if __name__ == "__main__":
     while True:
-        try:
-            main()
-            break  # Break if main returns normally (exit selected)
-        except Exception as e:
-            print(f"Error occurred: {e}")
-            continue  # Restart on error
+        main()
+        break

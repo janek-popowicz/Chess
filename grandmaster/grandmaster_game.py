@@ -34,6 +34,51 @@ def get_grandmaster_move(board, turn, grandmaster_moves):
         return moves_list[randint(1,len(moves_list))-1]  # Bierzemy losowy ruch
     return None
 
+def update_times_display(white_time, black_time, current_time, start_time, turn, player_color, font, SQUARE_SIZE, YELLOW, GRAY, height):
+    """
+    Returns tuple of time displays with player's time at bottom and grandmaster's time at top.
+    
+    Args:
+        white_time (float): White player's total time
+        black_time (float): Black player's total time
+        current_time (float): Current timestamp
+        start_time (float): Turn start timestamp
+        turn (str): Current turn ('w' or 'b')
+        player_color (str): Human player's color ('w' or 'b')
+        font (pygame.font.Font): Font for rendering text
+        SQUARE_SIZE (int): Size of a chess square
+        YELLOW (pygame.Color): Color for active player
+        GRAY (pygame.Color): Color for inactive player
+        height (int): Screen height for positioning
+    """
+    # Calculate current times
+    if turn == 'w':
+        current_white_time = white_time + (current_time - start_time)
+        current_black_time = black_time
+    else:
+        current_black_time = black_time + (current_time - start_time)
+        current_white_time = white_time
+    
+    # Determine display positions based on player color
+    if player_color == 'w':
+        return (
+            # Grandmaster's time (black) at top
+            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
+             (8 * SQUARE_SIZE + 10, 80)),
+            # Player's time (white) at bottom
+            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
+             (8 * SQUARE_SIZE + 10, height - 150))
+        )
+    else:
+        return (
+            # Grandmaster's time (white) at top
+            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
+             (8 * SQUARE_SIZE + 10, 80)),
+            # Player's time (black) at bottom
+            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
+             (8 * SQUARE_SIZE + 10, height - 150))
+        )
+
 # Funkcja główna
 def main(player_color, grandmaster_name):
     pygame.init()
@@ -92,6 +137,10 @@ def main(player_color, grandmaster_name):
     winner = ""
     in_check = None
 
+    if player_color == 'w':
+        is_reversed = False
+    else:
+        is_reversed = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -100,8 +149,14 @@ def main(player_color, grandmaster_name):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 print(pos)
-                col = 7 - (pos[0] // SQUARE_SIZE)
-                row = 7 - (pos[1] // SQUARE_SIZE)
+                # Modify click detection based on board orientation
+                if is_reversed:
+                    col = pos[0] // SQUARE_SIZE
+                    row = pos[1] // SQUARE_SIZE
+                else:
+                    col = 7 - (pos[0] // SQUARE_SIZE)
+                    row = 7 - (pos[1] // SQUARE_SIZE)
+                
                 if col < 8 and row < 8:
                     if selected_piece:
                         if turn == player_color and tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
@@ -157,7 +212,7 @@ def main(player_color, grandmaster_name):
             else:
                 black_time += move_time
             draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
-            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+            draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
             pygame.display.flip()
             time.sleep(1)
             grandmaster_move = get_grandmaster_move(main_board, grandmaster_color, grandmaster_moves)
@@ -195,26 +250,21 @@ def main(player_color, grandmaster_name):
 
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
-        if turn == 'w':
-            current_white_time = white_time + (current_time - start_time)
-            current_black_time = black_time
-        else:
-            current_black_time = black_time + (current_time - start_time)
-            current_white_time = white_time
-
-        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn=='w' else GRAY),(8*SQUARE_SIZE+10,height - 150)),
-                             (font.render(format_time(current_black_time), True, YELLOW if turn=='b' else GRAY),(8*SQUARE_SIZE+10,80)))
+        player_times_font = update_times_display(
+            white_time, black_time, current_time, start_time, turn, player_color,
+            font, SQUARE_SIZE, YELLOW, GRAY, height
+        )
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
-                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)
         except TypeError:
             pass
         except AttributeError:
             pass
-        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+        draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
         pygame.display.flip()
         clock.tick(60)
     

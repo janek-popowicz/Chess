@@ -10,6 +10,7 @@ from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from graphics import *
+from algorithms.evaluation import get_evaluation  # Import evaluation function
 
 
 def load_custom_board(fen_file):
@@ -78,6 +79,9 @@ def main():
     result = ""
     winner = ""
     in_check = None
+
+    is_reversed = False
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -85,9 +89,13 @@ def main():
                 pygame.quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                print(pos)
-                col = 7 - (pos[0] // SQUARE_SIZE)
-                row = 7 - (pos[1] // SQUARE_SIZE)
+                # Modify click detection based on board orientation
+                if is_reversed:
+                    col = pos[0] // SQUARE_SIZE
+                    row = pos[1] // SQUARE_SIZE
+                else:
+                    col = 7 - (pos[0] // SQUARE_SIZE)
+                    row = 7 - (pos[1] // SQUARE_SIZE)
                 if col < 8 and row < 8:
                     if selected_piece:
                         if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
@@ -141,23 +149,27 @@ def main():
         if turn == 'w':
             current_white_time = white_time + (current_time - start_time)
             current_black_time = black_time
+            is_reversed = False
         else:
             current_black_time = black_time + (current_time - start_time)
             current_white_time = white_time
+            is_reversed = True
 
-        player_times_font = (
-            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), (8 * SQUARE_SIZE + 10, height - 150)),
-            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), (8 * SQUARE_SIZE + 10, 80)),
-        )
+        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
+
+        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
+                              (8 * SQUARE_SIZE + 10, height - 150)),
+                             (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), 
+                              (8 * SQUARE_SIZE + 10, 80)))
         screen.fill(BLACK)
-        draw_board(screen, SQUARE_SIZE, main_board, in_check)
-        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
+        draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0], selected_piece[1])[0] == turn:
-                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]], SQUARE_SIZE, main_board, HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]], SQUARE_SIZE, main_board, HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)
         except TypeError:
             pass
-        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+        draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
         pygame.display.flip()
         clock.tick(60)
     
