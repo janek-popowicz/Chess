@@ -29,7 +29,7 @@ class MinimaxThread(threading.Thread):
         return self._stop_event.is_set()
 
     def run(self):
-        minimax_obj = Minimax(self.board, self.depth, self.turn, 1000000)  # Dodano czas dla algorytmu Minimax
+        minimax_obj = Minimax(self.board, self.depth, self.turn, 20)  # Dodano czas dla algorytmu Minimax
         minimax_obj.should_stop = self.stopped  # Przekazujemy metodę sprawdzającą zatrzymanie
         move = minimax_obj.get_best_move()
         if not self.stopped():
@@ -109,6 +109,7 @@ def main():
     player_turn = choose_color_dialog(screen, SQUARE_SIZE)
     algorithm = choose_algorithm_dialog(screen, SQUARE_SIZE)
 
+    is_reversed = False if player_turn == 'w' else True
 
     # Teksty interfejsu
     texts = (
@@ -133,20 +134,31 @@ def main():
     calculating = False
 
     # Aktualizacja wyświetlania czasów
-    def update_time_display(white_time, black_time, current_time, start_time, turn):
+    def update_time_display(white_time, black_time, current_time, start_time, turn, player_turn):
+        """Update time display with player's time always at bottom"""
         if turn == 'w':
             current_white_time = white_time + (current_time - start_time)
             current_black_time = black_time
         else:
             current_black_time = black_time + (current_time - start_time)
             current_white_time = white_time
-            
-        return (
-            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
-             (8 * SQUARE_SIZE + 10, height - 150)),
-            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
-             (8 * SQUARE_SIZE + 10, 80))
-        )
+        
+        # If player is white, white time goes bottom
+        if player_turn == 'w':
+            return (
+                (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
+                 (8 * SQUARE_SIZE + 10, 80)),  # Bot's time (black) at top
+                (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
+                 (8 * SQUARE_SIZE + 10, height - 150))  # Player's time (white) at bottom
+            )
+        # If player is black, black time goes bottom
+        else:
+            return (
+                (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
+                 (8 * SQUARE_SIZE + 10, 80)),  # Bot's time (white) at top
+                (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
+                 (8 * SQUARE_SIZE + 10, height - 150))  # Player's time (black) at bottom
+            )
 
     while running:
         # Obsługa zdarzeń zawsze na początku pętli
@@ -163,6 +175,13 @@ def main():
                 return
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
+                # Modify click detection based on board orientation
+                if is_reversed:
+                    col = pos[0] // SQUARE_SIZE
+                    row = pos[1] // SQUARE_SIZE
+                else:
+                    col = 7 - (pos[0] // SQUARE_SIZE)
+                    row = 7 - (pos[1] // SQUARE_SIZE)
                 # Obsługa przycisków zawsze dostępna
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20:
                     if pos[1] >= height - 80:  # Przycisk "Wyjście"
@@ -179,13 +198,12 @@ def main():
                  
                 # Obsługa ruchów gracza tylko w jego turze
                 if turn == player_turn:
-                    col = 7 - (pos[0] // SQUARE_SIZE)
-                    row = 7 - (pos[1] // SQUARE_SIZE)
                     if col < 8 and row < 8:
                         if selected_piece:
                             if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                                draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
-                                draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+                                draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck, is_reversed)
+                                draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
+                                pygame.display.flip()
                                 move_time = time.time() - start_time
                                 if turn == 'w':
                                     white_time += move_time
@@ -318,22 +336,22 @@ def main():
         # Przed renderowaniem
         current_time = time.time()
         evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
-        player_times_font = update_time_display(white_time, black_time, current_time, start_time, turn)
+        player_times_font = update_time_display(white_time, black_time, current_time, start_time, turn, player_turn)
 
         # Rendering zawsze na końcu pętli
         screen.fill(BLACK)
-        draw_board(screen, SQUARE_SIZE, main_board, in_check)
+        draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
         draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
         
         # Dodanie podświetlania ruchów
         try:
             if selected_piece and (config["highlight_enemy"] or main_board.get_piece(selected_piece[0], selected_piece[1])[0] == turn):
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]], 
-                              SQUARE_SIZE, main_board, HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+                              SQUARE_SIZE, main_board, HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)
         except (TypeError, AttributeError):
             pass
 
-        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+        draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
         draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
         
         if calculating:
