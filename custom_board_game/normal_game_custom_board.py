@@ -148,13 +148,18 @@ def main():
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
         if turn == 'w':
-            current_white_time = white_time + (current_time - start_time)
-            current_black_time = black_time
-            is_reversed = False
+            current_white_time = max(0, 10 * 60 - (current_time - start_time + white_time))  # Odliczanie od 10 minut
+            current_black_time = max(0, 10 * 60 - black_time)  # Zachowaj czas czarnego
         else:
-            current_black_time = black_time + (current_time - start_time)
-            current_white_time = white_time
-            is_reversed = True
+            current_black_time = max(0, 10 * 60 - (current_time - start_time + black_time))  # Odliczanie od 10 minut
+            current_white_time = max(0, 10 * 60 - white_time)  # Zachowaj czas białego
+
+        # Sprawdzenie, czy czas się skończył
+        if current_white_time <= 0 or current_black_time <= 0:
+            running = False
+            result = "Czas się skończył!"
+            winner = "Czarny" if current_white_time <= 0 else "Biały"
+            break
 
         evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
 

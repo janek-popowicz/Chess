@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 #wygląda dziwnie ale musi działać
 from engine.board_and_fields import *
@@ -13,6 +14,9 @@ def main():
     main_board = board_and_fields.Board()
     print(main_board.piece_cords)
     turn = 'b'
+    start_time = time.time()
+    white_time = 0
+    black_time = 0
 
     while running:
         turn = 'w' if turn == 'b' else 'b'
@@ -49,6 +53,23 @@ def main():
             print("Pat")
             break
         else:
+            # Aktualizacja czasu gracza na żywo
+            current_time = time.time()
+            if turn == 'w':
+                current_white_time = max(0, 10 * 60 - (current_time - start_time + white_time))  # Odliczanie od 10 minut
+                current_black_time = max(0, 10 * 60 - black_time)  # Zachowaj czas czarnego
+            else:
+                current_black_time = max(0, 10 * 60 - (current_time - start_time + black_time))  # Odliczanie od 10 minut
+                current_white_time = max(0, 10 * 60 - white_time)  # Zachowaj czas białego
+
+            # Sprawdzenie, czy czas się skończył
+            if current_white_time <= 0 or current_black_time <= 0:
+                running = False
+                result = "Czas się skończył!"
+                winner = "Czarny" if current_white_time <= 0 else "Biały"
+                print(result)
+                print(f"Zwycięzca: {winner}")
+                break
             continue
     return
 if __name__ == "__main__":
