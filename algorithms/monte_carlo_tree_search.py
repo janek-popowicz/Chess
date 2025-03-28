@@ -27,11 +27,15 @@ class Mcts_optimized: #Niedokończone
                    choice_factor = max_choice_factor
                    chosen_node = child
                    new_board.make_move(*child.move)
+                   new_board.piece_cords.remove(child.move[0],child.move[1])
+                   new_board.piece_cords.append(child.move[2],child.move[3])
             if current_node == chosen_node:
                 break
             current_node = chosen_node
         if current_node.parent != "root":
             new_board.make_move(*current_node.move)
+            new_board.piece_cords.remove(child.move[0],child.move[1])
+            new_board.piece_cords.append(child.move[2],child.move[3])
         # Rozrost (expansion)
         moves=new_board.get_all_moves('b' if current_node.color == "w" else "w")
         key = random.sample(moves)
