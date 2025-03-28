@@ -7,7 +7,7 @@ import engine.board_and_fields as board_and_fields
 import engine.engine as engine
 
 class ChessQLearningAI:
-    def __init__(self, board, learning_rate=0.1, discount_factor=0.9, exploration_rate=1.0):
+    def __init__(self, board, learning_rate=0.2, discount_factor=0.95, exploration_rate=1.0):
         """
         Initialize the Q-learning chess AI with advanced features.
         
@@ -32,6 +32,7 @@ class ChessQLearningAI:
         self.q_table = {}
         self.max_q_table_size = 100000
         self.best_moves_memory = {}
+        self.position_memory = {}  # Add position memory
         
         # Training tracking
         self.training_progress = {
@@ -39,7 +40,7 @@ class ChessQLearningAI:
             'completed_episodes': 0,
             'average_reward': 0,
             'best_reward': float('-inf'),
-            'exploration_decay_rate': 0.99
+            'exploration_decay_rate': 0.995  # Wolniejszy spadek eksploracji
         }
     
     def get_board_state(self):
@@ -118,36 +119,73 @@ class ChessQLearningAI:
         return best_move or random.choice(possible_moves)
     
     def calculate_reward(self, turn):
-        """Enhanced reward calculation"""
+        """Enhanced reward calculation with better position evaluation"""
         reward = 0
         
-        # Material value
+        # Improved piece values
         piece_values = {
-            'P': 100, 'N': 320, 'B': 330, 'R': 500, 'Q': 900, 'K': 20000,
-            'p': -100, 'n': -320, 'b': -330, 'r': -500, 'q': -900, 'k': -20000
+            'P': 100, 'N': 350, 'B': 350, 'R': 525, 'Q': 1000, 'K': 10000,
+            'p': -100, 'n': -350, 'b': -350, 'r': -525, 'q': -1000, 'k': -10000
         }
         
-        # Calculate material balance
+        # Positional bonuses for pieces
+        position_bonus = {
+            'P': [[0,  0,  0,  0,  0,  0,  0,  0],
+                  [50, 50, 50, 50, 50, 50, 50, 50],
+                  [10, 10, 20, 30, 30, 20, 10, 10],
+                  [5,  5, 10, 25, 25, 10,  5,  5],
+                  [0,  0,  0, 20, 20,  0,  0,  0],
+                  [5, -5,-10,  0,  0,-10, -5,  5],
+                  [5, 10, 10,-20,-20, 10, 10,  5],
+                  [0,  0,  0,  0,  0,  0,  0,  0]],
+            'N': [[-50,-40,-30,-30,-30,-30,-40,-50],
+                  [-40,-20,  0,  0,  0,  0,-20,-40],
+                  [-30,  0, 10, 15, 15, 10,  0,-30],
+                  [-30,  5, 15, 20, 20, 15,  5,-30],
+                  [-30,  0, 15, 20, 20, 15,  0,-30],
+                  [-30,  5, 10, 15, 15, 10,  5,-30],
+                  [-40,-20,  0,  5,  5,  0,-20,-40],
+                  [-50,-40,-30,-30,-30,-30,-40,-50]]
+        }
+
+        # Calculate material and positional values
         material_reward = 0
-        for row in self.board.board_state:
-            for field in row:
-                if field.figure:
-                    material_reward += piece_values.get(field.figure.return_figure(), 0)
-        
-        # Position rewards
         position_reward = 0
+        
+        for y, row in enumerate(self.board.board_state):
+            for x, field in enumerate(row):
+                if field.figure:
+                    piece = field.figure.return_figure()
+                    # Material value
+                    material_reward += piece_values.get(piece, 0)
+                    
+                    # Positional value
+                    if piece.upper() in position_bonus:
+                        if piece.isupper():  # white
+                            position_reward += position_bonus[piece.upper()][y][x]
+                        else:  # black
+                            position_reward += -position_bonus[piece.upper()][7-y][x]
+
+        # Penalties for bad positions
+        if self.board.incheck:
+            reward -= 300  # Higher penalty for being in check
+        
+        # Center control
         center_squares = [(3,3), (3,4), (4,3), (4,4)]
         for y, x in center_squares:
             field = self.board.board_state[y][x]
             if field.figure and field.figure.color == turn:
-                position_reward += 50  # Bonus for controlling center
+                position_reward += 30
         
-        # Game state rewards
-        if self.board.incheck:
-            reward -= 200  # Penalty for being in check
-        
-        # Normalize rewards
+        # Combine all reward components
         total_reward = (material_reward + position_reward + reward) / 100.0
+        
+        # Add position memory
+        state = self.get_board_state()
+        if state in self.position_memory:
+            total_reward -= 50  # Penalty for repeating positions
+        
+        self.position_memory[state] = self.position_memory.get(state, 0) + 1
         
         return total_reward
     
@@ -551,7 +589,7 @@ def main():
     
     while True:
         print("\nChess AI Menu:")
-        print("1. Train New Model")
+        print("1. Train New Model (Intensive)")
         print("2. Load Existing Model")
         print("3. Play as White")
         print("4. Play as Black")
@@ -561,11 +599,38 @@ def main():
         choice = input("Enter your choice (1-6): ")
         
         if choice == '1':
-            print("Starting training...")
-            training_progress = ai.train(num_episodes=350)
-            print("Training completed. Progress:", training_progress)
-            # Auto-save after training
-            ai.save_model()
+            print("Starting intensive training (this may take a while)...")
+            # Trening w fazach z rosnącą złożonością
+            phases = [
+                {"episodes": 1000, "learning_rate": 0.3, "message": "Phase 1: Basic patterns..."},
+                {"episodes": 2000, "learning_rate": 0.2, "message": "Phase 2: Intermediate strategies..."},
+                {"episodes": 3000, "learning_rate": 0.1, "message": "Phase 3: Advanced tactics..."},
+                {"episodes": 4000, "learning_rate": 0.05, "message": "Phase 4: Fine-tuning..."}
+            ]
+            
+            for phase in phases:
+                print(phase["message"])
+                ai.learning_rate = phase["learning_rate"]
+                training_progress = ai.train(num_episodes=phase["episodes"], verbose=True)
+                ai.save_model(f'chess_model_phase_{phases.index(phase)+1}.pkl')
+            
+            # Załaduj najlepszy model
+            best_model = None
+            best_reward = float('-inf')
+            
+            for i in range(len(phases)):
+                ai.load_model(f'chess_model_phase_{i+1}.pkl')
+                eval_results = ai.evaluate_model(num_test_games=100)
+                if eval_results['win_rate'] > best_reward:
+                    best_reward = eval_results['win_rate']
+                    best_model = f'chess_model_phase_{i+1}.pkl'
+            
+            # Użyj najlepszego modelu
+            if best_model:
+                ai.load_model(best_model)
+                ai.save_model('chess_model_best.pkl')
+                print(f"Best model saved as chess_model_best.pkl (Win rate: {best_reward*100:.1f}%)")
+        
         elif choice == '2':
             ai.load_model()
         elif choice == '3':
