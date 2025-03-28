@@ -59,6 +59,7 @@ def main():
     print(fen)
     main_board = board_and_fields.Board()
     fen_to_board(fen, main_board)
+    main_board.fen_history.pop(0)
     turn = 'w'
     selected_piece = None
     clock = pygame.time.Clock()
