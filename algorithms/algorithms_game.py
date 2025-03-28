@@ -375,7 +375,6 @@ def main():
         # Rendering zawsze na końcu pętli
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
-        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
         
         # Dodanie podświetlania ruchów
         try:

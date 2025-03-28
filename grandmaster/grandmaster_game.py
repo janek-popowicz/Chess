@@ -10,6 +10,7 @@ from engine.figures import *
 from engine.fen_operations import *
 from graphics import *
 from random import randint
+from algorithms.evaluation import *
 
 
 def load_grandmaster_moves(grandmaster_name):
@@ -256,7 +257,8 @@ def main(player_color, grandmaster_name):
         )
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
-        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
+        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
+        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text, evaluation)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)
