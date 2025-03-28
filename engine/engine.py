@@ -133,7 +133,7 @@ Returns:
         color_to_check = 'b' if start_tile.figure.color == 'w' else 'b'
         main_board.moves_algebraic += [chr(104 - x2) + str(y2+1)]
         if destination_tile.figure:
-            main_board.moves_algebraic[-1] = chr(104 - x2) +  'x' + main_board.moves_algebraic[-1]
+            main_board.moves_algebraic[-1] = chr(104 - x1) +  'x' + main_board.moves_algebraic[-1]
         #print(main_board.moves_algebraic)
         #print(main_board.fen_history)
         #Wykonanie roszady
@@ -160,14 +160,14 @@ Returns:
                 main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board, "b" if turn == 'w' else "w", halfmove_reset, passed_over_tile))
                 return True
         #Wykonanie enpassant
-        elif destination_tile.figure == None and start_tile.figure.type == 'p':
+        elif destination_tile.figure == None and start_tile.figure.type == 'p' and x1 - x2 in [-1,1]:
             if main_board.board_state[start_tile.y][destination_tile.x].figure:
                 if main_board.board_state[start_tile.y][destination_tile.x].figure.type == 'p':
-                    if start_tile.figure.can_enpassant:
-                        start_tile.figure.can_enpassant = 0
-                        main_board.board_state[start_tile.y][destination_tile.x].figure = None
-                        main_board.moves_algebraic[-1] = str(start_tile.x) + main_board.moves_algebraic[-1]
-                        main_board.piece_cords.remove((start_tile.y, destination_tile.x))
+                        if start_tile.figure.can_enpassant:
+                            start_tile.figure.can_enpassant = 0
+                            main_board.board_state[start_tile.y][destination_tile.x].figure = None
+                            main_board.moves_algebraic[-1] = chr(104 - x1) + main_board.moves_algebraic[-1]
+                            main_board.piece_cords.remove((start_tile.y, destination_tile.x))
         main_board.make_move(y1, x1, y2, x2)
         main_board.piece_cords.remove((y1,x1))
         if (y2,x2) not in main_board.piece_cords:
@@ -235,6 +235,15 @@ def afterMove(turn: str, board, y1: int, x1: int, y2: int, x2: int) -> str:
         board.piece_cords.sort()
     if only_kings:
         return ("stalemate",0,0)
+    if available_moves == []:
+        board.is_in_check(turn)
+        if board.incheck == True:
+            board.print_board()
+            return("checkmate", 0, 0)
+        else:
+            board.print_board()
+            return("stalemate", 0, 0)
+
     #Sprawdzanie enpassant
     if destination_tile.figure:
         if destination_tile.figure.type == 'p' :
@@ -250,14 +259,6 @@ def afterMove(turn: str, board, y1: int, x1: int, y2: int, x2: int) -> str:
         #Sprawdzanie promocji pionków
             if destination_tile.y in [0,7]:
                 return("promotion", destination_tile.y, destination_tile.x)
-        if available_moves == []:
-            board.is_in_check(turn)
-            if board.incheck == True:
-                board.print_board()
-                return("checkmate", 0, 0)
-            else:
-                board.print_board()
-                return("stalemate", 0, 0)
         board.is_in_check(turn)
         if board.incheck == True:
             return ("check",0,0)

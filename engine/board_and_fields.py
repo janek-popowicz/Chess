@@ -221,14 +221,8 @@ class Board:
                 # self.print_board()
                 if field.figure.color == turn:
                         all_moves[(cord[0],cord[1])] = self.get_legal_moves(field,turn)
-                self.piece_cords.sort()
-        remove_list =[]
-        for i in all_moves:
-            if all_moves[i] == []:
-                remove_list.append(i)
-        for i in remove_list:
-            all_moves.pop(i)
-        return all_moves
+                self.piece_cords.sort() 
+        return {k: v for k, v in all_moves.items() if v}
     def get_legal_moves(self, field, turn):
         """
         Generuje legalne ruchy dla figury na danym polu.
@@ -277,14 +271,13 @@ class Board:
                                 if field.figure.has_moved == False and self.board_state[field.y][x_to_check].figure.has_moved == False:
                                     space_free = True
                                     tile_to_check_y = field.y
-                                    for i in range (1,(field.x - x_to_check)*(-j)):
+                                    for i in range(1,(field.x - x_to_check)*(-j)):
                                         tile_to_check_x = field.x + i * j
                                         if self.board_state[tile_to_check_y][tile_to_check_x].figure or self.is_attacked(self.board_state[tile_to_check_y][tile_to_check_x],turn):
                                             space_free = False
-                                            break
                                     if space_free:
                                         legal_cords.append((field.y,x_to_check))
-                                    j =1
+                        j = 1 
             return legal_cords
         
     def print_board(self):

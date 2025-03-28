@@ -13,6 +13,8 @@ from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
 
+MONTE_CARLO_LIMIT = 10
+MONTE_CARLO_DEPTH = 5
 class MinimaxThread(threading.Thread):
     def __init__(self, board, depth, turn, result_queue):
         super().__init__()
@@ -56,7 +58,7 @@ class MonteCarloThread(threading.Thread):
             mc_obj = Mcts(self.turn)
             # Sprawdzamy czy wątek nie został zatrzymany przed każdą symulacją
             if not self.stopped():
-                move = mc_obj.pick_best_move(self.board, 50, self.max_depth)
+                move = mc_obj.pick_best_move(self.board, MONTE_CARLO_LIMIT, self.max_depth)
                 if not self.stopped():
                     self.result_queue.put(move)
         except Exception as e:
@@ -249,7 +251,7 @@ def main():
                         monte_carlo_thread.join(timeout=0.1)
 
         # Ruch AI w osobnym bloku
-        if turn != player_turn:
+        if turn != player_turn and running:
             if algorithm == "minimax":
                 if not calculating:
                     calculating = True
@@ -297,7 +299,7 @@ def main():
                 if not calculating:
                     calculating = True
                     result_queue = queue.Queue()
-                    monte_carlo_thread = MonteCarloThread(main_board, 10, turn, result_queue)
+                    monte_carlo_thread = MonteCarloThread(main_board, MONTE_CARLO_DEPTH, turn, result_queue)
                     monte_carlo_thread.start()
                 
                 try:
