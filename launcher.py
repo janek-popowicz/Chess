@@ -16,6 +16,7 @@ import algorithms.algorithms_game
 import settings
 import graphics
 import grandmaster.pgn_to_fen
+import ai_model.ml_game as ml_game
 
 # Funkcja główna
 def main():
@@ -46,11 +47,12 @@ def main():
         "Niestandardowa plansza", #1
         "Graj z botem", #2
         "Graj z arcymistrzem", #3
-        "Graj w sieci lokalnej", #4
-        "Ustawienia", #5
-        "Wyjście do systemu", #6
-        "Tryb terminalowy", #7
-        "Konwerter PGN do FEN" #8
+        "Graj z sieci neuronową", #4
+        "Graj w sieci lokalnej", #5
+        "Ustawienia", #6
+        "Wyjście do systemu", #7
+        "Tryb terminalowy", #8
+        "Konwerter PGN do FEN" #9
     ]
 
     selected_option = 0
@@ -153,7 +155,11 @@ def do_an_action(selected_option, screen):
         grandmaster_name = graphics.choose_grandmaster_dialog(screen, 100)
         grandmaster.grandmaster_game.main(player_color, grandmaster_name)
         return True
-    elif selected_option == 4: # Gra w sieci
+    elif selected_option == 4: # Sieć neuronowa
+        pygame.mixer.music.stop()
+        ml_game.main()
+        return True
+    elif selected_option == 5: # Gra w sieci
         server_or_client = graphics.choose_color_dialog(screen, 100)
         if server_or_client == None:
             return True
@@ -164,16 +170,16 @@ def do_an_action(selected_option, screen):
             import multiplayer.server
             multiplayer.server.main()
         return True
-    elif selected_option == 5: # Ustawienia
+    elif selected_option == 6: # Ustawienia
         pygame.mixer.music.stop()
         settings.main()
         return True
-    elif selected_option == 6: # Wyjście
+    elif selected_option == 7: # Wyjście
         return False
-    elif selected_option == 7: # Tryb terminalowy
+    elif selected_option == 8: # Tryb terminalowy
         normal_games.test_mode_normal_game.main()
         return True
-    elif selected_option == 8: # Konwerter PGN do FEN
+    elif selected_option == 9: # Konwerter PGN do FEN
         pygame.mixer.music.stop()
         grandmaster.pgn_to_fen.main()
         return True
