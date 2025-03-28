@@ -13,8 +13,8 @@ from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
 
-MONTE_CARLO_LIMIT = 1000
-MONTE_CARLO_DEPTH = 20
+MONTE_CARLO_LIMIT = 10
+MONTE_CARLO_DEPTH = 5
 class MinimaxThread(threading.Thread):
     def __init__(self, board, depth, turn, result_queue):
         super().__init__()
