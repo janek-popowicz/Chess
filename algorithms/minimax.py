@@ -7,7 +7,8 @@ import sys, copy, os, time, random  # Dodano moduł time do zarządzania czasem
 import algorithms.evaluation as evaluation 
 import engine.board_and_fields as board_and_fields 
 import engine.engine as engine 
-
+from pathlib import Path
+#json_path = Path(f"algorithms/opening.json")
 
 class Minimax:
     """
@@ -31,6 +32,7 @@ class Minimax:
         self.start_time = None  # Czas rozpoczęcia przeszukiwania
         
         self.best_move = None  # Najlepszy ruch znaleziony do tej pory
+        self.path = Path(f"algorithms/opening.json")
     
     def get_evaluation_score(self, board, is_maximizing):
         """
@@ -177,6 +179,20 @@ class Minimax:
                 if beta <= alfa:
                     break
             return min_eval, best_move
+    def check_opening_book(self):
+        """
+        Sprawdza czy aktualna pozycja występuje w bazie debiutów.
+        
+        :return: Tuple z koordynatami ruchu lub None jeśli nie znaleziono pozycji
+        """
+        current_position = engine.fen_operations.board_to_fen_inverted(self.main_board, self.turn)
+        for current_position in self.path:
+            if current_position in self.path:
+                moves = self.path[current_position]
+                if moves:
+                    chosen_move = random.choice(moves)
+                    return engine.fen_operations.notation_to_coord(chosen_move)
+        return None
 
     def get_best_move(self):
         """
@@ -185,6 +201,9 @@ class Minimax:
         :return: Najlepszy ruch znaleziony przez algorytm.
         """
         self.start_time = time.time()  # Zapisz czas rozpoczęcia
+        opening_move = self.check_opening_book()
+        if opening_move is not None:
+            return opening_move
         score, move = self.minimax(self.main_board, self.depth, self.alpha, self.beta, True)
         return move
 
