@@ -83,6 +83,8 @@ class Minimax:
         # Przywrócenie figury na pierwotne miejsce
         board[y1][x1].figure = board[y2][x2].figure
         board[y2][x2].figure = None
+
+    
             
     def minimax(self, board, depth, alfa, beta, is_maximizing):
         """
@@ -112,36 +114,51 @@ class Minimax:
             max_eval = -float('inf')
             for figure in legal_moves:
                 for move in legal_moves[figure]:
-                    # Częste sprawdzanie czasu w pętli
                     if self.is_time_exceeded():
                         return max_eval, best_move
+
                     y1, x1 = figure
                     y2, x2 = move
-                    board.make_move(y1, x1, y2, x2)
-                    #new_board = copy.deepcopy(board)
-                    eval_copy = self.get_evaluation_score(board, is_maximizing)
-                    if eval_copy < 0.8 * max_eval and board.is_in_check_minimaxa(current_color) == False:
-                        break
-                    
-                    
-                    new_board.make_move(y1, x1, y2, x2)
-                    new_board.piece_cords.remove((y1, x1))
-                    if (y2, x2) not in new_board.piece_cords:
-                        new_board.piece_cords.append((y2, x2))
 
-                    eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, False)
+                    # Zachowaj stan przed ruchem
+                    captured_piece = board.board[y2][x2].figure
+                    prev_cords = board.piece_cords.copy()
+
+                    # Wykonaj ruch
+                    board.make_move(y1, x1, y2, x2)
+                    board.piece_cords.remove((y1, x1))
+                    if (y2, x2) not in board.piece_cords:
+                        board.piece_cords.append((y2, x2))
+
+                    # Szybka ocena pozycji
+                    current_eval = self.get_evaluation_score(board, is_maximizing)
+                    
+                    # Przycięcie gałęzi jeśli pozycja jest znacząco gorsza
+                    if current_eval < max_eval - 200:  # Wartość progowa
+                        # Cofnij ruch
+                        board.make_move(y2, x2, y1, x1)
+                        board.board[y2][x2].figure = captured_piece
+                        board.piece_cords = prev_cords
+                        continue
+
+                    # Rekurencyjne wywołanie
+                    eval_value, _ = self.minimax(board, depth - 1, alfa, beta, False)
+
+                    # Cofnij ruch
+                    board.make_move(y2, x2, y1, x1)
+                    board.board[y2][x2].figure = captured_piece
+                    board.piece_cords = prev_cords
 
                     if eval_value is not None:
                         if eval_value > max_eval:
                             max_eval = eval_value
                             best_move = (y1, x1, y2, x2)
-                            # Store best move at root level
                             if depth == self.depth:
                                 self.best_move = best_move
-                            alfa = max(alfa, eval_value)
+                        alfa = max(alfa, eval_value)
 
-                        if beta <= alfa:
-                            break
+                    if beta <= alfa:
+                        break
                 if beta <= alfa:
                     break
             return max_eval, best_move
@@ -150,31 +167,49 @@ class Minimax:
             min_eval = float('inf')
             for figure in legal_moves:
                 for move in legal_moves[figure]:
-                    # Częste sprawdzanie czasu w pętli
                     if self.is_time_exceeded():
                         return min_eval, best_move
-                    
 
-
-                    new_board = copy.deepcopy(board)
                     y1, x1 = figure
                     y2, x2 = move
-                    
-                    new_board.make_move(y1, x1, y2, x2)
-                    new_board.piece_cords.remove((y1, x1))
-                    if (y2, x2) not in new_board.piece_cords:
-                        new_board.piece_cords.append((y2, x2))
 
-                    eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, True)
+                    # Zachowaj stan przed ruchem
+                    captured_piece = board.board[y2][x2].figure
+                    prev_cords = board.piece_cords.copy()
+
+                    # Wykonaj ruch
+                    board.make_move(y1, x1, y2, x2)
+                    board.piece_cords.remove((y1, x1))
+                    if (y2, x2) not in board.piece_cords:
+                        board.piece_cords.append((y2, x2))
+
+                    # Szybka ocena pozycji
+                    current_eval = self.get_evaluation_score(board, is_maximizing)
+                    
+                    # Przycięcie gałęzi jeśli pozycja jest znacząco lepsza
+                    if current_eval > min_eval + 200:  # Wartość progowa
+                        # Cofnij ruch
+                        board.make_move(y2, x2, y1, x1)
+                        board.board[y2][x2].figure = captured_piece
+                        board.piece_cords = prev_cords
+                        continue
+
+                    # Rekurencyjne wywołanie
+                    eval_value, _ = self.minimax(board, depth - 1, alfa, beta, True)
+
+                    # Cofnij ruch
+                    board.make_move(y2, x2, y1, x1)
+                    board.board[y2][x2].figure = captured_piece
+                    board.piece_cords = prev_cords
 
                     if eval_value is not None:
                         if eval_value < min_eval:
                             min_eval = eval_value
                             best_move = (y1, x1, y2, x2)
-                            beta = min(beta, eval_value)
+                        beta = min(beta, eval_value)
 
-                        if beta <= alfa:
-                            break
+                    if beta <= alfa:
+                        break
                 if beta <= alfa:
                     break
             return min_eval, best_move
