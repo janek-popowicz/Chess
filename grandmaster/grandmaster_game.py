@@ -26,7 +26,7 @@ def get_grandmaster_move(board, turn, grandmaster_moves):
     """Wybiera ruch arcymistrza na podstawie aktualnej pozycji."""
     current_fen = board_to_fen_inverted(board, turn)
     fen_parts = current_fen.split(' ')
-    position_fen = f"{fen_parts[0]}"
+    position_fen = f"{fen_parts[0]} {fen_parts[1]}"
     print(position_fen)
     if position_fen in grandmaster_moves:
         moves_list = grandmaster_moves[position_fen]
