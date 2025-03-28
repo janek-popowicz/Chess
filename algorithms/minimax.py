@@ -17,7 +17,7 @@ class Minimax:
     """
     Klasa implementująca algorytm Minimax z przycinaniem alfa-beta oraz ograniczeniem czasowym.
     """
-    def __init__(self, main_board, depth, color, time_limit=0.01):
+    def __init__(self, main_board, depth, color, time_limit):
         """
         Inicjalizuje obiekt Minimax.
 
@@ -70,13 +70,12 @@ class Minimax:
 
         :return: True, jeśli czas został przekroczony, False w przeciwnym razie.
         """
-        if not self.start_time:
-            return False
-        return time.time() - self.start_time >= self.time_limit
-        
+        return (self.start_time is not None and 
+                time.time() - self.start_time >= self.time_limit)
+            
     def minimax(self, board, depth, alfa, beta, is_maximizing):
         """
-        Implementacja algorytmu Minimax z przycinaniem alfa-beta.
+        Implementacja algorytmu Minimax z przycinaniem alfa-beta z dokładną kontrolą czasu.
 
         :param board: Aktualna plansza gry.
         :param depth: Pozostała głębokość przeszukiwania.
@@ -85,10 +84,7 @@ class Minimax:
         :param is_maximizing: Czy obecnie maksymalizujemy wynik.
         :return: Najlepsza ocena i ruch.
         """
-        # Early exit conditions
-        if self.should_stop():
-            return None, None
-
+        # Natychmiastowe sprawdzenie limitu czasu
         if self.is_time_exceeded():
             return None, None
 
@@ -105,8 +101,8 @@ class Minimax:
             max_eval = -float('inf')
             for figure in legal_moves:
                 for move in legal_moves[figure]:
-                    # Check stop conditions
-                    if self.should_stop() or self.is_time_exceeded():
+                    # Częste sprawdzanie czasu w pętli
+                    if self.is_time_exceeded():
                         return max_eval, best_move
 
                     new_board = copy.deepcopy(board)
@@ -120,46 +116,45 @@ class Minimax:
 
                     eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, False)
 
-                    if eval_value > max_eval:
-                        max_eval = eval_value
-                        best_move = (y1, x1, y2, x2)
-                        # Store best move at root level
-                        if depth == self.depth:
-                            self.best_move = best_move
-                        alfa = max(alfa, eval_value)
+                    if eval_value is not None:
+                        if eval_value > max_eval:
+                            max_eval = eval_value
+                            best_move = (y1, x1, y2, x2)
+                            # Store best move at root level
+                            if depth == self.depth:
+                                self.best_move = best_move
+                            alfa = max(alfa, eval_value)
 
-                    if beta <= alfa:
-                        break
+                        if beta <= alfa:
+                            break
                 if beta <= alfa:
                     break
             return max_eval, best_move
 
         else:
             min_eval = float('inf')
-            best_move = None
-
             for figure in legal_moves:
                 for move in legal_moves[figure]:
-                    if self.is_time_exceeded():  # Sprawdzenie limitu czasu w każdej iteracji
+                    # Częste sprawdzanie czasu w pętli
+                    if self.is_time_exceeded():
                         return min_eval, best_move
 
                     new_board = copy.deepcopy(board)
-
-                    (y1, x1) = figure 
-                    (y2, x2) = move 
-                    board.print_board()
-                    new_board.make_move(y1,x1,y2,x2)
-                    new_board.piece_cords.remove((y1,x1))
-                    if (y2,x2) not in new_board.piece_cords:
-                        new_board.piece_cords.append((y2,x2))
+                    y1, x1 = figure
+                    y2, x2 = move
+                    
+                    new_board.make_move(y1, x1, y2, x2)
+                    new_board.piece_cords.remove((y1, x1))
+                    if (y2, x2) not in new_board.piece_cords:
+                        new_board.piece_cords.append((y2, x2))
 
                     eval_value, _ = self.minimax(new_board, depth - 1, alfa, beta, True)
 
-                    if eval_value < min_eval:
-                        min_eval = eval_value
-                        best_move = (y1, x1, y2, x2)
-
-                        beta = min(beta, eval_value)
+                    if eval_value is not None:
+                        if eval_value < min_eval:
+                            min_eval = eval_value
+                            best_move = (y1, x1, y2, x2)
+                            beta = min(beta, eval_value)
 
                         if beta <= alfa:
                             break
