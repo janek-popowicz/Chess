@@ -72,6 +72,17 @@ class Minimax:
         """
         return (self.start_time is not None and 
                 time.time() - self.start_time >= self.time_limit)
+    def undo_move(self, board, y1, x1, y2, x2):
+        """
+        Przywraca ruch na planszy.
+
+        :param board: Plansza gry.
+        :param y1: Wiersz początkowy figury. param x1: Kolumna początkowa figury.
+        :param y2: Wiersz docelowy figury. param x2: Kolumna docelowa figury.
+        """
+        # Przywrócenie figury na pierwotne miejsce
+        board[y1][x1].figure = board[y2][x2].figure
+        board[y2][x2].figure = None
             
     def minimax(self, board, depth, alfa, beta, is_maximizing):
         """
@@ -104,10 +115,14 @@ class Minimax:
                     # Częste sprawdzanie czasu w pętli
                     if self.is_time_exceeded():
                         return max_eval, best_move
-
-                    new_board = copy.deepcopy(board)
                     y1, x1 = figure
                     y2, x2 = move
+                    board.make_move(y1, x1, y2, x2)
+                    #new_board = copy.deepcopy(board)
+                    eval_copy = self.get_evaluation_score(board, is_maximizing)
+                    if eval_copy < 0.8 * max_eval and board.is_in_check_minimaxa(current_color) == False:
+                        break
+                    
                     
                     new_board.make_move(y1, x1, y2, x2)
                     new_board.piece_cords.remove((y1, x1))
@@ -138,6 +153,8 @@ class Minimax:
                     # Częste sprawdzanie czasu w pętli
                     if self.is_time_exceeded():
                         return min_eval, best_move
+                    
+
 
                     new_board = copy.deepcopy(board)
                     y1, x1 = figure
