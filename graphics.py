@@ -301,29 +301,44 @@ def choose_color_dialog(screen, SQUARE_SIZE: int) -> str:
     Returns:
         str: 'w' dla białego, 'b' dla czarnego.
     """
-    font = pygame.font.Font(None, 36)
+    font = pygame.font.Font(None, 48)
+    button_font = pygame.font.Font(None, 36)
 
     # Tekst pytania
     dialog_text = "Wybierz kolor gry:"
     dialog = font.render(dialog_text, True, pygame.Color("white"))
 
     # Opcje kolorów
-    options = [("Biały", pygame.Color("white"), 'w'), ("Czarny", pygame.Color("black"), 'b')]
+    options = [
+        ("Biały", pygame.Color("white"), 'w'),
+        ("Czarny", pygame.Color("black"), 'b')
+    ]
+    button_width = SQUARE_SIZE * 4
+    button_height = SQUARE_SIZE * 2
+    spacing = SQUARE_SIZE
+    start_x = (screen.get_width() - button_width) // 2
+    start_y = (screen.get_height() - (len(options) * (button_height + spacing))) // 2
+
     option_rects = []
     for i, (label, color, _) in enumerate(options):
-        rect = pygame.Rect(SQUARE_SIZE * 3, SQUARE_SIZE * (3 + i), SQUARE_SIZE * 2, SQUARE_SIZE)
+        rect = pygame.Rect(start_x, start_y + i * (button_height + spacing), button_width, button_height)
         option_rects.append((label, color, rect))
 
     while True:
-        screen.fill(pygame.Color("gray"))
-        screen.blit(dialog, (SQUARE_SIZE * 2, SQUARE_SIZE * 2))
+        screen.fill(pygame.Color("gray20"))
+        
+        # Przesunięcie napisu "Wybierz kolor gry" niżej
+        dialog_x = screen.get_width() // 2 - dialog.get_width() // 2
+        dialog_y = start_y - SQUARE_SIZE  # Przesunięcie o 1 SQUARE_SIZE niżej
+        screen.blit(dialog, (dialog_x, dialog_y))
+        
         mouse_pos = pygame.mouse.get_pos()
 
         # Rysowanie opcji
         for label, color, rect in option_rects:
-            pygame.draw.rect(screen, color, rect)
-            pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3)  # Obrys
-            text = font.render(label, True, pygame.Color("black") if color == pygame.Color("white") else pygame.Color("white"))
+            pygame.draw.rect(screen, color, rect, border_radius=15)
+            pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3, border_radius=15)  # Obrys
+            text = button_font.render(label, True, pygame.Color("black") if color == pygame.Color("white") else pygame.Color("white"))
             text_rect = text.get_rect(center=rect.center)
             screen.blit(text, text_rect)
 
