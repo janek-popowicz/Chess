@@ -109,6 +109,8 @@ def main():
     minimax_thread = None
     monte_carlo_thread = None
     player_turn = choose_color_dialog(screen, SQUARE_SIZE)
+    if player_turn == None:
+        return
     algorithm = choose_algorithm_dialog(screen, SQUARE_SIZE)
 
     is_reversed = False if player_turn == 'w' else True

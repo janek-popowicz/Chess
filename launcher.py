@@ -148,11 +148,15 @@ def do_an_action(selected_option, screen):
     elif selected_option == 3: # Arcymistrz
         pygame.mixer.music.stop()
         player_color = graphics.choose_color_dialog(screen, 100)
+        if player_color == None:
+            return True
         grandmaster_name = graphics.choose_grandmaster_dialog(screen, 100)
         grandmaster.grandmaster_game.main(player_color, grandmaster_name)
         return True
     elif selected_option == 4: # Gra w sieci
         server_or_client = graphics.choose_color_dialog(screen, 100)
+        if server_or_client == None:
+            return True
         if server_or_client == "w":
             import multiplayer.client
             multiplayer.client.main()

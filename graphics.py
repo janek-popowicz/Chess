@@ -402,14 +402,15 @@ def choose_color_dialog(screen, SQUARE_SIZE: int) -> str:
     # Opcje kolorów
     options = [
         ("Biały", pygame.Color("white"), 'w'),
-        ("Czarny", pygame.Color("black"), 'b')
+        ("Czarny", pygame.Color("black"), 'b'),
+        ("Anuluj", pygame.Color("red"), None)  # Add "Cancel" option
     ]
-    button_width = SQUARE_SIZE * 4
+    button_width = SQUARE_SIZE * 2
     button_height = SQUARE_SIZE * 2
-    spacing = SQUARE_SIZE
+    spacing = SQUARE_SIZE // 2  # Reduce spacing to fit within the window
     total_width = len(options) * button_width + (len(options) - 1) * spacing
-    start_x = (screen.get_width() - total_width) // 2
-    start_y = (screen.get_height() - button_height) // 2
+    start_x = max(0, (screen.get_width() - total_width) // 2)  # Ensure buttons don't go off-screen
+    start_y = max(0, (screen.get_height() - button_height) // 2)  # Ensure buttons fit vertically
 
     option_rects = []
     for i, (label, color, _) in enumerate(options):
@@ -454,6 +455,8 @@ def choose_color_dialog(screen, SQUARE_SIZE: int) -> str:
                 pos = pygame.mouse.get_pos()
                 for label, color, rect in option_rects:
                     if rect.collidepoint(pos):
+                        if label == "Anuluj":  # Handle "Cancel" option
+                            return None
                         return 'w' if color == pygame.Color("white") else 'b'
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:  # Klawisz "W" dla białego
