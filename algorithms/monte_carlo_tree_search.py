@@ -85,26 +85,33 @@ class Mcts:
                 current_node = self.root
         # Rozrost (expansion)
         if current_node.games == 0:
-            self.random_expand(new_board,current_node)
-            current_node = current_node.children[1]
+            self.whole_expand(new_board,current_node)
+            current_node = current_node.children[0]
+            engine.tryMove(current_node.color, new_board, *current_node.move)
         # Symulacja (playout)
         result = (1,1,1)
-        move_color = self.root.color
+        move_color = "w" if current_node.color == "b" else "b"
         counter = 0
         while result[0] not in  ["checkmate","stalemate"]:
             moves = new_board.get_all_moves(move_color)
-            key = random.sample(sorted(moves),1)
-            move = random.sample(moves[key[0]],1)
-            cords = (*key[0], move[0][0],move[0][1])
-            new_board.print_board()
+            if moves == {}:
+                new_board.is_in_check(move_color)
+                if new_board.incheck:
+                    result = ["checkmate"]
+                    break
+                else:
+                    result = ["stalemate"]
+            key = random.sample(sorted(moves),1)[0]
+            move = random.sample(moves[key],1)[0]
+            cords = (*key, move[0],move[1])
             engine.tryMove(move_color, new_board, *cords)
             move_color = 'b' if move_color == "w" else "w"
             result = engine.afterMove(move_color, new_board, *cords)
             if result[0] == "promotion":
-                engine.promotion(move[0][0],move[0][1],new_board,random.randint(1,4))
+                engine.promotion(result[1],result[2],new_board,str(random.randint(1,4)))
             counter += 1
         current_node.games +=1
-        if result == "checkmate" and move_color == self.root.color:
+        if result[0] == "checkmate" and move_color == self.root.color:
             current_node.wins +=1  
         # Propagacja wsteczna (backpropagation)
         while current_node.parent != "root":
@@ -125,11 +132,14 @@ class Mcts:
         """
         Funkcja powiększająca drzewo, wariant losujący 8 z możliwych dzieci, dzięki czemu znacznie szybszy
         """
+        moves=board.get_all_moves('b' if node.color == "w" else "w")
         for i in range (random.randint(1,8)):
-            moves=board.get_all_moves('b' if node.color == "w" else "w")
-            key = random.sample(sorted(moves), 1)
-            move = random.sample(moves[key[0]], 1) 
-            new_node = Node(0,0,node, (*key[0],*move[0]),'b' if node.color == "w" else "w")
+            key = random.sample(sorted(moves), 1)[0]
+            move = random.sample(moves[key], 1)[0]
+            new_node = Node(0,0,node, (*key,*move),'b' if node.color == "w" else "w")
+            moves[key].remove(move)
+            if moves[key] == []:
+                moves.pop(key)
             node.children += [new_node]
     def whole_expand(self, board, node):
         """
@@ -139,7 +149,9 @@ class Mcts:
         for key in moves:
             for move in moves[key]:
                 new_node = Node(0,0,node, (*key,*move),'b' if node.color == "w" else "w")
-                node.children += [new_node]
+            if moves[key] == []:
+                moves.pop(key)
+            node.children += [new_node]
                 
 class Node:
     def __init__(self, games:int, wins:int, parent, move:tuple, color:str, ):

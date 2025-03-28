@@ -231,7 +231,7 @@ def main():
                         monte_carlo_thread.join(timeout=0.1)
 
         # Ruch AI w osobnym bloku
-        if turn != player_turn:
+        if turn != player_turn and running:
             if algorithm == "minimax":
                 if not calculating:
                     calculating = True
@@ -279,7 +279,7 @@ def main():
                 if not calculating:
                     calculating = True
                     result_queue = queue.Queue()
-                    monte_carlo_thread = MonteCarloThread(main_board, 10, turn, result_queue)
+                    monte_carlo_thread = MonteCarloThread(main_board, 5, turn, result_queue)
                     monte_carlo_thread.start()
                 
                 try:
