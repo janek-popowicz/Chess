@@ -191,7 +191,7 @@ def undoMove(main_board: board_and_fields.Board) -> bool:
     """Cofa ruch, bazując na fenach zapisanych w historii. Należy zmieniać turn po cofnięciu ruchu!
     Zwraca True jeżeli operacja się powiodła, False w przeciwnym razie.
     """
-    if len(main_board.fen_history) > 0:
+    if len(main_board.fen_history) > 1:
         fen_operations.fen_to_board(main_board.fen_history[-2],main_board)
         main_board.fen_history.pop()
         main_board.print_board()
