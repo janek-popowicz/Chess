@@ -175,6 +175,7 @@ def main():
     turn = 'w'
     selected_piece = None
     clock = pygame.time.Clock()
+    ping_time = 0
 
     # Teksty interfejsu
     texts = (
@@ -297,7 +298,7 @@ def main():
                 elif data == "undo_reject":
                     print("❌ Cofnięcie ruchu zostało odrzucone.")
                 elif data == "pong":
-                    ping_time = (time.time() - ping_start_time) * 1000  # Convert to milliseconds
+                    ping_time = round((time.time() - ping_start_time) * 1000, 2)  # Convert to ms and round to 2 decimal places
                     print(f"Ping: {ping_time:.2f} ms")
                     client.sendall(("ptime " + str(ping_time)).encode('utf-8'))
                 else:
@@ -359,7 +360,7 @@ def main():
                               (8 * SQUARE_SIZE + 10, 80)))
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
-        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation, ping=int(ping_time) if 'ping_time' in locals() else None)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation, ping=ping_time)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == 'w':
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)

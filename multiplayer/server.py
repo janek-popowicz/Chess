@@ -154,9 +154,11 @@ def main():
     result = ""
     winner = ""
     in_check = None
+    is_reversed = True #aby czarne były na dole
 
     # Pobieranie adresu IP serwera
     server_ip = get_server_ip()
+    ping_time = 0
 
     # Wyświetlamy animację oczekiwania z adresem IP
     waiting_screen(screen, font, server_ip)
@@ -187,13 +189,14 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 print(pos)
-                col = 7 - (pos[0] // SQUARE_SIZE)
-                row = 7 - (pos[1] // SQUARE_SIZE)
+                col = pos[0] // SQUARE_SIZE
+                row = pos[1] // SQUARE_SIZE
                 if col < 8 and row < 8:
                     if selected_piece and turn =='b':
                         if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                            draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
-                            draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+                            draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck, is_reversed)
+                            draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
+                            pygame.display.flip()
                             move_time = time.time() - start_time
                             if turn == 'w':
                                 white_time += move_time
@@ -277,8 +280,8 @@ def main():
                     row = int(data[2])
                     col = int(data[3])
                     if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                        draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
-                        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+                        draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck, is_reversed)
+                        draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
                         move_time = time.time() - start_time
                         if turn == 'w':
                             white_time += move_time
@@ -328,16 +331,16 @@ def main():
                              (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), 
                               (8 * SQUARE_SIZE + 10, 80)))
         screen.fill(BLACK)
-        draw_board(screen, SQUARE_SIZE, main_board, in_check)
-        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation, ping=None)
+        draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation, ping = ping_time)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == 'b':
-                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)
+                highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)
         except TypeError:
             pass
         except AttributeError:
             pass
-        draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
+        draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
         pygame.display.flip()
         clock.tick(60)
     
