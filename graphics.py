@@ -345,6 +345,10 @@ def confirm_undo_dialog(screen, SQUARE_SIZE: int) -> bool:
         rect = text.get_rect(center=(SQUARE_SIZE * 4, SQUARE_SIZE * (3 + i)))
         option_rects.append((text, rect))
 
+    menu_cursor_sound = pygame.mixer.Sound("sounds/menu_cursor.mp3")
+    menu_cursor_sound.set_volume(0.5)
+    last_hovered = None
+
     while True:
         screen.fill(pygame.Color("black"))
         screen.blit(dialog, (SQUARE_SIZE * 2, SQUARE_SIZE * 2))
@@ -353,6 +357,9 @@ def confirm_undo_dialog(screen, SQUARE_SIZE: int) -> bool:
         # Rysowanie opcji
         for i, (text, rect) in enumerate(option_rects):
             if rect.collidepoint(mouse_pos):
+                if last_hovered != rect:
+                    menu_cursor_sound.play()
+                    last_hovered = rect
                 pygame.draw.rect(screen, pygame.Color("yellow"), rect.inflate(10, 10), 2)
             screen.blit(text, rect)
 
@@ -409,6 +416,10 @@ def choose_color_dialog(screen, SQUARE_SIZE: int) -> str:
         rect = pygame.Rect(start_x + i * (button_width + spacing), start_y, button_width, button_height)
         option_rects.append((label, color, rect))
 
+    menu_cursor_sound = pygame.mixer.Sound("sounds/menu_cursor.mp3")
+    menu_cursor_sound.set_volume(0.5)  # Adjust volume as needed
+    last_hovered = None  # Track the last hovered option
+
     while True:
         screen.fill(pygame.Color("gray20"))
         
@@ -421,8 +432,10 @@ def choose_color_dialog(screen, SQUARE_SIZE: int) -> str:
 
         # Rysowanie opcji
         for label, color, rect in option_rects:
-            # Podświetlenie opcji, na której znajduje się myszka
             if rect.collidepoint(mouse_pos):
+                if last_hovered != rect:  # Play sound only when hovering over a new option
+                    menu_cursor_sound.play()
+                    last_hovered = rect
                 pygame.draw.rect(screen, pygame.Color("yellow"), rect.inflate(10, 10), border_radius=15)
             pygame.draw.rect(screen, color, rect, border_radius=15)
             pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3, border_radius=15)  # Obrys
@@ -483,6 +496,10 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
         rect = pygame.Rect(start_x + i * (button_width + spacing), start_y, button_width, button_height)
         option_rects.append((label, color, rect))
 
+    menu_cursor_sound = pygame.mixer.Sound("sounds/menu_cursor.mp3")
+    menu_cursor_sound.set_volume(0.5)
+    last_hovered = None
+
     while True:
         screen.fill(pygame.Color("gray20"))
         
@@ -495,8 +512,10 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
 
         # Rysowanie opcji
         for label, color, rect in option_rects:
-            # Podświetlenie opcji, na której znajduje się myszka
             if rect.collidepoint(mouse_pos):
+                if last_hovered != rect:
+                    menu_cursor_sound.play()
+                    last_hovered = rect
                 pygame.draw.rect(screen, pygame.Color("yellow"), rect.inflate(10, 10), border_radius=15)
             pygame.draw.rect(screen, color, rect, border_radius=15)
             pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3, border_radius=15)  # Obrys
@@ -568,6 +587,10 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
             placeholder.blit(name_text, name_rect)
             portraits[gm] = placeholder
 
+    menu_cursor_sound = pygame.mixer.Sound("sounds/menu_cursor.mp3")
+    menu_cursor_sound.set_volume(0.5)
+    last_hovered = None
+
     while True:
         screen.fill(pygame.Color("gray20"))
         
@@ -588,6 +611,9 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
             portrait_rects[gm] = portrait_rect
             
             if portrait_rect.collidepoint(mouse_pos):
+                if last_hovered != rect:
+                    menu_cursor_sound.play()
+                    last_hovered = rect
                 pygame.draw.rect(screen, pygame.Color("gold"), portrait_rect.inflate(6, 6), 3)
             
             screen.blit(portraits[gm], portrait_rect)
@@ -660,6 +686,10 @@ def choose_custom_board_mode(screen, SQUARE_SIZE: int) -> str:
         y = 300 + i * (button_height + button_spacing)
         buttons.append(pygame.Rect(x, y, button_width, button_height))
 
+    menu_cursor_sound = pygame.mixer.Sound("sounds/menu_cursor.mp3")
+    menu_cursor_sound.set_volume(0.5)
+    last_hovered = None
+
     while True:
         screen.fill(pygame.Color("gray20"))
         
@@ -671,7 +701,13 @@ def choose_custom_board_mode(screen, SQUARE_SIZE: int) -> str:
         # Rysowanie przycisków
         mouse_pos = pygame.mouse.get_pos()
         for i, (button, text) in enumerate(zip(buttons, options)):
-            color = pygame.Color("gold") if button.collidepoint(mouse_pos) else pygame.Color("white")
+            if button.collidepoint(mouse_pos):
+                if last_hovered != button:
+                    menu_cursor_sound.play()
+                    last_hovered = button
+                color = pygame.Color("gold")
+            else:
+                color = pygame.Color("white")
             pygame.draw.rect(screen, color, button, 3)
             
             text_surf = font.render(text, True, color)
