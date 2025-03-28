@@ -31,7 +31,15 @@ def disconnect():
     conn.close()
     server.close()
     client_connected = False
-
+def force_quit():
+    global server, conn
+    try:
+        conn.close()
+        server.close()
+    except:
+        None
+    """Wyłącza sockety, bez powiadamiania klienta
+    """
 
 def get_server_ip():
     """
@@ -47,43 +55,84 @@ def get_server_ip():
 
 def waiting_screen(screen, font, server_ip):
     """
-    Animacja oczekiwania na klienta z wyświetlaniem adresu IP serwera.
-
-    Args:
-        screen (pygame.Surface): Powierzchnia ekranu gry.
-        font (pygame.Font): Czcionka do renderowania tekstu.
-        server_ip (str): Adres IP serwera.
+    Elegancki ekran oczekiwania na klienta z animacją i kodem IP.
     """
-    global start_time  # Dodajemy globalną zmienną start_time
-    dots = ""
+    global start_time
+    
+    # Create fonts
+    title_font = pygame.font.Font(None, 48)
+    info_font = pygame.font.Font(None, 36)
+    ip_font = pygame.font.Font(None, 72)
+    
+    # Colors
+    BACKGROUND = (32, 32, 32)
+    TEXT_COLOR = (255, 255, 255)
+    GOLD = (255, 215, 0)
+    BUTTON_COLOR = (60, 60, 60)
+    BUTTON_HOVER = (80, 80, 80)
+    
+    # Create cancel button
+    cancel_button = pygame.Rect(screen.get_width() // 2 - 100, 600, 200, 50)
+    
     clock = pygame.time.Clock()
+    animation_frame = 0
+    dots = ""
+    
     while not client_connected:
-
+        screen.fill(BACKGROUND)
+        mouse_pos = pygame.mouse.get_pos()
+        
+        # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                disconnect()
-                return
-        screen.fill((0, 0, 0))
-        # Wyświetlanie adresu IP serwera
-        ip_text = font.render(f"Adres IP serwera: {server_ip}", True, (255, 255, 255))
-        screen.blit(ip_text, (250, 200))
-
-        # Wyświetlanie animacji oczekiwania
-        text = font.render(f"Oczekiwanie na gracza{dots}", True, (255, 255, 255))
-        screen.blit(text, (250, 300))
+                force_quit
+                return False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if cancel_button.collidepoint(mouse_pos):
+                    force_quit()
+                    return False
+                
+        # Draw title
+        title = title_font.render("Oczekiwanie na przeciwnika", True, GOLD)
+        title_rect = title.get_rect(center=(screen.get_width() // 2, 150))
+        screen.blit(title, title_rect)
+        
+        # Draw IP box
+        pygame.draw.rect(screen, (45, 45, 45), (screen.get_width() // 2 - 200, 250, 400, 100))
+        pygame.draw.rect(screen, GOLD, (screen.get_width() // 2 - 200, 250, 400, 100), 2)
+        
+        # Draw IP text
+        ip_text = ip_font.render(server_ip, True, TEXT_COLOR)
+        ip_rect = ip_text.get_rect(center=(screen.get_width() // 2, 300))
+        screen.blit(ip_text, ip_rect)
+        
+        # Draw info text
+        info_text = info_font.render("Podaj ten kod drugiemu graczowi", True, (200, 200, 200))
+        info_rect = info_text.get_rect(center=(screen.get_width() // 2, 400))
+        screen.blit(info_text, info_rect)
+        
+        # Animate waiting dots
+        dots = "." * ((animation_frame // 15) % 4)
+        waiting_text = info_font.render(f"Oczekiwanie{dots}", True, GOLD)
+        waiting_rect = waiting_text.get_rect(center=(screen.get_width() // 2, 500))
+        screen.blit(waiting_text, waiting_rect)
+        
+        # Draw cancel button with hover effect
+        button_color = BUTTON_HOVER if cancel_button.collidepoint(mouse_pos) else BUTTON_COLOR
+        pygame.draw.rect(screen, button_color, cancel_button)
+        pygame.draw.rect(screen, GOLD, cancel_button, 2)
+        
+        cancel_text = info_font.render("Anuluj", True, TEXT_COLOR)
+        cancel_rect = cancel_text.get_rect(center=cancel_button.center)
+        screen.blit(cancel_text, cancel_rect)
+        
         pygame.display.flip()
-
-        # Zmieniamy ilość kropek w animacji
-        dots = "." * ((len(dots) + 1) % 4)
-
-        # Unikamy 100% użycia CPU
-        time.sleep(0.5)
-        clock.tick(10)
-
-    # Ustawiamy start_time po połączeniu klienta
+        animation_frame = (animation_frame + 1) % 60
+        clock.tick(60)
+    
     start_time = time.time()
-
+    return True
 
 # Funkcja główna
 def main():
@@ -161,7 +210,8 @@ def main():
     ping_time = 0
 
     # Wyświetlamy animację oczekiwania z adresem IP
-    waiting_screen(screen, font, server_ip)
+    if not waiting_screen(screen, font, server_ip):
+        return
 
     # Po podłączeniu klienta ustawiamy timeout
     conn.settimeout(0.05)
