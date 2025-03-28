@@ -89,8 +89,8 @@ class Mcts:
                 current_node = self.root
         # Rozrost (expansion)
         if current_node.games == 0:
-            self.whole_expand(new_board,current_node)
-            current_node = current_node.children[0]
+            self.random_expands(new_board,current_node)
+            current_node = current_node.children[random.randint(0, len(current_node.children))]
             engine.tryMove(current_node.color, new_board, *current_node.move)
         # Symulacja (playout)
         result = (1,1,1)
@@ -115,7 +115,7 @@ class Mcts:
                 engine.promotion(result[1],result[2],new_board,str(random.randint(1,4)))
             counter += 1
         current_node.games +=1
-        if result[0] == "checkmate" and move_color == self.root.color:
+        if result == "checkmate" and move_color == self.root.color:
             current_node.wins +=1  
         # Propagacja wsteczna (backpropagation)
         while current_node.parent != "root":
@@ -136,8 +136,8 @@ class Mcts:
         """
         Funkcja powiększająca drzewo, wariant losujący 8 z możliwych dzieci, dzięki czemu znacznie szybszy
         """
-        moves=board.get_all_moves('b' if node.color == "w" else "w")
-        for i in range (random.randint(1,8)):
+        moves = board.get_all_moves('b' if node.color == "w" else "w")
+        for i in range (15):
             key = random.sample(sorted(moves), 1)[0]
             move = random.sample(moves[key], 1)[0]
             new_node = Node(0,0,node, (*key,*move),'b' if node.color == "w" else "w")
@@ -145,17 +145,17 @@ class Mcts:
             if moves[key] == []:
                 moves.pop(key)
             node.children += [new_node]
+            if moves == {}:
+                break
     def whole_expand(self, board, node):
         """
-        Funkcja powiększająca drzewo, wariant uwzględniający wszystkie możliwości UWAGA: Bardzo obciąża komputer
+        Funkcja powiększająca drzewo, wariant uwzględniający wszystkie możliwości UWAGA: Obciąża komputer
         """
         moves = board.get_all_moves('b' if node.color == "w" else "w")
         for key in moves:
             for move in moves[key]:
                 new_node = Node(0,0,node, (*key,*move),'b' if node.color == "w" else "w")
-            if moves[key] == []:
-                moves.pop(key)
-            node.children += [new_node]
+                node.children += [new_node]
                 
 class Node:
     def __init__(self, games:int, wins:int, parent, move:tuple, color:str, ):
