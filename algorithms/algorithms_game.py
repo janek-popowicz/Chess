@@ -194,6 +194,23 @@ def main():
                         return
                     elif height - 130 <= pos[1] < height - 80:  # Przycisk "Cofnij ruch"
                         if confirm_undo_dialog(screen, SQUARE_SIZE):
+                            # Stop and reset minimax thread if running
+                            if minimax_thread and minimax_thread.is_alive():
+                                minimax_thread.stop()
+                                minimax_thread.join(timeout=0.1)
+                            if monte_carlo_thread and monte_carlo_thread.is_alive():
+                                monte_carlo_thread.stop()
+                                monte_carlo_thread.join(timeout=0.1)
+                            # Reset all thread-related variables
+                            minimax_thread = None
+                            monte_carlo_thread = None
+                            calculating = False
+                            # Clear the result queue
+                            while not result_queue.empty():
+                                try:
+                                    result_queue.get_nowait()
+                                except queue.Empty:
+                                    break
                             if undoMove(main_board):
                                 turn = 'w' if turn == 'b' else 'b'
                                 start_time = time.time()

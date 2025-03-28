@@ -421,6 +421,9 @@ def choose_color_dialog(screen, SQUARE_SIZE: int) -> str:
 
         # Rysowanie opcji
         for label, color, rect in option_rects:
+            # Podświetlenie opcji, na której znajduje się myszka
+            if rect.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, pygame.Color("yellow"), rect.inflate(10, 10), border_radius=15)
             pygame.draw.rect(screen, color, rect, border_radius=15)
             pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3, border_radius=15)  # Obrys
             text = button_font.render(label, True, pygame.Color("black") if color == pygame.Color("white") else pygame.Color("white"))
@@ -492,6 +495,9 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
 
         # Rysowanie opcji
         for label, color, rect in option_rects:
+            # Podświetlenie opcji, na której znajduje się myszka
+            if rect.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, pygame.Color("yellow"), rect.inflate(10, 10), border_radius=15)
             pygame.draw.rect(screen, color, rect, border_radius=15)
             pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3, border_radius=15)  # Obrys
             text = button_font.render(label, True, pygame.Color("white"))
