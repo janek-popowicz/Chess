@@ -52,43 +52,102 @@ def connect_to_server_with_timeout(host, port, timeout=3):
 
 def ip_input_screen(screen, font):
     """
-    Wyświetla ekran wejściowy do wpisania adresu IP serwera.
+    Wyświetla elegancki ekran wejściowy do wpisania adresu IP serwera.
 
     Args:
         screen (pygame.Surface): Powierzchnia ekranu gry.
         font (pygame.Font): Czcionka do renderowania tekstu.
 
     Returns:
-        str: Wpisany adres IP.
+        str: Wpisany adres IP lub None jeśli użytkownik anulował.
     """
     input_active = True
     ip_address = ""
     clock = pygame.time.Clock()
+    
+    # Create fonts
+    title_font = pygame.font.Font(None, 48)
+    input_font = pygame.font.Font(None, 36)
+    
+    # Define colors
+    BACKGROUND = (32, 32, 32)
+    TEXT_COLOR = (255, 255, 255)
+    ACTIVE_COLOR = (255, 215, 0)  # Gold
+    INACTIVE_COLOR = (100, 100, 100)
+    INPUT_BG = (45, 45, 45)
+    BUTTON_COLOR = (60, 60, 60)
+    
+    # Create buttons
+    connect_button = pygame.Rect(screen.get_width() // 2 - 200, 400, 180, 50)
+    cancel_button = pygame.Rect(screen.get_width() // 2 + 20, 400, 180, 50)
+    input_box = pygame.Rect(screen.get_width() // 2 - 150, 280, 300, 40)
 
     while input_active:
-        screen.fill((0, 0, 0))
-        prompt_text = font.render("Wpisz adres IP serwera:", True, (255, 255, 255))
-        input_text = font.render(ip_address, True, (255, 255, 255))
-        screen.blit(prompt_text, (250, 200))
-        screen.blit(input_text, (250, 300))
+        screen.fill(BACKGROUND)
+        
+        # Draw title
+        title = title_font.render("Połączenie z drugim graczem", True, ACTIVE_COLOR)
+        title_rect = title.get_rect(center=(screen.get_width() // 2, 150))
+        screen.blit(title, title_rect)
+        
+        # Draw subtitle
+        subtitle = font.render("Wprowadź kod dołączenia:", True, TEXT_COLOR)
+        subtitle_rect = subtitle.get_rect(center=(screen.get_width() // 2, 220))
+        screen.blit(subtitle, subtitle_rect)
+        
+        # Draw input box
+        pygame.draw.rect(screen, INPUT_BG, input_box)
+        pygame.draw.rect(screen, ACTIVE_COLOR, input_box, 2)
+        
+        # Draw input text
+        input_surface = input_font.render(ip_address, True, TEXT_COLOR)
+        input_rect = input_surface.get_rect(center=input_box.center)
+        screen.blit(input_surface, input_rect)
+        
+        # Draw buttons
+        mouse_pos = pygame.mouse.get_pos()
+        
+        # Connect button
+        connect_color = ACTIVE_COLOR if connect_button.collidepoint(mouse_pos) else BUTTON_COLOR
+        pygame.draw.rect(screen, connect_color, connect_button)
+        pygame.draw.rect(screen, ACTIVE_COLOR, connect_button, 2)
+        connect_text = font.render("Połącz", True, TEXT_COLOR)
+        connect_rect = connect_text.get_rect(center=connect_button.center)
+        screen.blit(connect_text, connect_rect)
+        
+        # Cancel button
+        cancel_color = ACTIVE_COLOR if cancel_button.collidepoint(mouse_pos) else BUTTON_COLOR
+        pygame.draw.rect(screen, cancel_color, cancel_button)
+        pygame.draw.rect(screen, ACTIVE_COLOR, cancel_button, 2)
+        cancel_text = font.render("Anuluj", True, TEXT_COLOR)
+        cancel_rect = cancel_text.get_rect(center=cancel_button.center)
+        screen.blit(cancel_text, cancel_rect)
+
         pygame.display.flip()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                disconnect()
-                pygame.quit()
-                sys.exit()
+                return None
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if cancel_button.collidepoint(event.pos):
+                    return None
+                if connect_button.collidepoint(event.pos) and ip_address:
+                    return ip_address
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:  # Zatwierdzenie adresu IP
-                    input_active = False
-                elif event.key == pygame.K_BACKSPACE:  # Usuwanie znaków
+                if event.key == pygame.K_RETURN and ip_address:
+                    return ip_address
+                elif event.key == pygame.K_ESCAPE:
+                    return None
+                elif event.key == pygame.K_BACKSPACE:
                     ip_address = ip_address[:-1]
                 else:
-                    ip_address += event.unicode  # Dodawanie znaków
+                    # Only allow valid IP address characters
+                    if event.unicode in "0123456789.":
+                        ip_address += event.unicode
 
-        clock.tick(30)
+        clock.tick(60)
 
-    return ip_address
+    return None
 
 def waiting_screen(screen, font):
     """Animacja łączenia się z serwerem."""
