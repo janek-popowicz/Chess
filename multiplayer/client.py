@@ -14,7 +14,9 @@ def disconnect():
     global client
     client.sendall("exit".encode('utf-8'))
     client.close()
-
+def force_quit():
+    global client
+    client.close()
 def connect_to_server():
     """Próbuje połączyć się z serwerem i kończy działanie wątku po sukcesie."""
     global client
@@ -200,6 +202,8 @@ def main():
     # Pętla do wpisywania adresu IP i próby połączenia
     while True:
         HOST = ip_input_screen(screen, font)
+        if HOST == None:
+            return
         client = connect_to_server_with_timeout(HOST, PORT)
         if client:
             print("🟢 Połączono z serwerem!")
