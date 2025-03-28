@@ -180,6 +180,22 @@ def main():
                         pygame.display.quit()
                         return "launcher"  # Return to launcher
 
+            # Aktualizacja czasu gracza na żywo
+            current_time = time.time()
+            if turn == 'w':
+                current_white_time = max(0, 10 * 60 - (current_time - start_time + white_time))  # Odliczanie od 10 minut
+                current_black_time = max(0, 10 * 60 - black_time)  # Zachowaj czas czarnego
+            else:
+                current_black_time = max(0, 10 * 60 - (current_time - start_time + black_time))  # Odliczanie od 10 minut
+                current_white_time = max(0, 10 * 60 - white_time)  # Zachowaj czas białego
+
+            # Sprawdzenie, czy czas się skończył
+            if current_white_time <= 0 or current_black_time <= 0:
+                running = False
+                result = "Czas się skończył!"
+                winner = "Czarny" if current_white_time <= 0 else "Biały"
+                break
+
             # Simplified AI move handling
             if turn != player_turn and running:
                 move = ml.get_ai_move(main_board, turn)

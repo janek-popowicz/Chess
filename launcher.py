@@ -105,7 +105,7 @@ def main():
                         return main()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for i, (text_white, text_gray) in enumerate(menu_texts):
-                    text_rect = text_white.get_rect(center=(630, 50 + i * 100))
+                    text_rect = text_white.get_rect(center=(630, 50 + i * 90))
                     if text_rect.collidepoint(mouse_pos):
                         selected_option = i
                         if do_an_action(selected_option, screen) == False:
@@ -117,7 +117,7 @@ def main():
 
         # Sprawdzenie kolizji myszy z opcjami menu
         for i, (text_white, text_gray) in enumerate(menu_texts):
-            text_rect = text_white.get_rect(center=(630, 50 + i * 100))
+            text_rect = text_white.get_rect(center=(630, 50 + i * 90))
             if text_rect.collidepoint(mouse_pos) and selected_option != i:
                 if menu_cursor_sound:
                     menu_cursor_sound.play()
@@ -201,7 +201,7 @@ def draw_menu(selected_option:int, screen, menu_texts, background, text_white, t
     
     for i, (text_white, text_gray) in enumerate(menu_texts):
         text = text_white if i == selected_option else text_gray
-        text_rect = text.get_rect(center=(630, 50 + i * 100))
+        text_rect = text.get_rect(center=(630, 50 + i * 90))
         
         # Check if mouse is hovering over option or if option is selected
         if text_rect.collidepoint(mouse_pos) or i == selected_option:
