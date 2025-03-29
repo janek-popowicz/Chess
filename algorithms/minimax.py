@@ -52,11 +52,11 @@ class Minimax:
         # Sprawdzenie sytuacji matowej lub patowej
         if board_and_fields.Board.get_all_moves(board, color) == {} and board.is_in_check(color):
             if color == 'w':
-                return 1000000  # Mat dla białych
+                return 1000000 # Mat dla białych
             else:
-                return -1000000  # Mat dla czarnych
+                return -100000  # Mat dla czarnych
         elif board_and_fields.Board.get_all_moves(board, color) == {} and not board.is_in_check(color):
-            return [0, 0]  # Pat
+            return 0  # Pat
 
         # Zwrócenie różnicy ocen w zależności od koloru AI
         if self.color == 'b':
