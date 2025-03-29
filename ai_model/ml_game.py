@@ -16,7 +16,7 @@ from algorithms.evaluation import get_evaluation  # Import evaluation function
 from ai_model import ml  # Import AI model
 
 # Funkcja główna
-def main():
+def main(player_turn):
     try:
         pygame.init()
         # Ładowanie konfiguracji
@@ -55,10 +55,7 @@ def main():
         selected_piece = None
         clock = pygame.time.Clock()  # Fixed: Changed pygame.Clock() to pygame.time.Clock()
 
-        # Remove algorithm choice, keep only color selection
-        player_turn = choose_color_dialog(screen, SQUARE_SIZE)
-        if player_turn == None:
-            return
+        
         is_reversed = player_turn == 'b'
 
         # Remove algorithm-specific variables

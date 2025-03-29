@@ -1,3 +1,17 @@
 {
-    "menu_options": ["Graj z przyjacielem na tym komputerze", "Niestandardowa plansza", "Graj z AI", "Graj z arcymistrzem", "Graj z przyjacielem przez sieć lokalną", "Ustawienia", "WYJŚCIE DO SYSTEMU", "Ładowanie własnego arcymistrza z pgn"]
+    "menu_options": ["Graj z przyjacielem na tym komputerze",
+    "Niestandardowa plansza", 
+    "Graj z AI", 
+    "Graj z arcymistrzem", 
+    "Graj z przyjacielem przez sieć lokalną", 
+    "Ustawienia", 
+    "WYJŚCIE DO SYSTEMU", 
+    "Ładowanie własnego arcymistrza z pgn", 
+    "Pomoc"],
+    "volume": "Głośność",
+    "resolution": "Rozdzielczość",
+    "pieces_icons": "Ikony figur",
+    "highlight_enemy": "Podświetlanie ruchów figur przeciwnika",
+    "nerd_view": "Widok dla nerdów",
+    "save_and_apply": "Zapisz i Zastosuj"
 }

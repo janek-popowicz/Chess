@@ -1,6 +1,6 @@
 import pygame
 import json
-
+import subprocess
 import sys
 import os
 
@@ -148,7 +148,10 @@ def do_an_action(selected_option, screen):
         if player_color == None:
             return True
         algorithm = graphics.choose_algorithm_dialog(screen, 100)
-        algorithms.algorithms_game.main(player_color, algorithm)
+        if algorithm == "neural":
+            ml_game.main(player_color)
+        elif algorithm == "minimax" or algorithm == "monte_carlo":
+            algorithms.algorithms_game.main(player_color, algorithm)
         return True
     elif selected_option == 3: # Arcymistrz
         pygame.mixer.music.stop()
@@ -175,13 +178,12 @@ def do_an_action(selected_option, screen):
         return True
     elif selected_option == 6: # Wyjście
         return False
-    elif selected_option == 7: # Tryb terminalowy
-        normal_games.test_mode_normal_game.main()
-        return True
-    elif selected_option == 8: # Konwerter PGN do FEN
+    elif selected_option == 7: # Konwerter PGN do FEN
         pygame.mixer.music.stop()
         grandmaster.pgn_to_fen.main()
         return True
+    elif selected_option == 8: #Pomoc
+        open_pdf("help.pdf")
     return True
 
 
@@ -236,9 +238,20 @@ def load_config():
     except FileNotFoundError:
         return {"volume": 0.5, "resolution": "1260x960"}
 
+def open_pdf(PDF_PATH):
+    try:
+        if sys.platform == "win32":
+            subprocess.run(["start", PDF_PATH], shell=True)
+        elif sys.platform == "darwin":  # macOS
+            subprocess.run(["open", PDF_PATH])
+        else:  # Linux
+            subprocess.run(["xdg-open", PDF_PATH])
+    except Exception as e:
+        print(f"Nie udało się otworzyć pliku PDF: {e}")
 
 # Start the launcher
 if __name__ == "__main__":
     while True:
         main()
         break
+

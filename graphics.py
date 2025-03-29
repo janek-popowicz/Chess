@@ -501,7 +501,7 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
         SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
 
     Returns:
-        str: 'minimax' dla algorytmu Minimax, 'monte_carlo' dla Monte Carlo.
+        str: 'minimax' dla algorytmu Minimax, 'monte_carlo' dla Monte Carlo, 'neural' dla sieci neuronowej.
     """
     font = pygame.font.Font(None, 48)
     button_font = pygame.font.Font(None, 36)
@@ -513,11 +513,14 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
     # Opcje algorytmów
     options = [
         ("Minimax", pygame.Color("blue"), 'minimax'),
-        ("Monte Carlo", pygame.Color("green"), 'monte_carlo')
+        ("Monte Carlo", pygame.Color("green"), 'monte_carlo'),
+        ("Sieć neuronowa", pygame.Color("purple"), 'neural')
     ]
-    button_width = SQUARE_SIZE * 4
+    
+    # Dostosowanie wielkości i pozycji przycisków
+    button_width = SQUARE_SIZE * 3
     button_height = SQUARE_SIZE * 2
-    spacing = SQUARE_SIZE
+    spacing = SQUARE_SIZE // 2
     total_width = len(options) * button_width + (len(options) - 1) * spacing
     start_x = (screen.get_width() - total_width) // 2
     start_y = (screen.get_height() - button_height) // 2
@@ -563,14 +566,16 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                for label, color, rect in option_rects:
-                    if rect.collidepoint(pos):
-                        return 'minimax' if label == "Minimax" else 'monte_carlo'
+                for label, color, algo_type in options:
+                    if option_rects[options.index((label, color, algo_type))][2].collidepoint(pos):
+                        return algo_type
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_m:  # Klawisz "M" dla Minimax
                     return 'minimax'
                 elif event.key == pygame.K_c:  # Klawisz "C" dla Monte Carlo
                     return 'monte_carlo'
+                elif event.key == pygame.K_n:  # Klawisz "N" dla Neural Network
+                    return 'neural'
 
 def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
     """

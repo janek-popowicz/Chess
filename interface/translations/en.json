@@ -1,3 +1,19 @@
 {
-    "menu_options": ["Play on this computer with a friend", "Custom board", "Play with AI", "Play with grandmaster", "Play with a friend via local network", "Settings", "Exit", "Loading custom grandmaster model from pgn"]
+    "menu_options": [
+        "Play on this computer with a friend",
+        "Custom board",
+        "Play with AI",
+        "Play with grandmaster",
+        "Play with a friend via local network",
+        "Settings",
+        "Exit",
+        "Load custom grandmaster model from PGN",
+        "Help"
+    ],
+    "volume": "Volume",
+    "resolution": "Resolution",
+    "pieces_icons": "Piece Icons type",
+    "highlight_enemy": "Highlight opponent's moves",
+    "nerd_view": "Nerd view",
+    "save_and_apply": "Save and Apply"
 }
