@@ -7,7 +7,7 @@ from engine.engine import *
 from engine.figures import *
 from graphics import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
-
+from nerd_view import *
 
 
 # Funkcja główna
@@ -16,8 +16,9 @@ def main(game_time):
     # Ładowanie konfiguracji
     config = load_config()
     resolution = config["resolution"]
+    nerd_view = config["nerd_view"]
     width, height = map(int, resolution.split('x'))
-    SQUARE_SIZE = height // 16
+    SQUARE_SIZE = height // 8
     print(width, height, SQUARE_SIZE)
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
@@ -69,10 +70,22 @@ def main(game_time):
     # Add player color setting (white by default)
     is_reversed = False  # Will be True for black player view
 
+    #przystosowywanie pod nerd_view
+    if nerd_view:
+        from queue import Queue
+        nerd_view_queue = Queue()
+        moves_queue = Queue()
+        root = tk.Tk()
+        root.geometry("600x400+800+100")  # Pozycja obok okna gry
+        stats_window = StatsWindow(root, nerd_view_queue, moves_queue)
+    moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                try: root.destroy()
+                except: pass
                 pygame.quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
@@ -115,8 +128,14 @@ def main(game_time):
                                     in_check = turn
                                 else:
                                     in_check = None
+                            
+                            #liczenie liczby ruchów, ważne pod nerd_view
+                            if nerd_view:
+                                moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                                moves_queue.put(move_time)
                             selected_piece = None
                             start_time = time.time()
+                           
                         else:
                             selected_piece = (row, col)
                     else:
@@ -124,6 +143,8 @@ def main(game_time):
                 # Obsługa przycisku "Wyjście"
                 if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
                     running = False
+                    try: root.destroy()
+                    except: pass
                     return
                 # Obsługa przycisku "Cofnij ruch"
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and height - 100 <= pos[1] < height - 80:
@@ -152,8 +173,7 @@ def main(game_time):
             result = "Czas się skończył!"
             winner = "Czarny" if current_white_time <= 0 else "Biały"
             break
-
-        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]
+        
 
         player_times_font = (
             (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
@@ -163,7 +183,7 @@ def main(game_time):
         )
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
-        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)
@@ -174,8 +194,18 @@ def main(game_time):
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed=is_reversed)
         pygame.display.flip()
         clock.tick(60)
+
+        if nerd_view: #rysowanie nerd_view
+            current_time_for_stats = time.time()
+            evaluation = get_evaluation(main_board)
+            evaluation = evaluation[0] - evaluation[1]
+            nerd_view_queue.put((current_time_for_stats, evaluation, moves_number))
+            root.update()
+    
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
+    try: root.destroy()
+    except: pass
     return
 if __name__ == "__main__":
 
