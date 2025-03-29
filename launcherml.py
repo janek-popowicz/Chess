@@ -1,5 +1,6 @@
 import sys
 import os
+from datetime import datetime  # Import for timestamp
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import ai_model.ml as ml
@@ -7,17 +8,61 @@ import ai_model.ml_game as ml_game
 from engine.board_and_fields import Board  # Direct import of Board
 from pathlib import Path
 
+def load_model_menu(models_dir):
+    """Handle model loading with better error handling and feedback"""
+    # Get all model files with absolute paths
+    model_files = list(models_dir.glob("*.pt")) + list(models_dir.glob("*.pth"))
+    
+    if not model_files:
+        print("\nNo saved models found in the 'models' directory!")
+        return None
+        
+    # Display available models
+    print("\nAvailable models:")
+    for i, model_file in enumerate(model_files, 1):
+        print(f"{i}. {model_file.name}")
+        
+    while True:
+        try:
+            choice = input("\nEnter model number to load (or 'q' to cancel): ")
+            if choice.lower() == 'q':
+                return None
+                
+            model_idx = int(choice) - 1
+            if 0 <= model_idx < len(model_files):
+                model_path = model_files[model_idx].absolute()  # Get absolute path
+                ai = ml.ChessQLearningAI(Board())
+                
+                try:
+                    if ai.load_model(str(model_path)):
+                        print(f"\nModel '{model_path.name}' loaded successfully!")
+                        return ai
+                    else:
+                        print(f"\nFailed to load model '{model_path.name}'.")
+                        return None
+                except Exception as e:
+                    print(f"\nError loading model: {e}")
+                    return None
+            else:
+                print("\nInvalid model number. Please try again.")
+        except ValueError:
+            print("\nPlease enter a valid number.")
+        except Exception as e:
+            print(f"\nError loading model: {e}")
+            return None
+
 def main():
     """
     Enhanced launcher for Chess AI with training, playing, and model management options.
     """
     ai = None
-    models_dir = Path("models")
+    # Create models directory in project root
+    models_dir = Path(__file__).parent / "models"
     models_dir.mkdir(exist_ok=True)
 
     while True:
         print("\nChess AI Launcher Menu:")
-        print("1. Train New Model (Multi-phase)")
+        print("1. Train New Model (Test training for 500 episodes)")
         print("2. Load Existing Model")
         print("3. Play as White")
         print("4. Play as Black")
@@ -29,48 +74,40 @@ def main():
         choice = input("\nEnter your choice (1-8): ")
         
         if choice == '1':
-            print("\nStarting intensive training (this may take a while)...")
+            print("\nStarting test training (500 episodes)...")
             
-            # Training phases configuration
+            # Single phase training configuration for testing
             phases = [
-                {"episodes": 1500, "learning_rate": 0.001, "message": "Phase 1: Basic patterns and openings..."},
-                {"episodes": 4000, "learning_rate": 0.0001, "message": "Phase 4: Fine-tuning..."},
-                {"episodes": 5000, "learning_rate": 0.00005, "message": "Phase 5: Mastering endgames..."},
-                {"episodes": 15000, "learning_rate": 0.00001, "message": "Phase 6: Advanced strategies..."},
+                {"episodes": 500, "learning_rate": 0.001, "message": "Test training phase..."}
             ]
             
-            ai = ml.ChessQLearningAI(Board())  # Fixed instantiation
+            ai = ml.ChessQLearningAI(Board())
             
             for i, phase in enumerate(phases, 1):
                 print(f"\n{phase['message']}")
                 ai.learning_rate = phase["learning_rate"]
                 training_progress = ai.train(num_episodes=phase["episodes"])
                 
-                # Save checkpoint after each phase
-                checkpoint_name = f"model_phase_{i}"
-                ai.save_model(checkpoint_name)
-                print(f"Phase {i} completed and saved as '{checkpoint_name}'")
-                
-            print("\nTraining completed successfully!")
+                # Save model with correct path
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                checkpoint_name = models_dir / f"model_test_{timestamp}.pt"
+                ai.save_model(str(checkpoint_name))
+                print(f"\nTraining completed and saved as '{checkpoint_name.name}'")
+                print(f"Episodes trained: {phase['episodes']}")
+            
+            print("\nTest training completed successfully!")
             
         elif choice == '2':
-            model_files = list(models_dir.glob("*.pt"))
-            if not model_files:
+            if not models_dir.exists():
+                print("\nModels directory not found! Creating one...")
+                models_dir.mkdir(exist_ok=True)
                 print("\nNo saved models found! Please train a model first.")
                 continue
                 
-            print("\nAvailable models:")
-            for i, model_file in enumerate(model_files, 1):
-                print(f"{i}. {model_file.stem}")
-                
-            try:
-                model_idx = int(input("\nEnter model number to load: ")) - 1
-                model_path = model_files[model_idx]
-                ai = ml.ChessQLearningAI(Board())
-                ai.load_model(str(model_path))
-                print(f"\nModel '{model_path.stem}' loaded successfully!")
-            except (ValueError, IndexError):
-                print("\nInvalid selection!")
+            ai = load_model_menu(models_dir)
+            if ai is None:
+                print("\nModel loading cancelled or failed.")
+                continue
                 
         elif choice in ['3', '4']:
             if ai is None:
@@ -83,12 +120,31 @@ def main():
                 ai.play_interactive_game(human_color=human_color)
             except KeyboardInterrupt:
                 print("\nGame interrupted!")
-                
+                    
         elif choice == '5':
-            if ai is None:
-                print("\nPlease load or train a model first!")
-                continue
-            ml_game.main(ai)  # Pass the AI instance to the game
+            print("\nSelect AI type:")
+            print("1. Machine Learning")
+            print("2. Minimax")
+            print("3. Monte Carlo Tree Search")
+            ai_choice = input("\nEnter choice (1-3): ")
+            
+            human_color = input("\nChoose your color (w/b): ").lower()
+            if human_color not in ['w', 'b']:
+                human_color = 'w'
+            
+            from algorithms.algorithms_game import main as start_game
+            
+            if ai_choice == '1':
+                if ai is None:
+                    print("\nPlease load or train a model first!")
+                    continue
+                start_game('ml', ai_instance=ai, human_color=human_color)
+            elif ai_choice == '2':
+                start_game('minimax', human_color=human_color)
+            elif ai_choice == '3':
+                start_game('mcts', human_color=human_color)
+            else:
+                print("\nInvalid choice!")
             
         elif choice == '6':
             if ai is None:
@@ -108,8 +164,11 @@ def main():
                 print("\nNo model to save! Please train or load a model first.")
                 continue
                 
-            filename = input("\nEnter filename for the model: ")
-            if not filename.endswith('.pt'):
+            filename = input("\nEnter filename for the model (leave blank for timestamped name): ")
+            if not filename:
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"model_{timestamp}.pt"
+            elif not filename.endswith('.pt'):
                 filename += '.pt'
             ai.save_model(filename)
             print(f"\nModel saved as '{filename}'")

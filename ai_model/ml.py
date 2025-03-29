@@ -13,13 +13,20 @@ class ChessNN(nn.Module):
         super(ChessNN, self).__init__()
         self.network = nn.Sequential(
             nn.Linear(773, 2048),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.BatchNorm1d(2048),
             nn.Dropout(0.3),
+            
             nn.Linear(2048, 1024),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.BatchNorm1d(1024),
-            nn.Linear(1024, 1),
+            nn.Dropout(0.2),
+            
+            nn.Linear(1024, 512),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(512),
+            
+            nn.Linear(512, 1),
             nn.Tanh()
         )
     
@@ -444,51 +451,97 @@ class ChessQLearningAI:
             return False
 
     def _get_position_reward(self):
-        """Calculate position reward based on material and position"""
+        """Calculate position reward with improved scaling"""
         material = self._calculate_material()
-        position = self._evaluate_position()
-        return np.tanh((material + position) / 39.0)  # Normalize to [-1, 1]
+        position = self._evaluate_position() * 100  # Scale positional score
+        
+        # Combine scores with weights
+        total_score = material * 0.7 + position * 0.3
+        
+        # Sigmoid-like normalization to [-1, 1]
+        return 2 / (1 + np.exp(-total_score/1000)) - 1
 
     def _calculate_material(self):
-        """Calculate material balance with the correct piece representation"""
-        # Define piece values with color prefix
+        """Calculate material balance with improved piece values and positional bonuses"""
         values = {
-            'wP': 1, 'wN': 3, 'wB': 3, 'wR': 5, 'wQ': 9, 'wK': 0,
-            'bP': -1, 'bN': -3, 'bB': -3, 'bR': -5, 'bQ': -9, 'bK': 0
+            'wP': 100, 'wN': 320, 'wB': 330, 'wR': 500, 'wQ': 900, 'wK': 20000,
+            'bP': -100, 'bN': -320, 'bB': -330, 'bR': -500, 'bQ': -900, 'bK': -20000
         }
+        
+        # Piece-square tables for positional bonuses
+        pawn_table = [
+            [0,  0,  0,  0,  0,  0,  0,  0],
+            [50, 50, 50, 50, 50, 50, 50, 50],
+            [10, 10, 20, 30, 30, 20, 10, 10],
+            [5,  5, 10, 25, 25, 10,  5,  5],
+            [0,  0,  0, 20, 20,  0,  0,  0],
+            [5, -5,-10,  0,  0,-10, -5,  5],
+            [5, 10, 10,-20,-20, 10, 10,  5],
+            [0,  0,  0,  0,  0,  0,  0,  0]
+        ]
         
         total = 0
         for row in range(8):
             for col in range(8):
                 piece = self.board.board_state[row][col].figure
                 if piece:
-                    # Combine color and type for piece representation
                     piece_str = piece.color + piece.type
                     if piece_str in values:
-                        total += values[piece_str]
+                        value = values[piece_str]
+                        # Add positional bonus for pawns
+                        if piece.type == 'P':
+                            if piece.color == 'w':
+                                value += pawn_table[row][col]
+                            else:
+                                value -= pawn_table[7-row][col]
+                        total += value
         
         return total
 
     def _evaluate_position(self):
-        """Evaluates positional advantages"""
+        """Enhanced positional evaluation with multiple factors"""
         score = 0
         
-        # Center control
+        # Center control (weighted by piece type)
+        center_weights = {'P': 0.3, 'N': 0.4, 'B': 0.4, 'R': 0.2, 'Q': 0.1}
         center_squares = [(3,3), (3,4), (4,3), (4,4)]
+        extended_center = [(2,2), (2,3), (2,4), (2,5), 
+                          (3,2), (3,5), (4,2), (4,5),
+                          (5,2), (5,3), (5,4), (5,5)]
+        
         for row, col in center_squares:
             piece = self.board.board_state[row][col].figure
             if piece:
-                score += 0.1 if piece.color == 'w' else -0.1
-                
-        # Piece development
+                weight = center_weights.get(piece.type, 0.1)
+                score += weight if piece.color == 'w' else -weight
+        
+        # Extended center control (less weight)
+        for row, col in extended_center:
+            piece = self.board.board_state[row][col].figure
+            if piece:
+                weight = center_weights.get(piece.type, 0.1) * 0.5
+                score += weight if piece.color == 'w' else -weight
+        
+        # Development and piece activity
         for row in range(8):
             for col in range(8):
                 piece = self.board.board_state[row][col].figure
                 if piece:
-                    # Penalize undeveloped pieces in starting position
-                    if piece.color == 'w' and row < 2:
-                        score -= 0.05
-                    elif piece.color == 'b' and row > 5:
-                        score += 0.05
-                        
+                    # Penalize undeveloped pieces
+                    if piece.color == 'w':
+                        if row < 2 and piece.type in ['N', 'B']:
+                            score -= 0.15
+                        elif row == 1 and piece.type == 'P':
+                            score -= 0.05
+                    else:
+                        if row > 5 and piece.type in ['N', 'B']:
+                            score += 0.15
+                        elif row == 6 and piece.type == 'P':
+                            score += 0.05
+                    
+                    # Bonus for controlling long diagonals (bishops)
+                    if piece.type == 'B':
+                        if (row + col == 7) or (row - col == 0):
+                            score += 0.2 if piece.color == 'w' else -0.2
+        
         return score

@@ -1,264 +1,198 @@
 import pygame
+import sys
+import os
+from pathlib import Path
+from engine.board_and_fields import Board
 import time
-import threading
-import queue
-import copy
-import clock
+from tkinter import *
+from tkinter import ttk
 
-#wygląda dziwnie ale musi działać
-from engine.board_and_fields import *
-from engine.engine import *
-from engine.figures import *
-from graphics import *
-from algorithms.minimax import *
-from algorithms.monte_carlo_tree_search import *
-from algorithms.evaluation import get_evaluation  # Import evaluation function
-from ai_model import ml  # Import AI model
+# Add root directory to Python path for proper imports
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.append(str(PROJECT_ROOT))
 
-# Funkcja główna
-def main(player_turn):
-    try:
+class MLGameUI:
+    def __init__(self, ai, screen_size=800):
         pygame.init()
-        # Ładowanie konfiguracji
-        config = load_config()
-        resolution = config["resolution"]
-        width, height = map(int, resolution.split('x'))
-        SQUARE_SIZE = height // 8
-        print(width, height, SQUARE_SIZE)
-        # Ustawienia ekranu
-        screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("Chess Game")
-        icon_logo = pygame.image.load('program_logo.png')
-        pygame.display.set_icon(icon_logo)
+        self.screen_size = screen_size
+        self.square_size = screen_size // 8
+        self.screen = pygame.display.set_mode((screen_size, screen_size))
+        pygame.display.set_caption('Chess ML Game')
+        
+        # Set up project paths
+        self.project_root = Path(__file__).parent.parent
+        self.pieces_dir = self.project_root / 'assets' / 'pieces'  # Changed from interface to assets
+        
+        # Create pieces directory if it doesn't exist
+        self.pieces_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Game state initialization
+        self.board = Board()
+        self.selected_piece = None
+        self.ai = ai
+        self.game_time = None
+        self.move_time = None
+        
+        # Load pieces with error handling
+        self.pieces_images = self._load_pieces()
 
-        # Kolory
-        WHITE = (255, 255, 255)
-        BLACK = (0, 0, 0)
-        GRAY = (100, 100, 100)
-        YELLOW = pygame.Color("yellow")
-        HIGHLIGHT_MOVES = (100, 200, 100)
-        HIGHLIGHT_TAKES = (147, 168, 50)
-
-        # Czcionka
-        font = pygame.font.Font(None, 36)
-
-        # Ładowanie ikon figur
-        icon_type = config["icons"]
-        pieces_short = ["wp", "wR", "wN", "wB", "wQ", "wK", "bp", "bR", "bN", "bB", "bQ", "bK"]
+    def _load_pieces(self):
+        """Load piece images with proper path handling and error checking"""
         pieces = {}
-        for piece in pieces_short:
-            pieces[piece] = pygame.transform.scale(pygame.image.load("pieces/" + icon_type + "/" + piece + ".png"), (SQUARE_SIZE-10, SQUARE_SIZE-10))
         
-        running = True
-        main_board = Board()
-        turn = 'w'
-        selected_piece = None
-        clock = pygame.time.Clock()  # Fixed: Changed pygame.Clock() to pygame.time.Clock()
+        # Verify pieces directory exists
+        if not self.pieces_dir.exists():
+            raise FileNotFoundError(f"Pieces directory not found at {self.pieces_dir}")
+            
+        for color in ['w', 'b']:
+            for piece in ['P', 'R', 'N', 'B', 'Q', 'K']:
+                piece_path = self.pieces_dir / f'{color}{piece}.png'
+                
+                # Check if piece image exists, use placeholder if not
+                if not piece_path.exists():
+                    print(f"Warning: Missing piece image: {piece_path}")
+                    # Create a simple colored rectangle as placeholder
+                    surface = pygame.Surface((self.square_size, self.square_size))
+                    surface.fill((255, 0, 0) if color == 'w' else (0, 0, 255))
+                    pieces[f'{color}{piece}'] = surface
+                else:
+                    image = pygame.image.load(str(piece_path))
+                    pieces[f'{color}{piece}'] = pygame.transform.scale(
+                        image, (self.square_size, self.square_size)
+                    )
+        return pieces
 
+    def draw_board(self):
+        for row in range(8):
+            for col in range(8):
+                color = self.WHITE if (row + col) % 2 == 0 else self.GRAY
+                pygame.draw.rect(self.screen, color,
+                               (col * self.square_size, row * self.square_size,
+                                self.square_size, self.square_size))
+
+    def draw_pieces(self):
+        for row in range(8):
+            for col in range(8):
+                piece = self.board.board_state[row][col].figure
+                if piece:
+                    piece_str = f'{piece.color}{piece.type}'
+                    if piece_str in self.pieces_images:
+                        self.screen.blit(
+                            self.pieces_images[piece_str],
+                            (col * self.square_size, row * self.square_size)
+                        )
+
+    def get_time_settings(self):
+        root = Tk()
+        root.title("Game Settings")
         
-        is_reversed = player_turn == 'b'
-
-        # Remove algorithm-specific variables
-        result_queue = queue.Queue()
-        calculating = False
-
-        # Teksty interfejsu
-        texts = (
-            (font.render(f"Kolejka: białe", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
-            (font.render(f"Kolejka: czarne", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
-            (font.render(f"Wyjście", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
-            (font.render(f"Cofnij ruch", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Dodano przycisk "Cofnij ruch"
-        )
-        check_text = font.render("Szach!", True, pygame.Color("red"))
-
-        # Czasy graczy
-        start_time = time.time()
-        black_time = 0
-        white_time = 0
-        result = ""
-        winner = ""
-        in_check = None
-
-        # Aktualizacja wyświetlania czasów
-        def update_time_display(white_time, black_time, current_time, start_time, turn, player_turn):
-            """Update time display with player's time always at bottom"""
-            if turn == 'w':
-                current_white_time = white_time + (current_time - start_time)
-                current_black_time = black_time
-            else:
-                current_black_time = black_time + (current_time - start_time)
-                current_white_time = white_time
-            
-            # If player is white, white time goes bottom
-            if player_turn == 'w':
-                return (
-                    (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
-                     (8 * SQUARE_SIZE + 10, 80)),  # Bot's time (black) at top
-                    (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
-                     (8 * SQUARE_SIZE + 10, height - 150))  # Player's time (white) at bottom
-                )
-            # If player is black, black time goes bottom
-            else:
-                return (
-                    (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
-                     (8 * SQUARE_SIZE + 10, 80)),  # Bot's time (white) at top
-                    (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
-                     (8 * SQUARE_SIZE + 10, height - 150))  # Player's time (black) at bottom
-                )
-
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.display.quit()
-                    return "launcher"  # Return to launcher instead of exiting
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    pos = pygame.mouse.get_pos()
-                    # Modify click detection based on board orientation
-                    if is_reversed:
-                        col = pos[0] // SQUARE_SIZE
-                        row = pos[1] // SQUARE_SIZE
-                    else:
-                        col = 7 - (pos[0] // SQUARE_SIZE)
-                        row = 7 - (pos[1] // SQUARE_SIZE)
-                    # Obsługa przycisków zawsze dostępna
-                    if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20:
-                        if pos[1] >= height - 80:  # Przycisk "Wyjście"
-                            pygame.display.quit()
-                            return "launcher"  # Return to launcher
-                        elif height - 130 <= pos[1] < height - 80:  # Przycisk "Cofnij ruch"
-                            if confirm_undo_dialog(screen, SQUARE_SIZE):
-                                if undoMove(main_board):
-                                    turn = 'w' if turn == 'b' else 'b'
-                                    start_time = time.time()
-                     
-                    # Obsługa ruchów gracza tylko w jego turze
-                    if turn == player_turn:
-                        if col < 8 and row < 8:
-                            if selected_piece:
-                                if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
-                                    draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck, is_reversed)
-                                    draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
-                                    pygame.display.flip()
-                                    move_time = time.time() - start_time
-                                    if turn == 'w':
-                                        white_time += move_time
-                                    else:
-                                        black_time += move_time
-                                    turn = 'w' if turn == 'b' else 'b'
-                                    
-                                    #sprawdzanie co po ruchu
-                                    if selected_piece!=None:
-                                        whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
-                                        if whatAfter == "promotion":
-                                            choiceOfPromotion = promotion_dialog(screen, SQUARE_SIZE, turn)
-                                            promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
-                                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
-                                        if whatAfter == "checkmate":
-                                            result = "Szach Mat!"
-                                            winner = "Białe" if turn == 'b' else "Czarne"
-                                            running = False
-                                        elif whatAfter == "stalemate":
-                                            result = "Pat"
-                                            winner = "Remis"
-                                            running = False
-                                        elif whatAfter == "check":
-                                            in_check = turn
-                                        else:
-                                            in_check = None
-                                    selected_piece = None
-                                    start_time = time.time()
-
-                                else:
-                                    selected_piece = (row, col)
-                            else:
-                                selected_piece = (row, col)
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        pygame.display.quit()
-                        return "launcher"  # Return to launcher
-
-            # Aktualizacja czasu gracza na żywo
-            current_time = time.time()
-            if turn == 'w':
-                current_white_time = max(0, 10 * 60 - (current_time - start_time + white_time))  # Odliczanie od 10 minut
-                current_black_time = max(0, 10 * 60 - black_time)  # Zachowaj czas czarnego
-            else:
-                current_black_time = max(0, 10 * 60 - (current_time - start_time + black_time))  # Odliczanie od 10 minut
-                current_white_time = max(0, 10 * 60 - white_time)  # Zachowaj czas białego
-
-            # Sprawdzenie, czy czas się skończył
-            if current_white_time <= 0 or current_black_time <= 0:
-                running = False
-                result = "Czas się skończył!"
-                winner = "Czarny" if current_white_time <= 0 else "Biały"
-                break
-
-            # Simplified AI move handling
-            if turn != player_turn and running:
-                move = ml.get_ai_move(main_board, turn)
-                if move:
-                    from_row, from_col, to_row, to_col = move
-                    if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
-                        if turn == 'w':
-                            white_time += time.time() - start_time
-                        else:
-                            black_time += time.time() - start_time
-                        turn = 'w' if turn == 'b' else 'b'
-                        whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                        if whatAfter == "promotion":
-                            promotion_choice = '4'  # Always promote to queen
-                            promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
-                            whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
-                        if whatAfter == "checkmate":
-                            result = "Szach Mat!"
-                            winner = "Białe" if turn == 'b' else "Czarne"
-                            running = False
-                        elif whatAfter == "stalemate":
-                            result = "Pat"
-                            winner = "Remis"
-                            running = False
-                        elif whatAfter == "check":
-                            in_check = turn
-                        else:
-                            in_check = None
-                    start_time = time.time()
-
-            # Przed renderowaniem
-            current_time = time.time()
-            evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
-            player_times_font = update_time_display(white_time, black_time, current_time, start_time, turn, player_turn)
-
-            # Rendering zawsze na końcu pętli
-            screen.fill(BLACK)
-            draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
-            draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
-            
-            # Dodanie podświetlania ruchów
+        game_time = StringVar(value="10")
+        move_time = StringVar(value="3")
+        
+        def validate_times():
             try:
-                if selected_piece and (config["highlight_enemy"] or main_board.get_piece(selected_piece[0], selected_piece[1])[0] == turn):
-                    highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]], 
-                                  SQUARE_SIZE, main_board, HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)
-            except (TypeError, AttributeError):
-                pass
+                g_time = float(game_time.get())
+                m_time = float(move_time.get())
+                if m_time > g_time * 0.3:
+                    return False
+                return True
+            except ValueError:
+                return False
+        
+        def save_settings():
+            if validate_times():
+                self.game_time = float(game_time.get()) * 60  # Convert to seconds
+                self.move_time = float(move_time.get())
+                root.destroy()
+        
+        frame = ttk.Frame(root, padding="10")
+        frame.grid(row=0, column=0, sticky=(N, W, E, S))
+        
+        ttk.Label(frame, text="Game time (minutes):").grid(row=0, column=0)
+        ttk.Entry(frame, textvariable=game_time).grid(row=0, column=1)
+        
+        ttk.Label(frame, text="Move time (seconds):").grid(row=1, column=0)
+        ttk.Entry(frame, textvariable=move_time).grid(row=1, column=1)
+        
+        ttk.Button(frame, text="Start", command=save_settings).grid(row=2, column=0, columnspan=2)
+        
+        root.mainloop()
 
-            draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
-            draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
-
+    def main_game_loop(self, human_color):
+        self.get_time_settings()
+        if not self.game_time or not self.move_time:
+            return
+            
+        game_start = time.time()
+        clock = pygame.time.Clock()
+        running = True
+        
+        while running:
+            current_time = time.time()
+            elapsed = current_time - game_start
+            
+            if elapsed >= self.game_time:
+                print("Game over - Time's up!")
+                break
+                
+            if self.board.current_turn == human_color:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        x, y = pygame.mouse.get_pos()
+                        col = x // self.square_size
+                        row = y // self.square_size
+                        
+                        if self.selected_piece:
+                            if self.board.make_move(
+                                self.selected_piece[0],
+                                self.selected_piece[1],
+                                row, col
+                            ):
+                                self.selected_piece = None
+                            else:
+                                self.selected_piece = (row, col)
+                        else:
+                            piece = self.board.board_state[row][col].figure
+                            if piece and piece.color == human_color:
+                                self.selected_piece = (row, col)
+            else:
+                # AI move
+                move_start = time.time()
+                ai_move = self.ai.get_best_move()
+                
+                if ai_move and time.time() - move_start <= self.move_time:
+                    y1, x1, y2, x2 = ai_move
+                    self.board.make_move(y1, x1, y2, x2)
+            
+            # Draw everything
+            self.draw_board()
+            self.draw_pieces()
             pygame.display.flip()
             clock.tick(60)
         
-        # End game screen
-        end_result = end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
-        pygame.display.quit()
-        return end_result if end_result else "launcher"
+        pygame.quit()
 
+def main(ai, human_color='w'):
+    """Main function to start the game with proper model handling"""
+    try:
+        game = MLGameUI(ai)
+        game.main_game_loop(human_color)
     except Exception as e:
-        print(f"Game error: {e}")
-        pygame.display.quit()
-        return "launcher"  # Return to launcher on error
+        print(f"Error starting game: {e}")
+        pygame.quit()
 
 if __name__ == "__main__":
-    result = main()
-    if result == "launcher":
-        from launcher import main as launch_main
-        launch_main()  # Return to launcher
+    # For testing purposes only
+    from ai_model.ml import ChessQLearningAI
+    
+    # Initialize AI with proper model path
+    ai = ChessQLearningAI(Board())
+    model_path = PROJECT_ROOT / 'models' / 'test_model.pt'
+    
+    if model_path.exists():
+        ai.load_model(str(model_path))
+        main(ai)
+    else:
+        print(f"Model not found at {model_path}")

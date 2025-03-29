@@ -257,3 +257,17 @@
 2025-03-29 02:54:26,856 - INFO: Episode 14900/15000 | Loss: 0.0038 | Time: 41.3s
 2025-03-29 02:55:09,213 - INFO: Episode 15000/15000 | Loss: 0.0030 | Time: 42.4s
 2025-03-29 02:55:09,302 - INFO: Model saved to models\model_phase_4
+2025-03-29 16:34:49,111 - INFO: Episode 100/1500 | Loss: 0.5437 | Time: 19.6s
+2025-03-29 16:35:06,552 - INFO: Episode 200/1500 | Loss: 0.0252 | Time: 17.4s
+2025-03-29 16:35:22,954 - INFO: Episode 300/1500 | Loss: 0.0124 | Time: 16.4s
+2025-03-29 16:41:33,052 - INFO: Episode 100/500 | Loss: 0.2576 | Time: 16.1s
+2025-03-29 16:41:49,341 - INFO: Episode 200/500 | Loss: 0.0204 | Time: 16.3s
+2025-03-29 16:42:05,915 - INFO: Episode 300/500 | Loss: 0.0153 | Time: 16.6s
+2025-03-29 16:42:22,500 - INFO: Episode 400/500 | Loss: 0.0157 | Time: 16.6s
+2025-03-29 16:42:38,795 - INFO: Episode 500/500 | Loss: 0.0114 | Time: 16.3s
+2025-03-29 16:42:38,842 - INFO: Model saved to models\model_test_20250329_164238.pt
+2025-03-29 16:43:40,508 - ERROR: Failed to load model: [Errno 2] No such file or directory: 'models\\models\\model_test_20250329_164238.pt'
+2025-03-29 16:47:43,675 - ERROR: Failed to load model: [Errno 2] No such file or directory: 'models\\models\\model_test_20250329_164238.pt'
+2025-03-29 16:49:51,805 - ERROR: Failed to load model: [Errno 2] No such file or directory: 'models\\models\\model_test_20250329_164238.pt'
+2025-03-29 16:51:30,258 - ERROR: Failed to load model: [Errno 2] No such file or directory: 'models\\models\\model_test_20250329_164238.pt'
+2025-03-29 16:55:01,539 - INFO: Model loaded from c:\Users\Julia\Desktop\Chess\models\model_test_20250329_164238.pt
