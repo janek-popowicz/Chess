@@ -7,6 +7,8 @@ import logging
 import time
 from engine.board_and_fields import Board
 import random
+import engine.figures as figures
+import copy
 
 class ChessNN(nn.Module):
     def __init__(self):
@@ -32,7 +34,7 @@ class ChessNN(nn.Module):
     
     def forward(self, x):
         return self.network(x)
-import engine.figures as figures 
+
 class ChessQLearningAI:
     def __init__(self, board, learning_rate=0.001):
         self.board = board
@@ -50,10 +52,10 @@ class ChessQLearningAI:
         self.logger = logging.getLogger(__name__)
         
         self.initial_board_state = self._create_initial_board_state()
-        
+        self.current_turn = 'w'  # Add turn tracking to ML class
+
     def _create_initial_board_state(self):
         """Creates and stores the initial chess board state"""
-#import engine.figures as figures     
         # Save initial state
         initial_state = []
         
@@ -545,3 +547,150 @@ class ChessQLearningAI:
                             score += 0.2 if piece.color == 'w' else -0.2
         
         return score
+
+    def get_best_move(self):
+        """Get best move for current position"""
+        try:
+            moves = self._get_safe_moves(self.board, self.current_turn)
+            if not moves:
+                return None
+                
+            # Choose best move based on Q-learning
+            best_move = None
+            best_value = float('-inf')
+            
+            for piece, piece_moves in moves.items():
+                for move in piece_moves:
+                    # Try move
+                    temp_board = copy.deepcopy(self.board)
+                    if temp_board.make_move(piece[0], piece[1], move[0], move[1]):
+                        state = self.encode_position(temp_board)
+                        value = self.model(state).item()
+                        
+                        if value > best_value:
+                            best_value = value
+                            best_move = (piece[0], piece[1], move[0], move[1])
+            
+            # Update turn after move
+            if best_move:
+                self.current_turn = 'b' if self.current_turn == 'w' else 'w'
+            
+            return best_move
+            
+        except Exception as e:
+            print(f"Error getting best move: {e}")
+            return None
+
+    def play_interactive_game(self, human_color):
+        """
+        Play an interactive chess game against a human player using Pygame.
+        """
+        from engine.board_and_fields import Board
+        import pygame
+        from pygame.locals import QUIT, MOUSEBUTTONDOWN
+
+        # Initialize Pygame
+        pygame.init()
+        screen = pygame.display.set_mode((800, 800))
+        pygame.display.set_caption("Chess Game")
+        clock = pygame.time.Clock()
+
+        # Colors
+        WHITE = (255, 255, 255)
+        BLACK = (0, 0, 0)
+        HIGHLIGHT = (0, 255, 0)
+        TILE_SIZE = 100
+
+        # Load images for pieces (assuming images are in a folder named 'assets')
+        piece_images = {}
+        for piece in ['wP', 'wN', 'wB', 'wR', 'wQ', 'wK', 'bP', 'bN', 'bB', 'bR', 'bQ', 'bK']:
+            piece_images[piece] = pygame.image.load(f'assets/{piece}.png')
+
+        # Reset the board
+        self._reset_board()
+        current_color = 'w'
+        selected_piece = None
+        legal_moves = []
+
+        def draw_board():
+            """Draw the chessboard and pieces."""
+            for row in range(8):
+                for col in range(8):
+                    # Flip the board for black
+                    display_row = 7 - row if human_color == 'b' else row
+                    display_col = 7 - col if human_color == 'b' else col
+
+                    # Draw tiles
+                    color = WHITE if (row + col) % 2 == 0 else BLACK
+                    pygame.draw.rect(screen, color, (display_col * TILE_SIZE, display_row * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+
+                    # Highlight legal moves
+                    if (row, col) in legal_moves:
+                        pygame.draw.rect(screen, HIGHLIGHT, (display_col * TILE_SIZE, display_row * TILE_SIZE, TILE_SIZE, TILE_SIZE), 5)
+
+                    # Draw pieces
+                    piece = self.board.board_state[row][col].figure
+                    if piece:
+                        piece_str = piece.color + piece.type
+                        if piece_str in piece_images:
+                            screen.blit(piece_images[piece_str], (display_col * TILE_SIZE, display_row * TILE_SIZE))
+
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    running = False
+                elif event.type == MOUSEBUTTONDOWN:
+                    # Handle human player's move
+                    if current_color == human_color:
+                        mouse_x, mouse_y = event.pos
+                        clicked_col = mouse_x // TILE_SIZE
+                        clicked_row = mouse_y // TILE_SIZE
+
+                        # Flip the board for black
+                        board_row = 7 - clicked_row if human_color == 'b' else clicked_row
+                        board_col = 7 - clicked_col if human_color == 'b' else clicked_col
+
+                        if selected_piece:
+                            # Attempt to make a move
+                            if (board_row, board_col) in legal_moves:
+                                self.board.make_move(selected_piece[0], selected_piece[1], board_row, board_col)
+                                current_color = 'w' if current_color == 'b' else 'b'
+                                selected_piece = None
+                                legal_moves = []
+                            else:
+                                # Deselect if clicked outside legal moves
+                                selected_piece = None
+                                legal_moves = []
+                        else:
+                            # Select a piece
+                            piece = self.board.board_state[board_row][board_col].figure
+                            if piece and piece.color == human_color:
+                                selected_piece = (board_row, board_col)
+                                legal_moves = self._get_safe_moves(self.board, human_color).get(selected_piece, [])
+
+            # AI's turn
+            if current_color != human_color:
+                try:
+                    moves = self._get_safe_moves(self.board, current_color)
+                    if not moves:
+                        print(f"{current_color} has no legal moves. Game over!")
+                        running = False
+                        continue
+
+                    # Choose a random move for simplicity
+                    piece = random.choice(list(moves.keys()))
+                    move = random.choice(moves[piece])
+                    self.board.make_move(piece[0], piece[1], move[0], move[1])
+                    current_color = 'w' if current_color == 'b' else 'b'
+                except Exception as e:
+                    print(f"Error during AI move: {e}")
+                    running = False
+
+            # Update the display
+            screen.fill((255, 255, 255))  # Clear the screen
+            draw_board()
+            pygame.display.flip()
+            clock.tick(30)
+
+        pygame.quit()
