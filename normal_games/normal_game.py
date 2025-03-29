@@ -77,8 +77,8 @@ def main(game_time):
         moves_queue = Queue()
         root = tk.Tk()
         root.geometry("600x400+800+100")  # Pozycja obok okna gry
-        stats_window = StatsWindow(root, nerd_view_queue, moves_queue)
-    moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+        stats_window = NormalStatsWindow(root, nerd_view_queue, moves_queue)
+        moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
 
     while running:
         for event in pygame.event.get():

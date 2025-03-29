@@ -10,7 +10,7 @@ from engine.figures import *
 from engine.fen_operations import *
 from graphics import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
-
+from nerd_view import *
 
 
 def start_server():

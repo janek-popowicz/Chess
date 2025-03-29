@@ -7,6 +7,19 @@ from engine.engine import *
 from engine.figures import *
 from graphics import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
+from nerd_view import *
+
+def get_ip():
+    """
+    Pobiera adres IP tego komputera
+
+    Returns:
+        str: Adres IP
+    """
+    hostname = socket.gethostname()
+    ip = socket.gethostbyname(hostname)
+    return ip
+    
 
 server_connected_event = threading.Event()  # Zamiast zmiennej server_connected
 
@@ -187,6 +200,7 @@ def main():
     # Ładowanie konfiguracji
     config = load_config()
     resolution = config["resolution"]
+    nerd_view = config["nerd_view"]
     width, height = map(int, resolution.split('x'))
     SQUARE_SIZE = height // 8
     print(width, height, SQUARE_SIZE)
@@ -198,6 +212,20 @@ def main():
 
     # Czcionka
     font = pygame.font.Font(None, 36)
+
+    # Dane do nerd_view:
+    if nerd_view:
+        from queue import Queue
+        nerd_view_queue = Queue()
+        ping_nerd_view_queue = Queue()
+        moves_queue = Queue()
+        root = tk.Tk()
+        root_network = tk.Tk()
+        root_network.geometry("600x400+800+500")
+        root.geometry("600x400+800+100")
+        stats_window = NormalStatsWindow(root, nerd_view_queue, moves_queue)
+        network_stats_window = NetworkStatsWindow(root_network, ping_nerd_view_queue, get_ip(), HOST, False)
+        moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
 
     # Pętla do wpisywania adresu IP i próby połączenia
     while True:
