@@ -11,14 +11,14 @@ from nerd_view import *
 
 
 # Funkcja główna
-def main():
+def main(game_time):
     pygame.init()
     # Ładowanie konfiguracji
     config = load_config()
     resolution = config["resolution"]
     nerd_view = config["nerd_view"]
     width, height = map(int, resolution.split('x'))
-    SQUARE_SIZE = height // 8
+    SQUARE_SIZE = height // 16
     print(width, height, SQUARE_SIZE)
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
@@ -60,9 +60,9 @@ def main():
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
     # Czasy graczy
+    white_time = game_time
+    black_time = game_time
     start_time = time.time()
-    black_time = 0
-    white_time = 0
     result = ""
     winner = ""
     in_check = None
@@ -102,9 +102,9 @@ def main():
                             draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
                             move_time = time.time() - start_time
                             if turn == 'w':
-                                white_time += move_time
+                                white_time -= move_time
                             else:
-                                black_time += move_time
+                                black_time -= move_time
                             turn = 'w' if turn == 'b' else 'b'
                             
                             #sprawdzanie co po ruchu
@@ -152,12 +152,12 @@ def main():
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
         if turn == 'w':
-            current_white_time = max(0, 10 * 60 - (current_time - start_time + white_time))  # Odliczanie od 10 minut
-            current_black_time = max(0, 10 * 60 - black_time)  # Zachowaj czas czarnego
+            current_white_time = max(0, white_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_black_time = black_time  # Zachowaj czas czarnego
             is_reversed = False  # Board from white's perspective
         else:
-            current_black_time = max(0, 10 * 60 - (current_time - start_time + black_time))  # Odliczanie od 10 minut
-            current_white_time = max(0, 10 * 60 - white_time)  # Zachowaj czas białego
+            current_black_time = max(0, black_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_white_time = white_time  # Zachowaj czas białego
             is_reversed = True   # Board from black's perspective
 
         # Sprawdzenie, czy czas się skończył
@@ -202,4 +202,4 @@ def main():
     return
 if __name__ == "__main__":
 
-    main()
+    main(10 * 60)
