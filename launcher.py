@@ -132,7 +132,7 @@ def main():
 
 def do_an_action(selected_option, screen):
     if selected_option == 0: # Normalna gra
-        normal_games.normal_game.main()
+        normal_games.normal_game.main(600)
         return True
     elif selected_option == 1: # Niestandardowa plansza
         pygame.mixer.music.stop()

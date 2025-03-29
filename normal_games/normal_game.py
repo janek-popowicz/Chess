@@ -18,7 +18,7 @@ def main(game_time):
     resolution = config["resolution"]
     nerd_view = config["nerd_view"]
     width, height = map(int, resolution.split('x'))
-    SQUARE_SIZE = height // 16
+    SQUARE_SIZE = height // 8
     print(width, height, SQUARE_SIZE)
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
@@ -74,10 +74,12 @@ def main(game_time):
     if nerd_view:
         from queue import Queue
         nerd_view_queue = Queue()
+        moves_queue = Queue()
         root = tk.Tk()
         root.geometry("600x400+800+100")  # Pozycja obok okna gry
-        stats_window = StatsWindow(root, nerd_view_queue)
-    
+        stats_window = StatsWindow(root, nerd_view_queue, moves_queue)
+    moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -126,6 +128,11 @@ def main(game_time):
                                     in_check = turn
                                 else:
                                     in_check = None
+                            
+                            #liczenie liczby ruchów, ważne pod nerd_view
+                            if nerd_view:
+                                moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                                moves_queue.put(move_time)
                             selected_piece = None
                             start_time = time.time()
                            
@@ -192,7 +199,7 @@ def main(game_time):
             current_time_for_stats = time.time()
             evaluation = get_evaluation(main_board)
             evaluation = evaluation[0] - evaluation[1]
-            nerd_view_queue.put((current_time_for_stats, evaluation))
+            nerd_view_queue.put((current_time_for_stats, evaluation, moves_number))
             root.update()
     
     
