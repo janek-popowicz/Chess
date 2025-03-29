@@ -240,7 +240,7 @@ def king_to_edge(board):
     return [evaluation_white, evaluation_black]
 
 #color to color który ma ruch 
-def get_evaluation(board, color = 'b'):
+def get_evaluation(board):
     """
     Łączy ocenę materiałową, bonus pozycyjny i premię za pozycję królów.
     Wprowadza dodatkowy modyfikator zależny od liczby figur na planszy.
@@ -255,7 +255,7 @@ def get_evaluation(board, color = 'b'):
     modifier = 1 + (32 - pieces_count) / (pieces_count + 1)
     
     #jezeli wszytkie listy dla danego koloru and szach to plus infinity jezeli pat to 
-
+    '''
     if board_and_fields.Board.get_all_moves(board, color) == {} and board.is_in_check(color):
         if color == 'w':
             return [-1000000, 1000000]
@@ -265,7 +265,7 @@ def get_evaluation(board, color = 'b'):
         if color == 'w' and  (material[0] + bonus[0] + (king_bonus[0] * modifier)) > (material[1] + bonus[1] + (king_bonus[1] * modifier)):
            return [-1000000, 1000000]
         else:
-            return [1000000, -1000000]
+            return [1000000, -1000000]'''
 
 
     # .is_check (bierze kolor) 
