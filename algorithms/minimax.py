@@ -59,9 +59,12 @@ class Minimax:
 
         # Zwrócenie różnicy ocen w zależności od koloru AI
         if color == 'b':
-            return eval_result[1] - eval_result[0]
+            x = eval_result[1] - eval_result[0]
+            return x
         else:
-            return eval_result[0] - eval_result[1]
+            x = eval_result[0] - eval_result[1]
+            return x
+            return (eval_result[0] - eval_result[1])
     
     def is_time_exceeded(self):
         """
@@ -87,14 +90,7 @@ class Minimax:
             
     def minimax(self, board, depth, alfa, beta, is_maximizing):
         """
-        Implementacja algorytmu Minimax z przycinaniem alfa-beta z dokładną kontrolą czasu.
-
-        :param board: Aktualna plansza gry.
-        :param depth: Pozostała głębokość przeszukiwania.
-        :param alfa: Wartość alfa dla przycinania.
-        :param beta: Wartość beta dla przycinania.
-        :param is_maximizing: Czy obecnie maksymalizujemy wynik.
-        :return: Najlepsza ocena i ruch.
+        Implementacja algorytmu Minimax z poprawną obsługą wartości eval_value.
         """
         # Natychmiastowe sprawdzenie limitu czasu
         if self.is_time_exceeded():
@@ -139,7 +135,7 @@ class Minimax:
                         board.board_state[y2][x2].figure = captured_piece
                         board.piece_cords = prev_cords
                         continue
-
+                    
                     # Rekurencyjne wywołanie
                     eval_value, _ = self.minimax(board, depth - 1, alfa, beta, False)
 
@@ -147,8 +143,11 @@ class Minimax:
                     board.make_move(y2, x2, y1, x1)
                     board.board_state[y2][x2].figure = captured_piece
                     board.piece_cords = prev_cords
-                    print("eval_value: ", eval_value)
-                    print("max_eval: ", max_eval)
+
+                    # Handle eval_value properly
+                    if isinstance(eval_value, (list, tuple)):
+                        eval_value = eval_value[0] - eval_value[1]  # Convert to single value
+                    
                     if eval_value is not None:
                         if eval_value > max_eval:
                             max_eval = eval_value
@@ -201,6 +200,10 @@ class Minimax:
                     board.make_move(y2, x2, y1, x1)
                     board.board_state[y2][x2].figure = captured_piece
                     board.piece_cords = prev_cords
+
+                    # Handle eval_value properly
+                    if isinstance(eval_value, (list, tuple)):
+                        eval_value = eval_value[0] - eval_value[1]  # Convert to single value
 
                     if eval_value is not None:
                         if eval_value < min_eval:

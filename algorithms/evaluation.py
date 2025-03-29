@@ -252,7 +252,7 @@ def get_evaluation(board, color = 'b'):
     pieces_count = count_pieces(board)
     
     # Modyfikator zależny od liczby figur – im mniej figur, tym większy wpływ oceny pozycji króla
-    modifier = 1 + (32 - pieces_count) / 2
+    modifier = 1 + (32 - pieces_count) / (pieces_count + 1)
     
     #jezeli wszytkie listy dla danego koloru and szach to plus infinity jezeli pat to 
 
@@ -269,8 +269,8 @@ def get_evaluation(board, color = 'b'):
 
 
     # .is_check (bierze kolor) 
-    eval_white = material[0] + bonus[0] + int(king_bonus[0] * modifier)
-    eval_black = material[1] + bonus[1] + int(king_bonus[1] * modifier)
+    eval_white = material[0] + bonus[0] + (king_bonus[0] * modifier)
+    eval_black = material[1] + bonus[1] + (king_bonus[1] * modifier)
     # print(material[0], material[1], " Suma Materiału")
     # print(bonus[0], bonus[1], " Board Bonus")
     # print(king_bonus[0], king_bonus[1], " King bonus")
