@@ -25,8 +25,8 @@ import time
 import math
 
 def parse_pgn(pgn_text, grandmaster_name_fragment):
-    # Podział na gry na podstawie wyników (0-1, 1-0, 1/2-1/2)
-    games = re.split(r'(?:1-0|0-1|1/2-1/2)', pgn_text.replace("\n", " ").strip())
+    # Podział na gry na podstawie wyników (0-1, 1-0, 1/2-1/2, *)
+    games = re.split(r'(?:1-0|0-1|1/2-1/2|\*)', pgn_text.replace("\n", " ").strip())
 
     extracted_games = []
     last_grandmaster_color = None

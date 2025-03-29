@@ -16,6 +16,9 @@ from algorithms.evaluation import get_evaluation  # Import evaluation function
 MONTE_CARLO_LIMIT = 10
 MONTE_CARLO_DEPTH = 5
 
+def minimaxThread():
+    pass
+
 # Dodaj nową klasę po MinimaxThread
 class MonteCarloThread(threading.Thread):
     def __init__(self, board, max_depth, turn, result_queue):
@@ -318,7 +321,7 @@ def main(player_turn, algorithm):
 
         # Przed renderowaniem
         current_time = time.time()
-        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
+        evaluation = get_evaluation(main_board)[0] - get_evaluation(main_board)[1]  # Calculate evaluation
         player_times_font = update_time_display(white_time, black_time, current_time, start_time, turn, player_turn)
 
         # Rendering zawsze na końcu pętli
