@@ -36,6 +36,7 @@ class Minimax:
         
         self.best_move = None  # Najlepszy ruch znaleziony do tej pory
         self.path = Path(f"algorithms/opening.json")
+        self.should_stop = lambda: False  # Add callback for thread stopping
     
     def get_evaluation_score(self, board, is_maximizing):
         """
@@ -55,16 +56,13 @@ class Minimax:
             else:
                 return -1000000  # Mat dla czarnych
         elif board_and_fields.Board.get_all_moves(board, color) == {} and not board.is_in_check(color):
-            return 0  # Pat
+            return [0, 0]  # Pat
 
         # Zwrócenie różnicy ocen w zależności od koloru AI
-        if color == 'b':
-            x = eval_result[1] - eval_result[0]
-            return x
+        if self.color == 'b':
+            return eval_result[1] - eval_result[0]
         else:
-            x = eval_result[0] - eval_result[1]
-            return x
-            return (eval_result[0] - eval_result[1])
+            return eval_result[0] - eval_result[1]
     
     def is_time_exceeded(self):
         """
@@ -90,7 +88,14 @@ class Minimax:
             
     def minimax(self, board, depth, alfa, beta, is_maximizing):
         """
-        Implementacja algorytmu Minimax z poprawną obsługą wartości eval_value.
+        Implementacja algorytmu Minimax z przycinaniem alfa-beta z dokładną kontrolą czasu.
+
+        :param board: Aktualna plansza gry.
+        :param depth: Pozostała głębokość przeszukiwania.
+        :param alfa: Wartość alfa dla przycinania.
+        :param beta: Wartość beta dla przycinania.
+        :param is_maximizing: Czy obecnie maksymalizujemy wynik.
+        :return: Najlepsza ocena i ruch.
         """
         # Natychmiastowe sprawdzenie limitu czasu
         if self.is_time_exceeded():
@@ -116,7 +121,7 @@ class Minimax:
                     y2, x2 = move
 
                     # Zachowaj stan przed ruchem
-                    captured_piece = board.board_state[y2][x2].figure
+                    captured_piece = board.board[y2][x2].figure
                     prev_cords = board.piece_cords.copy()
 
                     # Wykonaj ruch
@@ -132,22 +137,18 @@ class Minimax:
                     if current_eval < max_eval - 200:  # Wartość progowa
                         # Cofnij ruch
                         board.make_move(y2, x2, y1, x1)
-                        board.board_state[y2][x2].figure = captured_piece
+                        board.board[y2][x2].figure = captured_piece
                         board.piece_cords = prev_cords
                         continue
-                    
+
                     # Rekurencyjne wywołanie
                     eval_value, _ = self.minimax(board, depth - 1, alfa, beta, False)
 
                     # Cofnij ruch
                     board.make_move(y2, x2, y1, x1)
-                    board.board_state[y2][x2].figure = captured_piece
+                    board.board[y2][x2].figure = captured_piece
                     board.piece_cords = prev_cords
 
-                    # Handle eval_value properly
-                    if isinstance(eval_value, (list, tuple)):
-                        eval_value = eval_value[0] - eval_value[1]  # Convert to single value
-                    
                     if eval_value is not None:
                         if eval_value > max_eval:
                             max_eval = eval_value
@@ -173,7 +174,7 @@ class Minimax:
                     y2, x2 = move
 
                     # Zachowaj stan przed ruchem
-                    captured_piece = board.board_state[y2][x2].figure
+                    captured_piece = board.board[y2][x2].figure
                     prev_cords = board.piece_cords.copy()
 
                     # Wykonaj ruch
@@ -189,7 +190,7 @@ class Minimax:
                     if current_eval > min_eval + 200:  # Wartość progowa
                         # Cofnij ruch
                         board.make_move(y2, x2, y1, x1)
-                        board.board_state[y2][x2].figure = captured_piece
+                        board.board[y2][x2].figure = captured_piece
                         board.piece_cords = prev_cords
                         continue
 
@@ -198,12 +199,8 @@ class Minimax:
 
                     # Cofnij ruch
                     board.make_move(y2, x2, y1, x1)
-                    board.board_state[y2][x2].figure = captured_piece
+                    board.board[y2][x2].figure = captured_piece
                     board.piece_cords = prev_cords
-
-                    # Handle eval_value properly
-                    if isinstance(eval_value, (list, tuple)):
-                        eval_value = eval_value[0] - eval_value[1]  # Convert to single value
 
                     if eval_value is not None:
                         if eval_value < min_eval:
