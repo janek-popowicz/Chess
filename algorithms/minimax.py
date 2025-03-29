@@ -36,7 +36,6 @@ class Minimax:
         
         self.best_move = None  # Najlepszy ruch znaleziony do tej pory
         self.path = Path(f"algorithms/opening.json")
-        self.should_stop = lambda: False  # Add callback for thread stopping
     
     def get_evaluation_score(self, board, is_maximizing):
         """
@@ -52,14 +51,14 @@ class Minimax:
         # Sprawdzenie sytuacji matowej lub patowej
         if board_and_fields.Board.get_all_moves(board, color) == {} and board.is_in_check(color):
             if color == 'w':
-                return [-1000000, 1000000]  # Mat dla białych
+                return 1000000  # Mat dla białych
             else:
-                return [1000000, -1000000]  # Mat dla czarnych
+                return -1000000  # Mat dla czarnych
         elif board_and_fields.Board.get_all_moves(board, color) == {} and not board.is_in_check(color):
-            return [0, 0]  # Pat
+            return 0  # Pat
 
         # Zwrócenie różnicy ocen w zależności od koloru AI
-        if self.color == 'b':
+        if color == 'b':
             return eval_result[1] - eval_result[0]
         else:
             return eval_result[0] - eval_result[1]
@@ -121,7 +120,7 @@ class Minimax:
                     y2, x2 = move
 
                     # Zachowaj stan przed ruchem
-                    captured_piece = board.board[y2][x2].figure
+                    captured_piece = board.board_state[y2][x2].figure
                     prev_cords = board.piece_cords.copy()
 
                     # Wykonaj ruch
@@ -137,7 +136,7 @@ class Minimax:
                     if current_eval < max_eval - 200:  # Wartość progowa
                         # Cofnij ruch
                         board.make_move(y2, x2, y1, x1)
-                        board.board[y2][x2].figure = captured_piece
+                        board.board_state[y2][x2].figure = captured_piece
                         board.piece_cords = prev_cords
                         continue
 
@@ -146,9 +145,10 @@ class Minimax:
 
                     # Cofnij ruch
                     board.make_move(y2, x2, y1, x1)
-                    board.board[y2][x2].figure = captured_piece
+                    board.board_state[y2][x2].figure = captured_piece
                     board.piece_cords = prev_cords
-
+                    print("eval_value: ", eval_value)
+                    print("max_eval: ", max_eval)
                     if eval_value is not None:
                         if eval_value > max_eval:
                             max_eval = eval_value
@@ -174,7 +174,7 @@ class Minimax:
                     y2, x2 = move
 
                     # Zachowaj stan przed ruchem
-                    captured_piece = board.board[y2][x2].figure
+                    captured_piece = board.board_state[y2][x2].figure
                     prev_cords = board.piece_cords.copy()
 
                     # Wykonaj ruch
@@ -190,7 +190,7 @@ class Minimax:
                     if current_eval > min_eval + 200:  # Wartość progowa
                         # Cofnij ruch
                         board.make_move(y2, x2, y1, x1)
-                        board.board[y2][x2].figure = captured_piece
+                        board.board_state[y2][x2].figure = captured_piece
                         board.piece_cords = prev_cords
                         continue
 
@@ -199,7 +199,7 @@ class Minimax:
 
                     # Cofnij ruch
                     board.make_move(y2, x2, y1, x1)
-                    board.board[y2][x2].figure = captured_piece
+                    board.board_state[y2][x2].figure = captured_piece
                     board.piece_cords = prev_cords
 
                     if eval_value is not None:

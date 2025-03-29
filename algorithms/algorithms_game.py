@@ -15,28 +15,6 @@ from algorithms.evaluation import get_evaluation  # Import evaluation function
 
 MONTE_CARLO_LIMIT = 10
 MONTE_CARLO_DEPTH = 5
-class MinimaxThread(threading.Thread):
-    def __init__(self, board, depth, turn, result_queue):
-        super().__init__()
-        self.board = board
-        self.depth = depth
-        self.turn = turn
-        self.result_queue = result_queue
-        self._stop_event = threading.Event()
-        self.daemon = True
-
-    def stop(self):
-        self._stop_event.set()
-
-    def stopped(self):
-        return self._stop_event.is_set()
-
-    def run(self):
-        minimax = Minimax(self.board, self.depth, self.turn,5)
-        minimax.should_stop = self.stopped
-        move = minimax.get_best_move()
-        if not self.stopped():
-            self.result_queue.put(move)
 
 # Dodaj nową klasę po MinimaxThread
 class MonteCarloThread(threading.Thread):
@@ -266,62 +244,37 @@ def main(player_turn, algorithm):
         # Ruch AI w osobnym bloku
         if turn != player_turn and running:
             if algorithm == "minimax":
-                if not calculating:
-                    # Clean up previous thread if exists
-                    if minimax_thread and minimax_thread.is_alive():
-                        minimax_thread.stop()
-                        minimax_thread.join(timeout=0.1)
+                minimax_obj = Minimax(main_board, 3, turn, 1000)
+                y1, x1, y2, x2 = minimax_obj.get_best_move()
+                if tryMove(turn, main_board, y1, x1, y2, x2):
+                    # Handle successful move
+                    if turn == 'w':
+                        white_time += time.time() - start_time
+                    else:
+                        black_time += time.time() - start_time
+                    turn = 'w' if turn == 'b' else 'b'
                     
-                    # Clear queue
-                    while not result_queue.empty():
-                        result_queue.get_nowait()
+                    # Handle promotion and game state
+                    whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
+                    if whatAfter == "promotion":
+                        promotion(yForPromotion, xForPromotion, main_board, '4')  # Always queen
+                        whatAfter, _, _ = afterMove(turn, main_board, y1, x1, y2, x2)
                     
-                    # Start new calculation
-                    calculating = True
-                    minimax_thread = MinimaxThread(
-                        copy.deepcopy(main_board), 
-                        3, 
-                        turn, 
-                        result_queue
-                    )
-                    minimax_thread.start()
-
-                # Check for result
-                if not result_queue.empty():
-                    move = result_queue.get()
-                    calculating = False
+                    # Update game state
+                    if whatAfter == "checkmate":
+                        result = "Szach Mat!"
+                        winner = "Białe" if turn == 'b' else "Czarne"
+                        running = False
+                    elif whatAfter == "stalemate":
+                        result = "Pat"
+                        winner = "Remis"
+                        running = False
+                    elif whatAfter == "check":
+                        in_check = turn
+                    else:
+                        in_check = None
                     
-                    if move and not (minimax_thread and minimax_thread.stopped()):
-                        y1, x1, y2, x2 = move
-                        if tryMove(turn, main_board, y1, x1, y2, x2):
-                            # Handle successful move
-                            if turn == 'w':
-                                white_time += time.time() - start_time
-                            else:
-                                black_time += time.time() - start_time
-                            turn = 'w' if turn == 'b' else 'b'
-                            
-                            # Handle promotion and game state
-                            whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
-                            if whatAfter == "promotion":
-                                promotion(yForPromotion, xForPromotion, main_board, '10')  # Always queen
-                                whatAfter, _, _ = afterMove(turn, main_board, y1, x1, y2, x2)
-                            
-                            # Update game state
-                            if whatAfter == "checkmate":
-                                result = "Szach Mat!"
-                                winner = "Białe" if turn == 'b' else "Czarne"
-                                running = False
-                            elif whatAfter == "stalemate":
-                                result = "Pat"
-                                winner = "Remis"
-                                running = False
-                            elif whatAfter == "check":
-                                in_check = turn
-                            else:
-                                in_check = None
-                            
-                            start_time = time.time()
+                    start_time = time.time()
 
             elif algorithm == "monte_carlo":
                 if not calculating:
