@@ -885,7 +885,7 @@ def get_evaluation(board, current_color=None):
                  situational[0] + 
                  activity[0] + 
                  threats[0] + 
-                 mating(board)[0] +
+                 mating(board)[1] +
                  rooks_connected[0])
     
     # Suma wszystkich składników oceny dla czarnych
@@ -898,7 +898,7 @@ def get_evaluation(board, current_color=None):
                  situational[1] + 
                  activity[1] + 
                  threats[1] + 
-                mating(board)[1] +
+                mating(board)[0] +
                  rooks_connected[1])
     
     return [white_eval, black_eval]
