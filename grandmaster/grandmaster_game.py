@@ -48,46 +48,26 @@ def get_grandmaster_move(board, turn, grandmaster_moves):
         return moves_list[randint(1,len(moves_list))-1], moves_list  # Bierzemy losowy ruch
     return (0,0,0,0), []
 
-def update_times_display(white_time, black_time, current_time, start_time, turn, player_color, font, SQUARE_SIZE, YELLOW, GRAY, height):
+def update_times_display(white_time, black_time, turn, player_color, font, SQUARE_SIZE, YELLOW, GRAY, height):
     """
     Returns tuple of time displays with player's time at bottom and grandmaster's time at top.
     
-    Args:
-        white_time (float): White player's total time
-        black_time (float): Black player's total time
-        current_time (float): Current timestamp
-        start_time (float): Turn start timestamp
-        turn (str): Current turn ('w' or 'b')
-        player_color (str): Human player's color ('w' or 'b')
-        font (pygame.font.Font): Font for rendering text
-        SQUARE_SIZE (int): Size of a chess square
-        YELLOW (pygame.Color): Color for active player
-        GRAY (pygame.Color): Color for inactive player
-        height (int): Screen height for positioning
     """
-    # Calculate current times
-    if turn == 'w':
-        current_white_time = white_time + (current_time - start_time)
-        current_black_time = black_time
-    else:
-        current_black_time = black_time + (current_time - start_time)
-        current_white_time = white_time
-    
     # Determine display positions based on player color
     return (
-        (font.render(f"{global_translations.get('black')}: {format_time(current_black_time)}", True, YELLOW if turn == 'b' else GRAY),
+        (font.render(f"{global_translations.get('black')}: {format_time(black_time)}", True, YELLOW if turn == 'b' else GRAY),
          (8 * SQUARE_SIZE + 10, 80)),
-        (font.render(f"{global_translations.get('white')}: {format_time(current_white_time)}", True, YELLOW if turn == 'w' else GRAY),
+        (font.render(f"{global_translations.get('white')}: {format_time(white_time)}", True, YELLOW if turn == 'w' else GRAY),
          (8 * SQUARE_SIZE + 10, height - 150))
     ) if player_color == 'w' else (
-        (font.render(f"{global_translations.get('white')}: {format_time(current_white_time)}", True, YELLOW if turn == 'w' else GRAY),
+        (font.render(f"{global_translations.get('white')}: {format_time(white_time)}", True, YELLOW if turn == 'w' else GRAY),
          (8 * SQUARE_SIZE + 10, 80)),
-        (font.render(f"{global_translations.get('black')}: {format_time(current_black_time)}", True, YELLOW if turn == 'b' else GRAY),
+        (font.render(f"{global_translations.get('black')}: {format_time(black_time)}", True, YELLOW if turn == 'b' else GRAY),
          (8 * SQUARE_SIZE + 10, height - 150))
     )
 
 # Funkcja główna
-def main(player_color, grandmaster_name):
+def main(player_color, grandmaster_name, game_time):
     pygame.init()
     # Ładowanie konfiguracji
     config = load_config()
@@ -97,7 +77,7 @@ def main(player_color, grandmaster_name):
     print(width, height, SQUARE_SIZE)
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Chess Game")
+    pygame.display.set_caption("Grandmaster Game")
     icon_logo = pygame.image.load('program_logo.png')
     pygame.display.set_icon(icon_logo)
 
@@ -142,9 +122,10 @@ def main(player_color, grandmaster_name):
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
     # Czasy graczy
+    
+    black_time = game_time
+    white_time = game_time
     start_time = time.time()
-    black_time = 0
-    white_time = 0
     result = ""
     winner = ""
     in_check = None
@@ -200,9 +181,9 @@ def main(player_color, grandmaster_name):
                         if turn == player_color and tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
                             move_time = time.time() - start_time
                             if turn == 'w':
-                                white_time += move_time
+                                white_time -= move_time
                             else:
-                                black_time += move_time
+                                black_time -= move_time
                             turn = 'w' if turn == 'b' else 'b'
                             
                             #sprawdzanie co po ruchu
@@ -259,19 +240,12 @@ def main(player_color, grandmaster_name):
                     try: minimax_process.terminate()  # Natychmiastowe zabicie procesu
                     except: pass
         if turn != player_color:
-            move_time = time.time() - start_time
-            
-            if turn == 'w':
-                white_time += move_time
-            else:
-                black_time += move_time
             draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck,is_reversed)
             draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
             pygame.display.flip()
             grandmaster_move, moves_from_json_list = get_grandmaster_move(main_board, grandmaster_color, grandmaster_moves)
             try: 
                 cords = notation_to_cords(main_board, grandmaster_move, turn)
-                time.sleep(1)
                 y1, x1, y2, x2 = cords
             except:
                 cords = False
@@ -287,9 +261,9 @@ def main(player_color, grandmaster_name):
                 #sprawdzanie co po ruchu
                 move_time = time.time() - start_time
                 if turn == 'w':
-                    white_time += time.time() - start_time
+                    white_time -= time.time() - start_time
                 else:
-                    black_time += time.time() - start_time
+                    black_time -= time.time() - start_time
                 turn = 'w' if turn == 'b' else 'b'
                 whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, y1, x1, y2, x2)
                 if whatAfter == "promotion":
@@ -336,9 +310,9 @@ def main(player_color, grandmaster_name):
                         # Handle successful move
                         move_time = time.time() - start_time
                         if turn == 'w':
-                            white_time += time.time() - start_time
+                            white_time -= time.time() - start_time
                         else:
-                            black_time += time.time() - start_time
+                            black_time -= time.time() - start_time
                         turn = 'w' if turn == 'b' else 'b'
                         
                         # Handle promotion and game state
@@ -385,13 +359,13 @@ def main(player_color, grandmaster_name):
             break
 
         player_times_font = update_times_display(
-            white_time, black_time, current_time, start_time, turn, player_color,
+            white_time, black_time, turn, player_color,
             font, SQUARE_SIZE, YELLOW, GRAY, height
         )
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
         evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
-        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text, evaluation)
+        draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)

@@ -161,7 +161,7 @@ def do_an_action(selected_option, screen):
         if player_color == None:
             return True
         grandmaster_name = graphics.choose_grandmaster_dialog(screen, 100)
-        grandmaster.grandmaster_game.main(player_color, grandmaster_name)
+        grandmaster.grandmaster_game.main(player_color, grandmaster_name, graphics.choose_time_control_dialog(screen,120))
         return True
     elif selected_option == 4: # Gra w sieci
         server_or_client = graphics.choose_color_dialog(screen, 100)
