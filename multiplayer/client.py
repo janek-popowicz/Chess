@@ -280,6 +280,7 @@ def main() -> None:
         client = connect_to_server_with_timeout(HOST, PORT)
         if client:
             print("🟢 Connected to the server!")
+            game_time = float(client.recv(1024).decode('utf-8'))
             break
         else:
             # Display error message
@@ -323,10 +324,10 @@ def main() -> None:
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
     ping_start_time = time.time()
-    # Player times
+    # Czasy graczy
+    white_time = game_time
+    black_time = game_time
     start_time = time.time()
-    black_time = 0
-    white_time = 0
     result = ""
     winner = ""
     in_check = None
@@ -381,9 +382,9 @@ def main() -> None:
                             draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
                             move_time = time.time() - start_time
                             if turn == 'w':
-                                white_time += move_time
+                                white_time -= move_time
                             else:
-                                black_time += move_time
+                                black_time -= move_time
                             turn = 'w' if turn == 'b' else 'b'
                             
                             # Check after move
@@ -479,9 +480,9 @@ def main() -> None:
                         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
                         move_time = time.time() - start_time
                         if turn == 'w':
-                            white_time += move_time
+                            white_time -= move_time
                         else:
-                            black_time += move_time
+                            black_time -= move_time
                         turn = 'w' if turn == 'b' else 'b'
                         
                         # Check after move
@@ -514,16 +515,21 @@ def main() -> None:
         except socket.timeout:
             pass
 
-        # Update player time live
+        # Aktualizacja czasu gracza na żywo
         current_time = time.time()
         if turn == 'w':
-            current_white_time = white_time + (current_time - start_time)
-            current_black_time = black_time
+            current_white_time = max(0, white_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_black_time = black_time  # Zachowaj czas czarnego
         else:
-            current_black_time = black_time + (current_time - start_time)
-            current_white_time = white_time
+            current_black_time = max(0, black_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_white_time = white_time  # Zachowaj czas białego
 
-        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
+        # Sprawdzenie, czy czas się skończył
+        if current_white_time <= 0 or current_black_time <= 0:
+            running = False
+            result = "Czas się skończył!"
+            winner = "Czarny" if current_white_time <= 0 else "Biały"
+            break
 
         player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
                               (8 * SQUARE_SIZE + 10, height - 150)),
@@ -531,7 +537,7 @@ def main() -> None:
                               (8 * SQUARE_SIZE + 10, 80)))
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check)
-        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation, ping=ping_time)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, ping=ping_time)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == 'w':
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES)

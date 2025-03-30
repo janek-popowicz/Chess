@@ -176,7 +176,7 @@ def waiting_screen(screen: pygame.Surface, font: pygame.font.Font, server_ip: st
     start_time = time.time()
     return True
 
-def main() -> None:
+def main(game_time) -> None:
     """
     Główna funkcja inicjalizująca serwer i uruchamiająca grę w szachy.
 
@@ -247,14 +247,7 @@ def main() -> None:
     )
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
-    # Czasy graczy
-    # start_time = time.time()
-    black_time = 0
-    white_time = 0
-    result = ""
-    winner = ""
-    in_check = None
-    is_reversed = True #aby czarne były na dole
+    
 
     # Pobieranie adresu IP serwera
     server_ip = get_server_ip()
@@ -264,8 +257,7 @@ def main() -> None:
     if not waiting_screen(screen, font, server_ip):
         return
 
-    # Po podłączeniu klienta ustawiamy timeout
-    conn.settimeout(0.05)
+    
 
     def request_undo(screen: pygame.Surface, SQUARE_SIZE: int) -> bool:
         """
@@ -292,7 +284,20 @@ def main() -> None:
         root.geometry("600x600+800+100")
         stats_window = NormalStatsWindow(root, nerd_view_queue, moves_queue)
         network_stats_window = NetworkStatsWindow(root_network, ping_nerd_view_queue, server_ip, client_ip, is_server=True)
-        moves_number = sum(len(value) for value in main_board.get_all_moves(turn))        
+        moves_number = sum(len(value) for value in main_board.get_all_moves(turn))     
+    
+    # Czasy graczy
+    white_time = game_time
+    black_time = game_time
+    conn.sendall(str(game_time).encode('utf-8'))
+    start_time = time.time()
+    result = ""
+    winner = ""
+    in_check = None
+    is_reversed = True #aby czarne były na dole   
+
+    # Po podłączeniu klienta ustawiamy timeout
+    conn.settimeout(0.05)
 
     while running:
         
@@ -319,9 +324,9 @@ def main() -> None:
                             pygame.display.flip()
                             move_time = time.time() - start_time
                             if turn == 'w':
-                                white_time += move_time
+                                white_time -= move_time
                             else:
-                                black_time += move_time
+                                black_time -= move_time
                             turn = 'w' if turn == 'b' else 'b'
                             
                             #sprawdzanie co po ruchu
@@ -409,13 +414,14 @@ def main() -> None:
                     row = int(data[2])
                     col = int(data[3])
                     if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
+
                         draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck, is_reversed)
                         draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
                         move_time = time.time() - start_time
                         if turn == 'w':
-                            white_time += move_time
+                            white_time -= move_time
                         else:
-                            black_time += move_time
+                            black_time -= move_time
                         turn = 'w' if turn == 'b' else 'b'
                         
                         #sprawdzanie co po ruchu
@@ -451,13 +457,18 @@ def main() -> None:
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
         if turn == 'w':
-            current_white_time = white_time + (current_time - start_time)
-            current_black_time = black_time
+            current_white_time = max(0, white_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_black_time = black_time  # Zachowaj czas czarnego
         else:
-            current_black_time = black_time + (current_time - start_time)
-            current_white_time = white_time
+            current_black_time = max(0, black_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_white_time = white_time  # Zachowaj czas białego
 
-        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
+        # Sprawdzenie, czy czas się skończył
+        if current_white_time <= 0 or current_black_time <= 0:
+            running = False
+            result = "Czas się skończył!"
+            winner = "Czarny" if current_white_time <= 0 else "Biały"
+            break
 
         player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
                               (8 * SQUARE_SIZE + 10, height - 150)),
@@ -465,7 +476,7 @@ def main() -> None:
                               (8 * SQUARE_SIZE + 10, 80)))
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
-        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation, ping = ping_time)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, ping = ping_time)
         try:
             if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == 'b':
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)

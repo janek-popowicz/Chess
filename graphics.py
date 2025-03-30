@@ -140,7 +140,7 @@ def highlight_moves(screen, field, square_size: int, board, color_move, color_ta
             
         screen.blit(highlighted_tile, (x, y))
 
-def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text, nerd_view=False, evaluation=None, ping=None):
+def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_check, check_text, nerd_view=False, ping=None):
     """
     Rysuje interfejs użytkownika obok szachownicy.
 
@@ -154,7 +154,6 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_che
         in_check (str): Kolor gracza, którego król jest szachowany ('w' lub 'b').
         check_text (pygame.Surface): Tekst informujący o szachu.
         nerd_view (bool, optional): Czy wyświetlać dodatkowe informacje. Defaults to False.
-        evaluation (float, optional): Ocena pozycji. Defaults to None.
         ping (int, optional): Ping w ms. Defaults to None.
     """
     # Czarny prostokąt z prawej - tło
@@ -179,20 +178,6 @@ def draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times, in_che
     if nerd_view:
         small_font = pygame.font.Font(None, 28)
         
-        # Ustawienie stałej wartości oceny
-        evaluation = 10  # Ocena dla białych
-        black_eval = -evaluation  # Ocena dla czarnych
-
-        # Wyświetl evaluation dla białych
-        eval_color_white = pygame.Color("green") if evaluation > 0 else pygame.Color("red")
-        eval_text_white = small_font.render(f"Eval (white): +{evaluation:.2f}", True, eval_color_white)
-        screen.blit(eval_text_white, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4))
-
-        # Wyświetl evaluation dla czarnych
-        eval_color_black = pygame.Color("green") if black_eval > 0 else pygame.Color("red")
-        eval_text_black = small_font.render(f"Eval (black): {black_eval:.2f}", True, eval_color_black)
-        screen.blit(eval_text_black, (8 * SQUARE_SIZE + 10, SQUARE_SIZE * 4.3))
-
         # Wyświetl ping jeśli dostępny
         if ping is not None:
             ping_color = pygame.Color("white")

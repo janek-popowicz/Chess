@@ -172,13 +172,14 @@ def do_an_action(selected_option, screen):
             multiplayer.client.main()
         elif server_or_client == "b":
             import multiplayer.server
-            multiplayer.server.main()
+            multiplayer.server.main(graphics.choose_time_control_dialog(screen,120))
         return True
     elif selected_option == 5: # Ustawienia
         pygame.mixer.music.stop()
         settings.main()
         return True
     elif selected_option == 6: # Wyjście
+        pygame.mixer.music.stop()
         return False
     elif selected_option == 7: # Konwerter PGN do FEN
         pygame.mixer.music.stop()

@@ -173,7 +173,7 @@ class NetworkStatsWindow:
         role = "SERVER" if self.is_server else "CLIENT"
         text = (
             f"IP: {self.your_ip_address}\n"
-            f"Host: {self.other_ip_adress}\n"
+            f"Other IP: {self.other_ip_adress}\n"
             f"Role: {role}\n"
             f"Uptime: {datetime.now() - self.start_time}"
         )
