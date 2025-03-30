@@ -16,10 +16,9 @@ from nerd_view import *
 from multiprocessing import Process
 from multiprocessing import Queue as multiQueue
 
-MONTE_CARLO_LIMIT = 10
-MONTE_CARLO_DEPTH = 5
 
 def calculate_minimax(board,depth,color,time_limit,min_time,result_queue):
+    global MIN_TIME
     # minimax_start_time = time.time()
     board_copy = copy.deepcopy(board)
     minimax_obj = Minimax(board_copy, depth, color, time_limit)
@@ -49,8 +48,9 @@ class MonteCarloThread(threading.Thread):
         try:
             mc_obj = Mcts(self.turn)
             # Sprawdzamy czy wątek nie został zatrzymany przed każdą symulacją
+            global MAX_TIME
             if not self.stopped():
-                move = mc_obj.pick_best_move(self.board, MONTE_CARLO_LIMIT, self.max_depth)
+                move = mc_obj.pick_best_move(self.board, MAX_TIME, self.max_depth)
                 if not self.stopped():
                     self.result_queue.put(move)
         except Exception as e:
@@ -121,7 +121,12 @@ def main(player_turn, algorithm):
     in_check = None
 
     # Właświwości algorytmów
-    depth, min_time, max_time = 2, 1, 10
+    global MAX_TIME
+    global MIN_TIME
+    min_depth = 1 if algorithm == "minimax" else 5
+    max_depth = 4 if algorithm == "minimax" else 30
+    try: depth, MIN_TIME, MAX_TIME = choose_ai_settings_dialog(screen, SQUARE_SIZE, min_depth, max_depth)
+    except: return
 
     # Dodaj zmienne do obsługi wątku
     minimax_process = None
@@ -273,7 +278,7 @@ def main(player_turn, algorithm):
                     calculating = True
                     minimax_process = Process(
                         target=calculate_minimax,
-                        args=(main_board,depth,turn,max_time,min_time,minimax_queue),
+                        args=(main_board,depth,turn,MAX_TIME,MIN_TIME,minimax_queue),
                         daemon=True
                     )
                     minimax_process.start()
@@ -320,7 +325,7 @@ def main(player_turn, algorithm):
                 if not calculating:
                     calculating = True
                     result_queue = queue.Queue()
-                    monte_carlo_thread = MonteCarloThread(main_board, MONTE_CARLO_DEPTH, turn, result_queue)
+                    monte_carlo_thread = MonteCarloThread(main_board, depth, turn, result_queue)
                     monte_carlo_thread.start()
                 
                 try:

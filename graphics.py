@@ -801,3 +801,155 @@ def choose_pgn_file_dialog(screen, SQUARE_SIZE: int) -> str:
             pygame.time.wait(2000)
             
     return None
+
+def choose_ai_settings_dialog(screen, SQUARE_SIZE: int, min_depth=1, max_depth=5) -> tuple:
+    """
+    Shows a dialog with sliders to configure AI settings.
+    
+    Args:
+        screen (pygame.Surface): Game screen surface
+        SQUARE_SIZE (int): Size of a board square
+        min_depth (int): Minimum depth value
+        max_depth (int): Maximum depth value
+        
+    Returns:
+        tuple: (depth, min_time, max_time) or None if canceled
+    """
+    font = pygame.font.Font(None, 48)
+    small_font = pygame.font.Font(None, 36)
+    clock = pygame.time.Clock()
+
+    # Settings and their ranges
+    settings = {
+        "Głębokość przeszukiwania (zalecane 2 dla minimaxa i )": {
+            "value": (min_depth + max_depth) // 2,
+            "min": min_depth,
+            "max": max_depth,
+            "step": 1
+        },
+        "Minimalny czas (s)": {
+            "value": 1,
+            "min": 0,
+            "max": 5,
+            "step": 0.1
+        },
+        "Maksymalny czas (s)": {
+            "value": 3,
+            "min": 1,
+            "max": 30,
+            "step": 0.5
+        }
+    }
+
+    # Slider properties
+    SLIDER_WIDTH = 400
+    SLIDER_HEIGHT = 8
+    HANDLE_SIZE = 20
+    SPACING = 100
+
+    # Button properties
+    BUTTON_WIDTH = 200
+    BUTTON_HEIGHT = 60
+    
+    # Calculate positions
+    start_y = 200
+    sliders = {}
+    for i, key in enumerate(settings.keys()):
+        slider_x = (screen.get_width() - SLIDER_WIDTH) // 2
+        slider_y = start_y + i * SPACING
+        sliders[key] = {
+            "rect": pygame.Rect(slider_x, slider_y, SLIDER_WIDTH, SLIDER_HEIGHT),
+            "handle": pygame.Rect(
+                slider_x + (settings[key]["value"] - settings[key]["min"]) / 
+                (settings[key]["max"] - settings[key]["min"]) * SLIDER_WIDTH - HANDLE_SIZE//2,
+                slider_y - HANDLE_SIZE//2 + SLIDER_HEIGHT//2,
+                HANDLE_SIZE, HANDLE_SIZE
+            )
+        }
+
+    # Create buttons
+    buttons = {
+        "Zatwierdź": pygame.Rect((screen.get_width() - BUTTON_WIDTH*2 - 20)//2, 
+                                start_y + len(settings) * SPACING + 50,
+                                BUTTON_WIDTH, BUTTON_HEIGHT),
+        "Anuluj": pygame.Rect((screen.get_width() + 20)//2, 
+                             start_y + len(settings) * SPACING + 50,
+                             BUTTON_WIDTH, BUTTON_HEIGHT)
+    }
+
+    active_slider = None
+    while True:
+        screen.fill(pygame.Color("gray20"))
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Draw title
+        title = font.render("Ustawienia AI", True, pygame.Color("gold"))
+        title_rect = title.get_rect(center=(screen.get_width()//2, 100))
+        screen.blit(title, title_rect)
+
+        # Draw sliders
+        for name, slider in sliders.items():
+            # Draw slider background
+            pygame.draw.rect(screen, pygame.Color("gray40"), slider["rect"])
+            pygame.draw.rect(screen, pygame.Color("gray60"), slider["rect"], 1)
+            
+            # Draw handle
+            handle_color = pygame.Color("gold") if slider["handle"].collidepoint(mouse_pos) else pygame.Color("white")
+            pygame.draw.circle(screen, handle_color, slider["handle"].center, HANDLE_SIZE//2)
+            
+            # Draw labels and values
+            label = small_font.render(name, True, pygame.Color("white"))
+            screen.blit(label, (slider["rect"].x, slider["rect"].y - 30))
+            
+            # Calculate and display value
+            value_range = settings[name]["max"] - settings[name]["min"]
+            relative_pos = (slider["handle"].centerx - slider["rect"].x) / SLIDER_WIDTH
+            value = settings[name]["min"] + relative_pos * value_range
+            value = round(value / settings[name]["step"]) * settings[name]["step"]
+            settings[name]["value"] = value
+            
+            value_text = small_font.render(f"{value:.1f}", True, pygame.Color("white"))
+            screen.blit(value_text, (slider["rect"].right + 20, slider["rect"].y - 5))
+
+        # Draw buttons
+        for text, rect in buttons.items():
+            color = pygame.Color("gold") if rect.collidepoint(mouse_pos) else pygame.Color("white")
+            pygame.draw.rect(screen, color, rect, 3)
+            button_text = small_font.render(text, True, color)
+            text_rect = button_text.get_rect(center=rect.center)
+            screen.blit(button_text, text_rect)
+
+        pygame.display.flip()
+        clock.tick(60)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return None
+                
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Check slider handles
+                for slider in sliders.values():
+                    if slider["handle"].collidepoint(event.pos):
+                        active_slider = slider
+                        break
+                
+                # Check buttons
+                if buttons["Zatwierdź"].collidepoint(event.pos):
+                    return (
+                        int(settings["Głębokość przeszukiwania"]["value"]),
+                        settings["Minimalny czas (s)"]["value"],
+                        settings["Maksymalny czas (s)"]["value"]
+                    )
+                elif buttons["Anuluj"].collidepoint(event.pos):
+                    return None
+                    
+            elif event.type == pygame.MOUSEBUTTONUP:
+                active_slider = None
+                
+            elif event.type == pygame.MOUSEMOTION and active_slider:
+                # Update slider handle position
+                new_x = min(max(event.pos[0], active_slider["rect"].left), active_slider["rect"].right)
+                active_slider["handle"].centerx = new_x
+                
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return None
