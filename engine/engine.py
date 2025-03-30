@@ -266,28 +266,33 @@ def afterMove(turn: str, board, y1: int, x1: int, y2: int, x2: int) -> str:
 
 
 
-def promotion(y: int, x: int, main_board, choice: str) -> None:
+def promotion(y: int, x: int, main_board: board_and_fields.Board, choice: str) -> None:
     """
-    Obsługuje promocję pionka.
+    Handles pawn promotion.
 
     Args:
-        y (int): Współrzędna wiersza pionka.
-        x (int): Współrzędna kolumny pionka.
-        main_board (Board): Obiekt planszy szachowej.
-        choice (str): Wybór promocji ('1' dla skoczka, '2' dla gońca, '3' dla wieży, '4' dla królowej).
+        y (int): Row coordinate of the pawn.
+        x (int): Column coordinate of the pawn.
+        main_board (Board): Chessboard object.
+        choice (str): Promotion choice ('1' for Knight, '2' for Bishop, '3' for Rook, '4' for Queen).
 
     Returns:
-        None
+        None: Promotes the pawn to the selected piece.
+
+    Raises:
+        ValueError: If the choice is invalid.
     """
-    color = main_board.board_state[y][x].figure.color 
+    color = main_board.board_state[y][x].figure.color
     if choice == "1":
         main_board.board_state[y][x].figure = figures.Knight(color)
-    if choice == "2":
+    elif choice == "2":
         main_board.board_state[y][x].figure = figures.Bishop(color)
-    if choice == "3":
+    elif choice == "3":
         main_board.board_state[y][x].figure = figures.Rook(color)
-    if choice == "4":
+    elif choice == "4":
         main_board.board_state[y][x].figure = figures.Queen(color)
+    else:
+        raise ValueError("Invalid promotion choice. Please select '1', '2', '3', or '4'.")
 '''
 running = True
 main_board = board_and_fields.Board()
