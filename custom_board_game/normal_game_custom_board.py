@@ -11,6 +11,7 @@ from engine.engine import *
 from engine.figures import *
 from graphics import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
+from nerd_view import *
 
 
 def load_custom_board(fen_file):
@@ -22,7 +23,7 @@ def load_custom_board(fen_file):
 
 
 # Funkcja główna
-def main():
+def main(game_time):
     pygame.init()
     # Ładowanie konfiguracji
     config = load_config()
@@ -74,18 +75,31 @@ def main():
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
     # Czasy graczy
+    white_time = game_time
+    black_time = game_time
     start_time = time.time()
-    black_time = 0
-    white_time = 0
     result = ""
     winner = ""
     in_check = None
 
     is_reversed = False
 
+    nerd_view = config["nerd_view"]
+    #przystosowywanie pod nerd_view
+    if nerd_view:
+        from queue import Queue
+        nerd_view_queue = Queue()
+        moves_queue = Queue()
+        root = tk.Tk()
+        root.geometry("600x800+800+100")  # Pozycja obok okna gry
+        stats_window = NormalStatsWindow(root, nerd_view_queue, moves_queue)
+        moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                try: root.destroy()
+                except: pass
                 running = False
                 pygame.quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -102,9 +116,9 @@ def main():
                         if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
                             move_time = time.time() - start_time
                             if turn == 'w':
-                                white_time += move_time
+                                white_time -= move_time
                             else:
-                                black_time += move_time
+                                black_time -= move_time
                             turn = 'w' if turn == 'b' else 'b'
                             
                             # Sprawdzanie co po ruchu
@@ -127,6 +141,10 @@ def main():
                                 else:
                                     in_check = None
                             selected_piece = None
+                            #liczenie liczby ruchów, ważne pod nerd_view
+                            if nerd_view:
+                                moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                                moves_queue.put(move_time)
                             start_time = time.time()
                         else:
                             selected_piece = (row, col)
@@ -135,6 +153,8 @@ def main():
                 # Obsługa przycisku "Wyjście"
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and pos[1] >= height - 80:
                     running = False
+                    try: root.destroy()
+                    except: pass
                     return
                 # Obsługa przycisku "Cofnij ruch"
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and height - 100 <= pos[1] < height - 80:
@@ -145,23 +165,26 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+                    try: root.destroy()
+                    except: pass
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
         if turn == 'w':
-            current_white_time = max(0, 10 * 60 - (current_time - start_time + white_time))  # Odliczanie od 10 minut
-            current_black_time = max(0, 10 * 60 - black_time)  # Zachowaj czas czarnego
+            current_white_time = max(0, white_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_black_time = black_time  # Zachowaj czas czarnego
+            is_reversed = False  # Board from white's perspective
         else:
-            current_black_time = max(0, 10 * 60 - (current_time - start_time + black_time))  # Odliczanie od 10 minut
-            current_white_time = max(0, 10 * 60 - white_time)  # Zachowaj czas białego
+            current_black_time = max(0, black_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_white_time = white_time  # Zachowaj czas białego
+            is_reversed = True   # Board from black's perspective
 
         # Sprawdzenie, czy czas się skończył
         if current_white_time <= 0 or current_black_time <= 0:
             running = False
             result = "Czas się skończył!"
             winner = "Czarny" if current_white_time <= 0 else "Biały"
-            break
+            running = False
 
-        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
 
         player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
                               (8 * SQUARE_SIZE + 10, height - 150)),
@@ -178,6 +201,12 @@ def main():
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
         pygame.display.flip()
         clock.tick(60)
+        if nerd_view: #rysowanie nerd_view
+            current_time_for_stats = time.time()
+            evaluation = get_evaluation(main_board)
+            evaluation = evaluation[0] - evaluation[1]
+            nerd_view_queue.put((current_time_for_stats, evaluation, moves_number))
+            root.update()
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
     return

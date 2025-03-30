@@ -135,15 +135,13 @@ def do_an_action(selected_option, screen):
         normal_games.normal_game.main(graphics.choose_time_control_dialog(screen,120))
         return True
     elif selected_option == 1: # Niestandardowa plansza
-        pygame.mixer.music.stop()
         choice = graphics.choose_custom_board_mode(screen, 100)
         if choice == "play":
-            custom_board_game.normal_game_custom_board.main()
+            custom_board_game.normal_game_custom_board.main(graphics.choose_time_control_dialog(screen,120))
         elif choice == "create":
             custom_board_game.board_maker.main()
         return True
     elif selected_option == 2: # Bot
-        pygame.mixer.music.stop()
         player_color = graphics.choose_color_dialog(screen, 100)
         if player_color == None:
             return True
@@ -153,10 +151,9 @@ def do_an_action(selected_option, screen):
             print("Neural network not implemented yet")
             return True
         elif algorithm == "minimax" or algorithm == "monte_carlo":
-            algorithms.algorithms_game.main(player_color, algorithm)
+            algorithms.algorithms_game.main(player_color, algorithm, graphics.choose_time_control_dialog(screen,120))
         return True
     elif selected_option == 3: # Arcymistrz
-        pygame.mixer.music.stop()
         player_color = graphics.choose_color_dialog(screen, 100)
         if player_color == None:
             return True
@@ -175,14 +172,12 @@ def do_an_action(selected_option, screen):
             multiplayer.server.main(graphics.choose_time_control_dialog(screen,120))
         return True
     elif selected_option == 5: # Ustawienia
-        pygame.mixer.music.stop()
         settings.main()
         return True
     elif selected_option == 6: # Wyjście
         pygame.mixer.music.stop()
         return False
     elif selected_option == 7: # Konwerter PGN do FEN
-        pygame.mixer.music.stop()
         grandmaster.pgn_to_fen.main()
         return True
     elif selected_option == 8: #Pomoc

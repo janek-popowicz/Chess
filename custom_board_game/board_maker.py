@@ -6,6 +6,7 @@ from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from engine.fen_operations import *
+import graphics
 
 CONFIG_FILE = "config.json"
 
@@ -153,7 +154,7 @@ def main():
                             with open("custom_board.fen", "w") as file:
                                 file.write(fen)
                             import custom_board_game.normal_game_custom_board
-                            custom_board_game.normal_game_custom_board.main()
+                            custom_board_game.normal_game_custom_board.main(graphics.choose_time_control_dialog(screen,SQUARE_SIZE))
                             return
                         else:
                             show_check_error = True

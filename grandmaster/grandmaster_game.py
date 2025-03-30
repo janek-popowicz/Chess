@@ -121,17 +121,9 @@ def main(player_color, grandmaster_name, game_time):
     )
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
-    # Czasy graczy
-    
-    black_time = game_time
-    white_time = game_time
-    start_time = time.time()
-    result = ""
-    winner = ""
-    in_check = None
+
 
     nerd_view = config["nerd_view"]
-    print(nerd_view)
     if nerd_view:
         from queue import Queue
         nerd_view_queue = Queue()
@@ -151,7 +143,13 @@ def main(player_color, grandmaster_name, game_time):
             additional_info="...",
             best_move=(None) 
         )
-
+    # Czasy graczy
+    black_time = game_time
+    white_time = game_time
+    start_time = time.time()
+    result = ""
+    winner = ""
+    in_check = None
 
     if player_color == 'w':
         is_reversed = False
@@ -356,10 +354,10 @@ def main(player_color, grandmaster_name, game_time):
             running = False
             result = "Czas się skończył!"
             winner = "Czarny" if current_white_time <= 0 else "Biały"
-            break
+            running = False
 
         player_times_font = update_times_display(
-            white_time, black_time, turn, player_color,
+            current_white_time, current_black_time, turn, player_color,
             font, SQUARE_SIZE, YELLOW, GRAY, height
         )
         screen.fill(BLACK)
