@@ -103,7 +103,7 @@ class Minimax:
         
         # Check for mate and stalemate
         if not board.get_all_moves(color):
-            if board.is_in_check(color):
+            if board.is_in_check_minimax(color):
                 return -1000000 if is_maximizing else 1000000
             return 0  # Stalemate
             

@@ -870,3 +870,4 @@
 2025-03-30 06:57:29,050 - INFO: Model saved to models\model_checkpoint_4000000_20250330_065729.pt
 2025-03-30 06:57:29,225 - INFO: Validation win rate: 0.00% (50 games)
 2025-03-30 06:57:29,250 - INFO: Model saved to models\final_model_4M_20250330_065729.pt
+2025-03-30 11:17:05,213 - INFO: Model loaded from C:\Users\Julia\Desktop\Chess\models\model_checkpoint_4000000_20250330_065729.pt
