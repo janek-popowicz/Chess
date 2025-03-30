@@ -111,42 +111,37 @@ class ChessQLearningAI:
             return False
 
     def train(self, num_episodes):
-        """
-        Trains the model for specified number of episodes with checkpoints
-        """
+        """Train model with detailed metrics"""
         self.model.train()
         total_loss = 0
-        start_time = time.time()
-        checkpoint_interval = 1000  # Save every 1000 episodes
-        eval_interval = 5000  # Evaluate every 5000 episodes
+        valid_episodes = 0
         
-        # Create models directory if it doesn't exist
-        Path("models").mkdir(exist_ok=True)
-        
-        for episode in range(num_episodes):
-            self._reset_board()
-            episode_loss = self._train_episode()
-            total_loss += episode_loss
-            
-            # Save checkpoint
-            if (episode + 1) % checkpoint_interval == 0:
-                self.save_model(f"checkpoint_episode_{episode+1}.pt")
+        try:
+            for episode in range(num_episodes):
+                if not self._reset_board():
+                    continue
+                    
+                episode_loss = self._train_episode()
                 
-            if (episode + 1) % 100 == 0:
-                avg_loss = total_loss / 100
-                elapsed = time.time() - start_time
-                self.logger.info(
-                    f"Episode {episode + 1}/{num_episodes} "
-                    f"| Loss: {avg_loss:.4f} "
-                    f"| Time: {elapsed:.1f}s"
-                )
-                total_loss = 0
-                start_time = time.time()
-
-            if episode > 0 and episode % eval_interval == 0:
-                win_rate = self._evaluate_model()
-                self.logger.info(f"Evaluation at episode {episode}: {win_rate:.2%} win rate")
-                self._check_memory()  # Check memory usage
+                if episode_loss > 0:
+                    total_loss += episode_loss
+                    valid_episodes += 1
+                    
+                # Periodic logging for longer batches
+                if num_episodes > 1000 and (episode + 1) % 100 == 0:
+                    avg_loss = total_loss / valid_episodes if valid_episodes > 0 else 0
+                    self.logger.debug(
+                        f"Batch progress - Episode {episode + 1}/{num_episodes} | "
+                        f"Loss: {avg_loss:.4f} | "
+                        f"Valid: {valid_episodes}"
+                    )
+            
+            # Return average loss for batch
+            return total_loss / valid_episodes if valid_episodes > 0 else 0
+            
+        except Exception as e:
+            self.logger.error(f"Training batch error: {e}")
+            return 0
 
     def _train_episode(self):
         """Training episode with batch processing"""

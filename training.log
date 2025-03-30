@@ -127,3 +127,643 @@
 2025-03-30 03:17:42,397 - INFO: Test validation at episode 200: 0.00%
 2025-03-30 03:17:42,398 - INFO: Running final validation...
 2025-03-30 03:17:42,401 - ERROR: Test training failed: unsupported operand type(s) for +: 'NoneType' and 'int'
+2025-03-30 03:19:11,230 - INFO: Starting test training with 200 episodes...
+2025-03-30 03:19:11,340 - INFO: Test episode 20/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:11,429 - INFO: Test episode 40/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:11,498 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:19:11,499 - INFO: Test validation at episode 50: 0.00%
+2025-03-30 03:19:11,554 - INFO: Test episode 60/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:11,639 - INFO: Test episode 80/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:11,734 - INFO: Test episode 100/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:11,762 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:19:11,763 - INFO: Test validation at episode 100: 0.00%
+2025-03-30 03:19:11,862 - INFO: Test episode 120/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:11,962 - INFO: Test episode 140/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:12,046 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:19:12,047 - INFO: Test validation at episode 150: 0.00%
+2025-03-30 03:19:12,090 - INFO: Test episode 160/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:12,187 - INFO: Test episode 180/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:12,284 - INFO: Test episode 200/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:12,312 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:19:12,313 - INFO: Test validation at episode 200: 0.00%
+2025-03-30 03:19:12,314 - INFO: Running final validation...
+2025-03-30 03:19:12,426 - INFO: Validation win rate: 0.00% (20 games)
+2025-03-30 03:19:12,427 - INFO: Test training completed with 0.00% win rate
+2025-03-30 03:19:16,203 - INFO: Starting full training with 50K episodes...
+2025-03-30 03:19:16,203 - INFO: Starting test training with 200 episodes...
+2025-03-30 03:19:16,292 - INFO: Test episode 20/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:16,386 - INFO: Test episode 40/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:16,456 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:19:16,457 - INFO: Test validation at episode 50: 0.00%
+2025-03-30 03:19:16,504 - INFO: Test episode 60/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:16,599 - INFO: Test episode 80/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:16,674 - INFO: Test episode 100/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:16,702 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:19:16,703 - INFO: Test validation at episode 100: 0.00%
+2025-03-30 03:19:16,804 - INFO: Test episode 120/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:16,907 - INFO: Test episode 140/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:16,979 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:19:16,980 - INFO: Test validation at episode 150: 0.00%
+2025-03-30 03:19:17,033 - INFO: Test episode 160/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:17,121 - INFO: Test episode 180/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:17,219 - INFO: Test episode 200/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:19:17,248 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:19:17,249 - INFO: Test validation at episode 200: 0.00%
+2025-03-30 03:19:17,249 - INFO: Running final validation...
+2025-03-30 03:19:17,361 - INFO: Validation win rate: 0.00% (20 games)
+2025-03-30 03:19:17,362 - INFO: Test training completed with 0.00% win rate
+2025-03-30 03:19:17,362 - INFO: Test successful, starting full training...
+2025-03-30 03:19:17,817 - INFO: Episode 100/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:18,271 - INFO: Episode 200/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:18,705 - INFO: Episode 300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:19,140 - INFO: Episode 400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:19,598 - INFO: Episode 500/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:20,049 - INFO: Episode 600/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:20,467 - INFO: Episode 700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:20,792 - INFO: Episode 800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:21,212 - INFO: Episode 900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:21,557 - INFO: Model saved to models\checkpoint_episode_1000.pt
+2025-03-30 03:19:21,557 - INFO: Episode 1000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:21,865 - INFO: Episode 1100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:22,169 - INFO: Episode 1200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:22,503 - INFO: Episode 1300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:22,900 - INFO: Episode 1400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:23,280 - INFO: Episode 1500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:23,629 - INFO: Episode 1600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:24,031 - INFO: Episode 1700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:24,332 - INFO: Episode 1800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:24,629 - INFO: Episode 1900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:24,968 - INFO: Model saved to models\checkpoint_episode_2000.pt
+2025-03-30 03:19:24,969 - INFO: Episode 2000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:25,382 - INFO: Episode 2100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:25,793 - INFO: Episode 2200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:26,097 - INFO: Episode 2300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:26,421 - INFO: Episode 2400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:26,728 - INFO: Episode 2500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:27,056 - INFO: Episode 2600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:27,408 - INFO: Episode 2700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:27,711 - INFO: Episode 2800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:27,996 - INFO: Episode 2900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:28,474 - INFO: Model saved to models\checkpoint_episode_3000.pt
+2025-03-30 03:19:28,474 - INFO: Episode 3000/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:28,868 - INFO: Episode 3100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:29,259 - INFO: Episode 3200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:29,625 - INFO: Episode 3300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:30,033 - INFO: Episode 3400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:30,420 - INFO: Episode 3500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:30,797 - INFO: Episode 3600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:31,141 - INFO: Episode 3700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:31,505 - INFO: Episode 3800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:31,854 - INFO: Episode 3900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:32,224 - INFO: Model saved to models\checkpoint_episode_4000.pt
+2025-03-30 03:19:32,225 - INFO: Episode 4000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:32,493 - INFO: Episode 4100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:32,772 - INFO: Episode 4200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:33,035 - INFO: Episode 4300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:33,372 - INFO: Episode 4400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:33,698 - INFO: Episode 4500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:34,019 - INFO: Episode 4600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:34,434 - INFO: Episode 4700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:34,757 - INFO: Episode 4800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:35,052 - INFO: Episode 4900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:35,881 - INFO: Model saved to models\checkpoint_episode_5000.pt
+2025-03-30 03:19:35,909 - INFO: Episode 5000/50000 | Loss: 0.0000 | Time: 0.9s
+2025-03-30 03:19:36,005 - INFO: Validation win rate: 0.00% (10 games)
+2025-03-30 03:19:36,008 - INFO: Evaluation at episode 5000: 0.00% win rate
+2025-03-30 03:19:36,424 - INFO: Episode 5100/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:36,778 - INFO: Episode 5200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:37,099 - INFO: Episode 5300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:37,450 - INFO: Episode 5400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:37,763 - INFO: Episode 5500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:38,115 - INFO: Episode 5600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:38,470 - INFO: Episode 5700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:38,845 - INFO: Episode 5800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:39,177 - INFO: Episode 5900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:39,490 - INFO: Model saved to models\checkpoint_episode_6000.pt
+2025-03-30 03:19:39,491 - INFO: Episode 6000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:39,810 - INFO: Episode 6100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:40,175 - INFO: Episode 6200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:40,542 - INFO: Episode 6300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:40,908 - INFO: Episode 6400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:41,280 - INFO: Episode 6500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:41,662 - INFO: Episode 6600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:42,060 - INFO: Episode 6700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:42,460 - INFO: Episode 6800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:42,837 - INFO: Episode 6900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:43,240 - INFO: Model saved to models\checkpoint_episode_7000.pt
+2025-03-30 03:19:43,240 - INFO: Episode 7000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:43,630 - INFO: Episode 7100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:44,025 - INFO: Episode 7200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:44,424 - INFO: Episode 7300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:44,799 - INFO: Episode 7400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:45,196 - INFO: Episode 7500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:45,581 - INFO: Episode 7600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:45,990 - INFO: Episode 7700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:46,416 - INFO: Episode 7800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:46,839 - INFO: Episode 7900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:47,300 - INFO: Model saved to models\checkpoint_episode_8000.pt
+2025-03-30 03:19:47,301 - INFO: Episode 8000/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:47,701 - INFO: Episode 8100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:48,151 - INFO: Episode 8200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:48,610 - INFO: Episode 8300/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:49,095 - INFO: Episode 8400/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:49,544 - INFO: Episode 8500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:50,000 - INFO: Episode 8600/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:50,437 - INFO: Episode 8700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:50,889 - INFO: Episode 8800/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:51,338 - INFO: Episode 8900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:51,844 - INFO: Model saved to models\checkpoint_episode_9000.pt
+2025-03-30 03:19:51,844 - INFO: Episode 9000/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:52,270 - INFO: Episode 9100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:52,642 - INFO: Episode 9200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:53,054 - INFO: Episode 9300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:53,511 - INFO: Episode 9400/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:53,938 - INFO: Episode 9500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:54,375 - INFO: Episode 9600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:54,802 - INFO: Episode 9700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:55,195 - INFO: Episode 9800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:55,575 - INFO: Episode 9900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:56,041 - INFO: Model saved to models\checkpoint_episode_10000.pt
+2025-03-30 03:19:56,042 - INFO: Episode 10000/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:56,088 - INFO: Validation win rate: 0.00% (10 games)
+2025-03-30 03:19:56,089 - INFO: Evaluation at episode 10000: 0.00% win rate
+2025-03-30 03:19:56,386 - INFO: Episode 10100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:56,700 - INFO: Episode 10200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:57,012 - INFO: Episode 10300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:57,325 - INFO: Episode 10400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:57,815 - INFO: Episode 10500/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:19:58,218 - INFO: Episode 10600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:58,560 - INFO: Episode 10700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:19:58,967 - INFO: Episode 10800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:59,369 - INFO: Episode 10900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:19:59,807 - INFO: Model saved to models\checkpoint_episode_11000.pt
+2025-03-30 03:19:59,807 - INFO: Episode 11000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:00,247 - INFO: Episode 11100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:00,682 - INFO: Episode 11200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:01,106 - INFO: Episode 11300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:01,488 - INFO: Episode 11400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:01,793 - INFO: Episode 11500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:02,137 - INFO: Episode 11600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:02,520 - INFO: Episode 11700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:02,889 - INFO: Episode 11800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:03,306 - INFO: Episode 11900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:03,756 - INFO: Model saved to models\checkpoint_episode_12000.pt
+2025-03-30 03:20:03,757 - INFO: Episode 12000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:04,184 - INFO: Episode 12100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:04,566 - INFO: Episode 12200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:05,023 - INFO: Episode 12300/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:05,441 - INFO: Episode 12400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:05,868 - INFO: Episode 12500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:06,288 - INFO: Episode 12600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:06,646 - INFO: Episode 12700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:07,042 - INFO: Episode 12800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:07,504 - INFO: Episode 12900/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:07,945 - INFO: Model saved to models\checkpoint_episode_13000.pt
+2025-03-30 03:20:07,947 - INFO: Episode 13000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:08,299 - INFO: Episode 13100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:08,726 - INFO: Episode 13200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:09,170 - INFO: Episode 13300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:09,604 - INFO: Episode 13400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:10,024 - INFO: Episode 13500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:10,437 - INFO: Episode 13600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:10,797 - INFO: Episode 13700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:11,183 - INFO: Episode 13800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:11,541 - INFO: Episode 13900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:11,904 - INFO: Model saved to models\checkpoint_episode_14000.pt
+2025-03-30 03:20:11,905 - INFO: Episode 14000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:12,302 - INFO: Episode 14100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:12,695 - INFO: Episode 14200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:13,076 - INFO: Episode 14300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:13,511 - INFO: Episode 14400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:13,842 - INFO: Episode 14500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:14,259 - INFO: Episode 14600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:14,657 - INFO: Episode 14700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:15,090 - INFO: Episode 14800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:15,531 - INFO: Episode 14900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:15,967 - INFO: Model saved to models\checkpoint_episode_15000.pt
+2025-03-30 03:20:15,967 - INFO: Episode 15000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:16,010 - INFO: Validation win rate: 0.00% (10 games)
+2025-03-30 03:20:16,011 - INFO: Evaluation at episode 15000: 0.00% win rate
+2025-03-30 03:20:16,431 - INFO: Episode 15100/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:16,824 - INFO: Episode 15200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:17,242 - INFO: Episode 15300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:17,677 - INFO: Episode 15400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:18,052 - INFO: Episode 15500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:18,439 - INFO: Episode 15600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:18,948 - INFO: Episode 15700/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:19,369 - INFO: Episode 15800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:19,818 - INFO: Episode 15900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:20,282 - INFO: Model saved to models\checkpoint_episode_16000.pt
+2025-03-30 03:20:20,282 - INFO: Episode 16000/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:20,724 - INFO: Episode 16100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:21,125 - INFO: Episode 16200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:21,555 - INFO: Episode 16300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:21,971 - INFO: Episode 16400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:22,394 - INFO: Episode 16500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:22,819 - INFO: Episode 16600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:23,208 - INFO: Episode 16700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:23,640 - INFO: Episode 16800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:23,987 - INFO: Episode 16900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:24,359 - INFO: Model saved to models\checkpoint_episode_17000.pt
+2025-03-30 03:20:24,360 - INFO: Episode 17000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:24,778 - INFO: Episode 17100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:25,162 - INFO: Episode 17200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:25,566 - INFO: Episode 17300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:25,997 - INFO: Episode 17400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:26,404 - INFO: Episode 17500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:26,788 - INFO: Episode 17600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:27,211 - INFO: Episode 17700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:27,565 - INFO: Episode 17800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:27,936 - INFO: Episode 17900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:28,262 - INFO: Model saved to models\checkpoint_episode_18000.pt
+2025-03-30 03:20:28,263 - INFO: Episode 18000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:28,607 - INFO: Episode 18100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:28,965 - INFO: Episode 18200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:29,317 - INFO: Episode 18300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:29,721 - INFO: Episode 18400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:30,114 - INFO: Episode 18500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:30,516 - INFO: Episode 18600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:30,957 - INFO: Episode 18700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:31,355 - INFO: Episode 18800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:31,814 - INFO: Episode 18900/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:32,311 - INFO: Model saved to models\checkpoint_episode_19000.pt
+2025-03-30 03:20:32,311 - INFO: Episode 19000/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:32,727 - INFO: Episode 19100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:33,092 - INFO: Episode 19200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:33,488 - INFO: Episode 19300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:33,866 - INFO: Episode 19400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:34,216 - INFO: Episode 19500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:34,570 - INFO: Episode 19600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:35,010 - INFO: Episode 19700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:35,423 - INFO: Episode 19800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:35,849 - INFO: Episode 19900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:36,340 - INFO: Model saved to models\checkpoint_episode_20000.pt
+2025-03-30 03:20:36,340 - INFO: Episode 20000/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:36,400 - INFO: Validation win rate: 0.00% (10 games)
+2025-03-30 03:20:36,402 - INFO: Evaluation at episode 20000: 0.00% win rate
+2025-03-30 03:20:36,753 - INFO: Episode 20100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:37,046 - INFO: Episode 20200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:37,455 - INFO: Episode 20300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:37,807 - INFO: Episode 20400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:38,162 - INFO: Episode 20500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:38,510 - INFO: Episode 20600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:38,833 - INFO: Episode 20700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:39,164 - INFO: Episode 20800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:39,549 - INFO: Episode 20900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:39,967 - INFO: Model saved to models\checkpoint_episode_21000.pt
+2025-03-30 03:20:39,967 - INFO: Episode 21000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:40,409 - INFO: Episode 21100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:40,841 - INFO: Episode 21200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:41,272 - INFO: Episode 21300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:41,681 - INFO: Episode 21400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:42,092 - INFO: Episode 21500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:42,511 - INFO: Episode 21600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:42,965 - INFO: Episode 21700/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:43,416 - INFO: Episode 21800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:43,873 - INFO: Episode 21900/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:44,342 - INFO: Model saved to models\checkpoint_episode_22000.pt
+2025-03-30 03:20:44,343 - INFO: Episode 22000/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:44,744 - INFO: Episode 22100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:45,086 - INFO: Episode 22200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:45,501 - INFO: Episode 22300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:45,889 - INFO: Episode 22400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:46,301 - INFO: Episode 22500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:46,746 - INFO: Episode 22600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:47,139 - INFO: Episode 22700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:47,587 - INFO: Episode 22800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:48,069 - INFO: Episode 22900/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:48,483 - INFO: Model saved to models\checkpoint_episode_23000.pt
+2025-03-30 03:20:48,485 - INFO: Episode 23000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:48,826 - INFO: Episode 23100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:49,318 - INFO: Episode 23200/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:20:49,650 - INFO: Episode 23300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:50,040 - INFO: Episode 23400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:50,405 - INFO: Episode 23500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:50,812 - INFO: Episode 23600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:51,257 - INFO: Episode 23700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:51,534 - INFO: Episode 23800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:51,872 - INFO: Episode 23900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:52,099 - INFO: Model saved to models\checkpoint_episode_24000.pt
+2025-03-30 03:20:52,099 - INFO: Episode 24000/50000 | Loss: 0.0000 | Time: 0.2s
+2025-03-30 03:20:52,416 - INFO: Episode 24100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:52,623 - INFO: Episode 24200/50000 | Loss: 0.0000 | Time: 0.2s
+2025-03-30 03:20:52,800 - INFO: Episode 24300/50000 | Loss: 0.0000 | Time: 0.2s
+2025-03-30 03:20:52,977 - INFO: Episode 24400/50000 | Loss: 0.0000 | Time: 0.2s
+2025-03-30 03:20:53,128 - INFO: Episode 24500/50000 | Loss: 0.0000 | Time: 0.2s
+2025-03-30 03:20:53,290 - INFO: Episode 24600/50000 | Loss: 0.0000 | Time: 0.2s
+2025-03-30 03:20:53,686 - INFO: Episode 24700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:54,075 - INFO: Episode 24800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:54,463 - INFO: Episode 24900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:54,854 - INFO: Model saved to models\checkpoint_episode_25000.pt
+2025-03-30 03:20:54,855 - INFO: Episode 25000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:54,897 - INFO: Validation win rate: 0.00% (10 games)
+2025-03-30 03:20:54,898 - INFO: Evaluation at episode 25000: 0.00% win rate
+2025-03-30 03:20:55,266 - INFO: Episode 25100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:55,646 - INFO: Episode 25200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:56,054 - INFO: Episode 25300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:56,428 - INFO: Episode 25400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:56,825 - INFO: Episode 25500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:57,187 - INFO: Episode 25600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:57,610 - INFO: Episode 25700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:58,009 - INFO: Episode 25800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:58,390 - INFO: Episode 25900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:58,793 - INFO: Model saved to models\checkpoint_episode_26000.pt
+2025-03-30 03:20:58,793 - INFO: Episode 26000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:59,177 - INFO: Episode 26100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:20:59,492 - INFO: Episode 26200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:20:59,871 - INFO: Episode 26300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:00,280 - INFO: Episode 26400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:00,685 - INFO: Episode 26500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:01,115 - INFO: Episode 26600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:01,490 - INFO: Episode 26700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:01,920 - INFO: Episode 26800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:02,325 - INFO: Episode 26900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:02,744 - INFO: Model saved to models\checkpoint_episode_27000.pt
+2025-03-30 03:21:02,744 - INFO: Episode 27000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:03,137 - INFO: Episode 27100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:03,519 - INFO: Episode 27200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:03,873 - INFO: Episode 27300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:04,282 - INFO: Episode 27400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:04,704 - INFO: Episode 27500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:05,070 - INFO: Episode 27600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:05,385 - INFO: Episode 27700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:05,774 - INFO: Episode 27800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:06,111 - INFO: Episode 27900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:06,502 - INFO: Model saved to models\checkpoint_episode_28000.pt
+2025-03-30 03:21:06,503 - INFO: Episode 28000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:07,012 - INFO: Episode 28100/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:21:07,400 - INFO: Episode 28200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:07,767 - INFO: Episode 28300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:08,155 - INFO: Episode 28400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:08,517 - INFO: Episode 28500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:08,905 - INFO: Episode 28600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:09,255 - INFO: Episode 28700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:09,618 - INFO: Episode 28800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:10,022 - INFO: Episode 28900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:10,456 - INFO: Model saved to models\checkpoint_episode_29000.pt
+2025-03-30 03:21:10,457 - INFO: Episode 29000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:10,855 - INFO: Episode 29100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:11,222 - INFO: Episode 29200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:11,628 - INFO: Episode 29300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:12,062 - INFO: Episode 29400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:12,411 - INFO: Episode 29500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:12,824 - INFO: Episode 29600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:13,225 - INFO: Episode 29700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:13,646 - INFO: Episode 29800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:14,070 - INFO: Episode 29900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:14,530 - INFO: Model saved to models\checkpoint_episode_30000.pt
+2025-03-30 03:21:14,530 - INFO: Episode 30000/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:21:14,588 - INFO: Validation win rate: 0.00% (10 games)
+2025-03-30 03:21:14,589 - INFO: Evaluation at episode 30000: 0.00% win rate
+2025-03-30 03:21:15,026 - INFO: Episode 30100/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:21:15,413 - INFO: Episode 30200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:15,796 - INFO: Episode 30300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:16,241 - INFO: Episode 30400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:16,710 - INFO: Episode 30500/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:21:17,131 - INFO: Episode 30600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:17,501 - INFO: Episode 30700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:17,913 - INFO: Episode 30800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:18,339 - INFO: Episode 30900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:18,787 - INFO: Model saved to models\checkpoint_episode_31000.pt
+2025-03-30 03:21:18,787 - INFO: Episode 31000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:19,213 - INFO: Episode 31100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:19,608 - INFO: Episode 31200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:19,990 - INFO: Episode 31300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:20,443 - INFO: Episode 31400/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:21:20,886 - INFO: Episode 31500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:21,246 - INFO: Episode 31600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:21,632 - INFO: Episode 31700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:22,051 - INFO: Episode 31800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:22,459 - INFO: Episode 31900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:22,818 - INFO: Model saved to models\checkpoint_episode_32000.pt
+2025-03-30 03:21:22,818 - INFO: Episode 32000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:23,247 - INFO: Episode 32100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:23,568 - INFO: Episode 32200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:23,909 - INFO: Episode 32300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:24,303 - INFO: Episode 32400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:24,611 - INFO: Episode 32500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:24,952 - INFO: Episode 32600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:25,335 - INFO: Episode 32700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:25,723 - INFO: Episode 32800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:26,152 - INFO: Episode 32900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:26,973 - INFO: Model saved to models\checkpoint_episode_33000.pt
+2025-03-30 03:21:26,975 - INFO: Episode 33000/50000 | Loss: 0.0000 | Time: 0.8s
+2025-03-30 03:21:27,468 - INFO: Episode 33100/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:21:27,834 - INFO: Episode 33200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:28,132 - INFO: Episode 33300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:28,379 - INFO: Episode 33400/50000 | Loss: 0.0000 | Time: 0.2s
+2025-03-30 03:21:28,686 - INFO: Episode 33500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:28,977 - INFO: Episode 33600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:29,340 - INFO: Episode 33700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:29,686 - INFO: Episode 33800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:29,940 - INFO: Episode 33900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:30,239 - INFO: Model saved to models\checkpoint_episode_34000.pt
+2025-03-30 03:21:30,240 - INFO: Episode 34000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:30,594 - INFO: Episode 34100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:30,967 - INFO: Episode 34200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:31,359 - INFO: Episode 34300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:31,768 - INFO: Episode 34400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:32,150 - INFO: Episode 34500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:32,606 - INFO: Episode 34600/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:21:33,028 - INFO: Episode 34700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:33,455 - INFO: Episode 34800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:33,900 - INFO: Episode 34900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:34,301 - INFO: Model saved to models\checkpoint_episode_35000.pt
+2025-03-30 03:21:34,302 - INFO: Episode 35000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:34,356 - INFO: Validation win rate: 0.00% (10 games)
+2025-03-30 03:21:34,356 - INFO: Evaluation at episode 35000: 0.00% win rate
+2025-03-30 03:21:34,784 - INFO: Episode 35100/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:21:35,210 - INFO: Episode 35200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:35,606 - INFO: Episode 35300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:36,022 - INFO: Episode 35400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:36,463 - INFO: Episode 35500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:36,879 - INFO: Episode 35600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:37,270 - INFO: Episode 35700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:37,662 - INFO: Episode 35800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:38,030 - INFO: Episode 35900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:38,346 - INFO: Model saved to models\checkpoint_episode_36000.pt
+2025-03-30 03:21:38,347 - INFO: Episode 36000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:38,701 - INFO: Episode 36100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:39,046 - INFO: Episode 36200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:39,366 - INFO: Episode 36300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:39,751 - INFO: Episode 36400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:40,146 - INFO: Episode 36500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:40,513 - INFO: Episode 36600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:40,936 - INFO: Episode 36700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:41,340 - INFO: Episode 36800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:41,755 - INFO: Episode 36900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:42,194 - INFO: Model saved to models\checkpoint_episode_37000.pt
+2025-03-30 03:21:42,195 - INFO: Episode 37000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:42,527 - INFO: Episode 37100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:42,923 - INFO: Episode 37200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:43,289 - INFO: Episode 37300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:43,647 - INFO: Episode 37400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:44,042 - INFO: Episode 37500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:44,444 - INFO: Episode 37600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:44,813 - INFO: Episode 37700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:45,224 - INFO: Episode 37800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:45,537 - INFO: Episode 37900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:45,907 - INFO: Model saved to models\checkpoint_episode_38000.pt
+2025-03-30 03:21:45,908 - INFO: Episode 38000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:46,310 - INFO: Episode 38100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:46,700 - INFO: Episode 38200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:47,029 - INFO: Episode 38300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:47,383 - INFO: Episode 38400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:47,739 - INFO: Episode 38500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:48,148 - INFO: Episode 38600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:48,523 - INFO: Episode 38700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:48,883 - INFO: Episode 38800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:49,195 - INFO: Episode 38900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:49,510 - INFO: Model saved to models\checkpoint_episode_39000.pt
+2025-03-30 03:21:49,511 - INFO: Episode 39000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:49,835 - INFO: Episode 39100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:50,135 - INFO: Episode 39200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:50,498 - INFO: Episode 39300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:50,837 - INFO: Episode 39400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:51,219 - INFO: Episode 39500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:51,609 - INFO: Episode 39600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:51,959 - INFO: Episode 39700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:52,300 - INFO: Episode 39800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:52,570 - INFO: Episode 39900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:52,904 - INFO: Model saved to models\checkpoint_episode_40000.pt
+2025-03-30 03:21:52,905 - INFO: Episode 40000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:52,942 - INFO: Validation win rate: 0.00% (10 games)
+2025-03-30 03:21:52,942 - INFO: Evaluation at episode 40000: 0.00% win rate
+2025-03-30 03:21:53,187 - INFO: Episode 40100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:53,465 - INFO: Episode 40200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:53,742 - INFO: Episode 40300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:54,072 - INFO: Episode 40400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:54,371 - INFO: Episode 40500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:54,668 - INFO: Episode 40600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:55,099 - INFO: Episode 40700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:55,383 - INFO: Episode 40800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:55,671 - INFO: Episode 40900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:56,016 - INFO: Model saved to models\checkpoint_episode_41000.pt
+2025-03-30 03:21:56,016 - INFO: Episode 41000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:56,494 - INFO: Episode 41100/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:21:56,986 - INFO: Episode 41200/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:21:57,293 - INFO: Episode 41300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:21:57,686 - INFO: Episode 41400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:58,065 - INFO: Episode 41500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:58,483 - INFO: Episode 41600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:58,909 - INFO: Episode 41700/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:59,338 - INFO: Episode 41800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:21:59,783 - INFO: Episode 41900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:00,274 - INFO: Model saved to models\checkpoint_episode_42000.pt
+2025-03-30 03:22:00,275 - INFO: Episode 42000/50000 | Loss: 0.0000 | Time: 0.5s
+2025-03-30 03:22:00,708 - INFO: Episode 42100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:01,059 - INFO: Episode 42200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:01,422 - INFO: Episode 42300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:01,733 - INFO: Episode 42400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:02,021 - INFO: Episode 42500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:02,309 - INFO: Episode 42600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:02,628 - INFO: Episode 42700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:02,933 - INFO: Episode 42800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:03,267 - INFO: Episode 42900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:03,693 - INFO: Model saved to models\checkpoint_episode_43000.pt
+2025-03-30 03:22:03,693 - INFO: Episode 43000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:04,004 - INFO: Episode 43100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:04,325 - INFO: Episode 43200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:04,611 - INFO: Episode 43300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:04,912 - INFO: Episode 43400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:05,240 - INFO: Episode 43500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:05,563 - INFO: Episode 43600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:05,911 - INFO: Episode 43700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:06,239 - INFO: Episode 43800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:06,580 - INFO: Episode 43900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:06,987 - INFO: Model saved to models\checkpoint_episode_44000.pt
+2025-03-30 03:22:06,988 - INFO: Episode 44000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:07,329 - INFO: Episode 44100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:07,728 - INFO: Episode 44200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:07,984 - INFO: Episode 44300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:08,352 - INFO: Episode 44400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:08,673 - INFO: Episode 44500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:08,954 - INFO: Episode 44600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:09,226 - INFO: Episode 44700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:09,527 - INFO: Episode 44800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:09,869 - INFO: Episode 44900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:10,213 - INFO: Model saved to models\checkpoint_episode_45000.pt
+2025-03-30 03:22:10,213 - INFO: Episode 45000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:10,281 - INFO: Validation win rate: 0.00% (10 games)
+2025-03-30 03:22:10,292 - INFO: Evaluation at episode 45000: 0.00% win rate
+2025-03-30 03:22:10,642 - INFO: Episode 45100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:10,968 - INFO: Episode 45200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:11,352 - INFO: Episode 45300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:11,609 - INFO: Episode 45400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:11,897 - INFO: Episode 45500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:12,204 - INFO: Episode 45600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:12,550 - INFO: Episode 45700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:12,952 - INFO: Episode 45800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:13,236 - INFO: Episode 45900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:13,641 - INFO: Model saved to models\checkpoint_episode_46000.pt
+2025-03-30 03:22:13,642 - INFO: Episode 46000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:14,036 - INFO: Episode 46100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:14,367 - INFO: Episode 46200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:14,686 - INFO: Episode 46300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:14,976 - INFO: Episode 46400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:15,301 - INFO: Episode 46500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:15,599 - INFO: Episode 46600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:15,942 - INFO: Episode 46700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:16,297 - INFO: Episode 46800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:16,600 - INFO: Episode 46900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:16,911 - INFO: Model saved to models\checkpoint_episode_47000.pt
+2025-03-30 03:22:16,911 - INFO: Episode 47000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:17,226 - INFO: Episode 47100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:17,530 - INFO: Episode 47200/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:17,895 - INFO: Episode 47300/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:18,199 - INFO: Episode 47400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:18,482 - INFO: Episode 47500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:18,904 - INFO: Episode 47600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:19,512 - INFO: Episode 47700/50000 | Loss: 0.0000 | Time: 0.6s
+2025-03-30 03:22:19,849 - INFO: Episode 47800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:20,213 - INFO: Episode 47900/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:20,548 - INFO: Model saved to models\checkpoint_episode_48000.pt
+2025-03-30 03:22:20,548 - INFO: Episode 48000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:20,849 - INFO: Episode 48100/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:21,217 - INFO: Episode 48200/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:21,520 - INFO: Episode 48300/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:21,779 - INFO: Episode 48400/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:22,116 - INFO: Episode 48500/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:22,424 - INFO: Episode 48600/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:23,044 - INFO: Episode 48700/50000 | Loss: 0.0000 | Time: 0.6s
+2025-03-30 03:22:23,452 - INFO: Episode 48800/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:23,790 - INFO: Episode 48900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:24,143 - INFO: Model saved to models\checkpoint_episode_49000.pt
+2025-03-30 03:22:24,144 - INFO: Episode 49000/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:24,519 - INFO: Episode 49100/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:25,235 - INFO: Episode 49200/50000 | Loss: 0.0000 | Time: 0.7s
+2025-03-30 03:22:25,799 - INFO: Episode 49300/50000 | Loss: 0.0000 | Time: 0.6s
+2025-03-30 03:22:26,234 - INFO: Episode 49400/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:26,610 - INFO: Episode 49500/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:26,993 - INFO: Episode 49600/50000 | Loss: 0.0000 | Time: 0.4s
+2025-03-30 03:22:27,319 - INFO: Episode 49700/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:27,623 - INFO: Episode 49800/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:27,953 - INFO: Episode 49900/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:28,300 - INFO: Model saved to models\checkpoint_episode_50000.pt
+2025-03-30 03:22:28,300 - INFO: Episode 50000/50000 | Loss: 0.0000 | Time: 0.3s
+2025-03-30 03:22:28,301 - INFO: Full training completed in 192.10s
+2025-03-30 03:22:28,656 - INFO: Validation win rate: 0.00% (100 games)
+2025-03-30 03:22:28,657 - INFO: Final validation win rate: 0.00%
+2025-03-30 03:22:28,695 - INFO: Model saved to models\final_model.pt
+2025-03-30 03:22:54,299 - INFO: Starting test training with 200 episodes...
+2025-03-30 03:22:54,323 - INFO: Test episode 20/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:22:54,358 - INFO: Test episode 40/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:22:54,378 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:22:54,379 - INFO: Test validation at episode 50: 0.00%
+2025-03-30 03:22:54,391 - INFO: Test episode 60/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:22:54,419 - INFO: Test episode 80/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:22:54,448 - INFO: Test episode 100/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:22:54,458 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:22:54,459 - INFO: Test validation at episode 100: 0.00%
+2025-03-30 03:22:54,490 - INFO: Test episode 120/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:22:54,520 - INFO: Test episode 140/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:22:54,542 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:22:54,542 - INFO: Test validation at episode 150: 0.00%
+2025-03-30 03:22:54,562 - INFO: Test episode 160/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:22:54,593 - INFO: Test episode 180/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:22:54,627 - INFO: Test episode 200/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:22:54,638 - INFO: Validation win rate: 0.00% (5 games)
+2025-03-30 03:22:54,639 - INFO: Test validation at episode 200: 0.00%
+2025-03-30 03:22:54,640 - INFO: Running final validation...
+2025-03-30 03:22:54,679 - INFO: Validation win rate: 0.00% (20 games)
+2025-03-30 03:22:54,679 - INFO: Test training completed with 0.00% win rate

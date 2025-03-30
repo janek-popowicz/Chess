@@ -66,20 +66,90 @@ def load_model_menu(models_dir):
             return None
 
 def main():
-    # Initialize board and AI
+    # Initialize board and AI with logging config
     board = Board()
     ai = ml.ChessQLearningAI(board)
     
-    # Run test training first
     print("Starting test training (200 episodes)...")
     if ai.test_training():
-        print("Test training successful!")
+        print("\nTest training successful!")
         
-        # Ask user if they want to continue with full training
-        response = input("Continue with full training (50K episodes)? [y/N]: ")
+        response = input("Continue with full training (4M episodes)? [y/N]: ")
         if response.lower() == 'y':
-            print("Starting full training...")
-            ai.full_training()
+            print("\nStarting full training (4M episodes)...")
+            
+            start_time = time.time()
+            total_episodes = 4_000_000
+            checkpoint_interval = 100_000
+            batch_size = 32  # Smaller batch size for better learning
+            report_interval = 1000  # Report every 1000 episodes
+            
+            try:
+                episode_count = 0
+                total_loss = 0
+                valid_episodes = 0
+                
+                while episode_count < total_episodes:
+                    batch_start = time.time()
+                    
+                    # Train in smaller batches
+                    for _ in range(checkpoint_interval // batch_size):
+                        loss = ai.train(batch_size)
+                        if loss > 0:
+                            total_loss += loss
+                            valid_episodes += 1
+                        episode_count += batch_size
+                        
+                        # Show detailed progress regularly
+                        if episode_count % report_interval == 0:
+                            avg_loss = total_loss / valid_episodes if valid_episodes > 0 else 0
+                            print(f"\nEpisodes: {episode_count:,}")
+                            print(f"Average Loss: {avg_loss:.4f}")
+                            print(f"Valid Episodes: {valid_episodes}")
+                            total_loss = 0
+                            valid_episodes = 0
+                    
+                    # Checkpoint saving and validation
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    checkpoint_name = f"model_checkpoint_{episode_count}_{timestamp}.pt"
+                    ai.save_model(checkpoint_name)
+                    
+                    # Progress statistics
+                    progress = episode_count / total_episodes
+                    elapsed = time.time() - start_time
+                    eta = (elapsed / progress) * (1 - progress) if progress > 0 else 0
+                    batch_time = time.time() - batch_start
+                    
+                    print(f"\n{'='*20} Training Progress {'='*20}")
+                    print(f"Progress: {progress:.1%}")
+                    print(f"Episodes: {episode_count:,}/{total_episodes:,}")
+                    print(f"Time Elapsed: {elapsed/3600:.1f}h")
+                    print(f"Estimated Time Remaining: {eta/3600:.1f}h")
+                    print(f"Last Batch Time: {batch_time/60:.1f}m")
+                    
+                    # Resource monitoring
+                    monitor_resources()
+                    
+                    # Validation with detailed metrics
+                    print("\nRunning validation...")
+                    win_rate = ai.validate(num_games=50)
+                    print(f"Current Win Rate: {win_rate:.1%}")
+                    print(f"{'='*50}\n")
+                    
+                print("\nFull training completed successfully!")
+                
+                # Save final model with metadata
+                final_name = f"final_model_4M_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
+                ai.save_model(final_name)
+                
+            except KeyboardInterrupt:
+                print("\nTraining interrupted by user!")
+                interrupt_name = f"interrupted_{episode_count}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
+                ai.save_model(interrupt_name)
+            except Exception as e:
+                print(f"\nTraining error: {e}")
+                backup_name = f"emergency_{episode_count}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
+                ai.save_model(backup_name)
         else:
             print("Training stopped after test phase")
     else:
