@@ -17,7 +17,7 @@
     "chess_game_launcher": "Launcher gry szachowej",
     "menu_cursor_sound_path": "sounds/menu_cursor.mp3",
     "menu_cursor_sound_warning": "Ostrzeżenie: Nie udało się załadować efektu dźwiękowego menu",
-    "help_pdf_path": "help.pdf",
+    "help_pdf_path": "html/help.html",
     "language_icon_path": "interface/language.png",
     "language_icon_warning": "Ostrzeżenie: Nie udało się załadować ikony języka",
     "config_path": "config.json",
