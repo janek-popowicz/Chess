@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+        }
+        h1{
+            text-align: center;
+        }
+        ol > li > ul{
+            list-style: disc;
+        }
+        footer{
+            margin: 1em;
+        }
+        .content{
+            margin: 1em;
+        }
+        .guzik{
+            border: 1px solid black;
+            border-radius: 0.5em;
+            padding: 2px;
+            background-color: lightgray;
+        }
+    </style>
+    <title>Niestandardowa plansza</title>
+</head>
+<body>
+    <h1>Niestandardowa plansza</h1>
+    <img src="img/gradient.png" alt="gradient" width="100%" height="10px">
+    <div class="content">
+        <p>Po wybraniu opcji niestandardowej planszy zostaniemy przywitani takim ekranem:</p>
+        <img src="img/custom_screen.png" alt="mainscreen" width="400px">
+        <br><br>
+        <p>Przycisk <span class="guzik">Graj z własną planszą</span> pozwala na <a href="gamefriend.html">grę z przyjacielem</a> na stworzonej wcześniej przez nas planszy.</p>
+        <p>Przycisk <span class="guzik">Kreator planszy</span> pozwala na utworzenie nowej, niestandardowej planszy (układu figur).</p>
+        <hr>
+        <p>Aby utworzyć własną planszę, po wybraniu opcji <span class="guzik">Kreator planszy</span>, należy :</p>
+        <ol>
+            <li>Nacisnąć lewym przyciskiem myszy na figurę, którą chcemy umieścić:
+            <br><br>
+            <img src="img/select_custom.png" alt="Zaznaczona figura" width="300px"></li>
+            <br>
+            <li>Nacisnąć lewym przyciskiem myszy na pole, gdzie chcemy umieścić figurę:
+                <br><br>
+                <img src="img/example_custom.png" alt="Przykład umieszczenia" width="300px">
+            </li>
+            <br>
+            <li>Aby usunąć figurę z danego pola, wystarczy kliknąć na nią lewym przyciskiem myszy.</li>
+            <br>
+            <li>Powtarzać etapy 1, 2 i 3 do momentu stworzenia porządanej przez nas pozycji. Wtedy możemy opuścić edytor przez użycie przycisków <span class="guzik">Wyjdź bez zapisywania</span> lub <span class="guzik">Zapisz i graj</span>. <br><br> W drugim przypadku plansza zostanie zapisana, i będzie możliwa gra na niej poprzez wybranie opcji <span class="guzik">Niestandardowa plansza</span> w <a href="mainscr.html">ekranie głównym</a>, a później przycisku <span class="guzik">Graj z własną planszą</span>.</li>
+        </ol>
+        <hr>
+        <p>Warto zwrócić uwagę na fakt, iż edytor nie pozwoli nam na zaczęcie gry, podczas gdy ustawimy nielegalną pozycję (m.in. brak 1 lub 2 króli, szach na początku gry).
+            Plansza jest zapisywana w custom_board.fen, więc możesz do tego pliku wrzucić swojego fena, aby od niego zacząć.
+        </p>
+        <hr>
+        <p>Po każdym ruchu graczy plansza zostanie obrócona, ku wygodzie użytkowników.</p>
+        <hr>
+        <p>Przydatne strony:</p>
+        <a href="gamefriend.html">Gra z przyjacielem</a>
+        <hr>
+        <button onclick="history.back()">Powrót</button>
+    </div>
+    <footer><p>©2025 Wiktor Szpilczak</p></footer>
+</body>
+</html>

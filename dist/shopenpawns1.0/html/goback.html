@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        ol>li>ul {
+            list-style: disc;
+        }
+
+        footer {
+            margin: 1em;
+        }
+
+        .content {
+            margin: 1em;
+        }
+
+        .guzik {
+            border: 1px solid black;
+            border-radius: 0.5em;
+            padding: 2px;
+            background-color: lightgray;
+        }
+    </style>
+    <title>Cofanie ruchów</title>
+</head>
+
+<body>
+    <h1>Cofanie ruchów</h1>
+    <img src="img/gradient.png" alt="gradient" width="100%" height="10px">
+    <div class="content">
+        <p>Niezależnie od rodzaju gry, w prawym dolnym rogu okna możemy zobaczyć przycisk <span class="guzik">Cofnij
+                ruch</span>.</p>
+        <hr>
+        <p>Aby cofnąć swój ostatni ruch, należy:</p>
+        <ol>
+            <li>Kliknąć lewym przyciskiem myszy na przycisk <span class="guzik">Cofnij ruch</span>.
+            </li>
+            <br>
+            <li><p>Wybrać opcję <span class="guzik">Tak</span>, gdy zobaczymy ten dialog:</p>
+                <img src="img/confirm_revert.png" alt="Zgoda na cofnięcie" width="300px">
+            </li>
+        </ol>
+        <hr>
+        <p>Cofać można ruchy aż do początku partii!</p>
+        <hr>
+        <p>
+            Cofanie ruchu działa także podczas <a href="lan_game.html">gry przez sieć lokalną</a>. Wtedy cofnięcie ruchu musi potwierdzić obu graczy (przeciwnik może się na to nie zgodzić).
+        </p>
+        <hr>
+        <button onclick="history.back()">Powrót</button>
+    </div>
+    <footer>
+        <p>©2025 Wiktor Szpilczak</p>
+    </footer>
+</body>
+
+</html>
