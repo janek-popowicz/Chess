@@ -203,7 +203,20 @@ class Board:
             if self.incheck == False:
                 self.incheck = True
         else:
-            self.incheck = False   
+            self.incheck = False  
+    def is_in_check_minimax(self, color):
+        """
+        Sprawdza, czy król danego koloru jest szachowany (wersja do minimaxu).
+
+        Args:
+            color (str): Kolor króla do sprawdzenia.
+        """
+        for i in range(8):
+            for j in range(8):
+                tile = self.board_state[i][j]
+                if tile.figure and tile.figure.type == 'K' and tile.figure.color == color:
+                    king_position = tile
+        return self.is_attacked(king_position)
     def get_all_moves(self,turn):
         """
         Generuje wszystkie możliwe ruchy dla danego koloru.

@@ -65,24 +65,59 @@ def load_model_menu(models_dir):
             print(f"\nError loading model: {e}")
             return None
 
-def main():
-    # Initialize board and AI with logging config
-    board = Board()
-    ai = ml.ChessQLearningAI(board)
-    
-    print("Starting test training (200 episodes)...")
-    if ai.test_training():
-        print("\nTest training successful!")
+def play_menu(ai=None):
+    """Menu for playing against AI"""
+    while True:
+        print("\n=== Chess AI Game Menu ===")
+        print("1. Play against AI")
+        print("2. Watch AI vs AI")
+        print("3. Load different model")
+        print("4. Return to main menu")
         
-        response = input("Continue with full training (4M episodes)? [y/N]: ")
-        if response.lower() == 'y':
-            print("\nStarting full training (4M episodes)...")
+        choice = input("\nEnter your choice (1-4): ")
+        
+        if choice == "1":
+            if not ai:
+                print("\nNo AI model loaded! Please load a model first.")
+                ai = load_model_menu(Path("models"))
+                if not ai:
+                    continue
+            ml_game.play_against_ai(ai)
+        elif choice == "2":
+            if not ai:
+                print("\nNo AI model loaded! Please load a model first.")
+                ai = load_model_menu(Path("models"))
+                if not ai:
+                    continue
+            ml_game.watch_ai_game(ai)
+        elif choice == "3":
+            ai = load_model_menu(Path("models"))
+        elif choice == "4":
+            break
+        else:
+            print("\nInvalid choice. Please try again.")
+
+def main():
+    while True:
+        print("\n=== Chess AI Training System ===")
+        print("1. Start new training (4M episodes)")
+        print("2. Run test training (200 episodes)")
+        print("3. Load and play with trained model")
+        print("4. Exit")
+        
+        choice = input("\nEnter your choice (1-4): ")
+        
+        if choice == "1":
+            # Initialize board and AI
+            board = Board()
+            ai = ml.ChessQLearningAI(board)
             
+            print("\nStarting full training (4M episodes)...")
             start_time = time.time()
             total_episodes = 4_000_000
             checkpoint_interval = 100_000
-            batch_size = 32  # Smaller batch size for better learning
-            report_interval = 1000  # Report every 1000 episodes
+            batch_size = 32
+            report_interval = 1000
             
             try:
                 episode_count = 0
@@ -150,10 +185,106 @@ def main():
                 print(f"\nTraining error: {e}")
                 backup_name = f"emergency_{episode_count}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
                 ai.save_model(backup_name)
+                
+        elif choice == "2":
+            board = Board()
+            ai = ml.ChessQLearningAI(board)
+            print("\nStarting test training (200 episodes)...")
+            if ai.test_training():
+                print("\nTest training successful!")
+                response = input("Continue with full training? [y/N]: ")
+                if response.lower() == 'y':
+                    print("\nStarting full training (4M episodes)...")
+                    start_time = time.time()
+                    total_episodes = 4_000_000
+                    checkpoint_interval = 100_000
+                    batch_size = 32
+                    report_interval = 1000
+                    
+                    try:
+                        episode_count = 0
+                        total_loss = 0
+                        valid_episodes = 0
+                        
+                        while episode_count < total_episodes:
+                            batch_start = time.time()
+                            
+                            # Train in smaller batches
+                            for _ in range(checkpoint_interval // batch_size):
+                                loss = ai.train(batch_size)
+                                if loss > 0:
+                                    total_loss += loss
+                                    valid_episodes += 1
+                                episode_count += batch_size
+                                
+                                # Show detailed progress regularly
+                                if episode_count % report_interval == 0:
+                                    avg_loss = total_loss / valid_episodes if valid_episodes > 0 else 0
+                                    print(f"\nEpisodes: {episode_count:,}")
+                                    print(f"Average Loss: {avg_loss:.4f}")
+                                    print(f"Valid Episodes: {valid_episodes}")
+                                    total_loss = 0
+                                    valid_episodes = 0
+                            
+                            # Checkpoint saving and validation
+                            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                            checkpoint_name = f"model_checkpoint_{episode_count}_{timestamp}.pt"
+                            ai.save_model(checkpoint_name)
+                            
+                            # Progress statistics
+                            progress = episode_count / total_episodes
+                            elapsed = time.time() - start_time
+                            eta = (elapsed / progress) * (1 - progress) if progress > 0 else 0
+                            batch_time = time.time() - batch_start
+                            
+                            print(f"\n{'='*20} Training Progress {'='*20}")
+                            print(f"Progress: {progress:.1%}")
+                            print(f"Episodes: {episode_count:,}/{total_episodes:,}")
+                            print(f"Time Elapsed: {elapsed/3600:.1f}h")
+                            print(f"Estimated Time Remaining: {eta/3600:.1f}h")
+                            print(f"Last Batch Time: {batch_time/60:.1f}m")
+                            
+                            # Resource monitoring
+                            monitor_resources()
+                            
+                            # Validation with detailed metrics
+                            print("\nRunning validation...")
+                            win_rate = ai.validate(num_games=50)
+                            print(f"Current Win Rate: {win_rate:.1%}")
+                            print(f"{'='*50}\n")
+                            
+                        print("\nFull training completed successfully!")
+                        
+                        # Save final model with metadata
+                        final_name = f"final_model_4M_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
+                        ai.save_model(final_name)
+                        
+                    except KeyboardInterrupt:
+                        print("\nTraining interrupted by user!")
+                        interrupt_name = f"interrupted_{episode_count}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
+                        ai.save_model(interrupt_name)
+                    except Exception as e:
+                        print(f"\nTraining error: {e}")
+                        backup_name = f"emergency_{episode_count}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
+                        ai.save_model(backup_name)
+                else:
+                    print("Training stopped after test phase")
+            else:
+                print("\nTest training failed!")
+                
+        elif choice == "3":
+            ai = load_model_menu(Path("models"))
+            if ai:
+                play_menu(ai)
+            
+        elif choice == "4":
+            print("\nExiting...")
+            break
+            
         else:
-            print("Training stopped after test phase")
-    else:
-        print("Test training failed!")
+            print("\nInvalid choice. Please try again.")
 
 if __name__ == "__main__":
+    # Create models directory if it doesn't exist
+    Path("models").mkdir(exist_ok=True)
     main()
