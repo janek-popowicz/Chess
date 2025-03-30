@@ -74,24 +74,17 @@ def update_times_display(white_time, black_time, current_time, start_time, turn,
         current_white_time = white_time
     
     # Determine display positions based on player color
-    if player_color == 'w':
-        return (
-            # Grandmaster's time (black) at top
-            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
-             (8 * SQUARE_SIZE + 10, 80)),
-            # Player's time (white) at bottom
-            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
-             (8 * SQUARE_SIZE + 10, height - 150))
-        )
-    else:
-        return (
-            # Grandmaster's time (white) at top
-            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
-             (8 * SQUARE_SIZE + 10, 80)),
-            # Player's time (black) at bottom
-            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
-             (8 * SQUARE_SIZE + 10, height - 150))
-        )
+    return (
+        (font.render(f"{global_translations.get('black')}: {format_time(current_black_time)}", True, YELLOW if turn == 'b' else GRAY),
+         (8 * SQUARE_SIZE + 10, 80)),
+        (font.render(f"{global_translations.get('white')}: {format_time(current_white_time)}", True, YELLOW if turn == 'w' else GRAY),
+         (8 * SQUARE_SIZE + 10, height - 150))
+    ) if player_color == 'w' else (
+        (font.render(f"{global_translations.get('white')}: {format_time(current_white_time)}", True, YELLOW if turn == 'w' else GRAY),
+         (8 * SQUARE_SIZE + 10, 80)),
+        (font.render(f"{global_translations.get('black')}: {format_time(current_black_time)}", True, YELLOW if turn == 'b' else GRAY),
+         (8 * SQUARE_SIZE + 10, height - 150))
+    )
 
 # Funkcja główna
 def main(player_color, grandmaster_name):
@@ -272,7 +265,7 @@ def main(player_color, grandmaster_name):
                 white_time += move_time
             else:
                 black_time += move_time
-            draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck)
+            draw_board(screen,SQUARE_SIZE,main_board,main_board.incheck,is_reversed)
             draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
             pygame.display.flip()
             grandmaster_move, moves_from_json_list = get_grandmaster_move(main_board, grandmaster_color, grandmaster_moves)
@@ -396,7 +389,7 @@ def main(player_color, grandmaster_name):
             font, SQUARE_SIZE, YELLOW, GRAY, height
         )
         screen.fill(BLACK)
-        draw_board(screen, SQUARE_SIZE, main_board, in_check)
+        draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
         evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text, evaluation)
         try:
