@@ -134,7 +134,11 @@ Returns:
         main_board.moves_algebraic += [chr(104 - x2) + str(y2+1)]
         if destination_tile.figure:
             main_board.moves_algebraic[-1] = chr(104 - x1) +  'x' + main_board.moves_algebraic[-1]
-        #print(main_board.moves_algebraic)
+            main_board.moves_algebraic_long += [chr(104-x1)+str(y1+1)+'x'+chr(104-x2)+str(y2+1)]
+        else:
+            main_board.moves_algebraic_long += [chr(104-x1)+str(y1+1)+'-'+chr(104-x2)+str(y2+1)]
+        if not start_tile.figure.type == "p":
+            main_board.moves_algebraic_long[-1] = start_tile.figure.type + main_board.moves_algebraic_long[-1]
         #print(main_board.fen_history)
         #Wykonanie roszady
         if destination_tile.figure:
@@ -155,8 +159,11 @@ Returns:
                 main_board.piece_cords.append((start_tile.y,start_tile.x + direction))
                 if start_tile.y - destination_tile.y == 3:
                     main_board.moves_algebraic[-1] = "O-O"
+                    main_board.moves_algebraic_long[-1] = "O-O"
                 else:
                     main_board.moves_algebraic[-1] = "O-O-O"
+                    main_board.moves_algebraic_long[-1] = "O-O-O"
+
                 main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board, "b" if turn == 'w' else "w", halfmove_reset, passed_over_tile))
                 return True
         #Wykonanie enpassant
@@ -167,6 +174,7 @@ Returns:
                             start_tile.figure.can_enpassant = 0
                             main_board.board_state[start_tile.y][destination_tile.x].figure = None
                             main_board.moves_algebraic[-1] = chr(104 - x1) + main_board.moves_algebraic[-1]
+                            main_board.moves_algebraic_long[-1] = chr(104-x1)+str(y1+1)+'x'+chr(104-x2)+str(y2+1)
                             main_board.piece_cords.remove((start_tile.y, destination_tile.x))
         main_board.make_move(y1, x1, y2, x2)
         main_board.piece_cords.remove((y1,x1))
@@ -181,6 +189,7 @@ Returns:
         main_board.is_in_check(color_to_check)
         if main_board.incheck:
             main_board.moves_algebraic[-1] += '+'
+            main_board.moves_algebraic_long[-1] += '+'
         main_board.fen_history.append(fen_operations.board_to_fen_inverted(main_board, "b" if turn == 'w' else "w", halfmove_reset, passed_over_tile))
         return True
     else: 
@@ -390,7 +399,7 @@ def save_in_long_algebraic(board, winner, result):
             
         # Generate timestamp filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"saves/game_{timestamp}.pgn"
+        filename = f"saves/game_{timestamp}_long.pgn"
 
         
         # Format moves with move numbers

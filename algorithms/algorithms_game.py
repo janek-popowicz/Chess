@@ -453,7 +453,10 @@ def main(player_turn, algorithm, game_time):
         monte_carlo_thread.stop()
         monte_carlo_thread.join(timeout=0.1)
 
+    save_in_short_algebraic(main_board, winner, result)
+    save_in_long_algebraic(main_board, winner, result)
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
+
     try: root.destroy()
     except: pass
     return

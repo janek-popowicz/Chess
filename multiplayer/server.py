@@ -496,7 +496,10 @@ def main(game_time) -> None:
             nerd_view_queue.put((current_time_for_stats, evaluation, moves_number))
             root.update()
     
+    save_in_short_algebraic(main_board, winner, result)
+    save_in_long_algebraic(main_board, winner, result)
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
+
     try:disconnect()
     except:pass
     try: 
