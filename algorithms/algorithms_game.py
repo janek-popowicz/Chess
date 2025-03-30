@@ -125,7 +125,10 @@ def main(player_turn, algorithm):
     global MIN_TIME
     min_depth = 1 if algorithm == "minimax" else 5
     max_depth = 4 if algorithm == "minimax" else 30
-    depth, MIN_TIME, MAX_TIME = choose_ai_settings_dialog(screen, SQUARE_SIZE, min_depth, max_depth)
+    ai_settings = choose_ai_settings_dialog(screen, SQUARE_SIZE, min_depth, max_depth)
+    if ai_settings == None:
+        return
+    depth, MIN_TIME, MAX_TIME = ai_settings
 
     # Dodaj zmienne do obsługi wątku
     minimax_process = None
@@ -177,7 +180,7 @@ def main(player_turn, algorithm):
             algorithm_name = algorithm,
             search_depth=depth,
             additional_info="...",
-            best_move=(-1,-1,-1,-1)
+            best_move=(None)
         )
 
     while running:
@@ -207,8 +210,13 @@ def main(player_turn, algorithm):
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20:
                     if pos[1] >= height - 80:  # Przycisk "Wyjście"
                         running = False
+                        try: minimax_process.terminate()
+                        except: pass
                         try: root.destroy()
                         except: pass
+                        if monte_carlo_thread and monte_carlo_thread.is_alive():
+                            monte_carlo_thread.stop()
+                            monte_carlo_thread.join(timeout=0.1)
                         return
                     elif height - 130 <= pos[1] < height - 80:  # Przycisk "Cofnij ruch"
                         # Reset thread variables
@@ -354,6 +362,7 @@ def main(player_turn, algorithm):
                     if move:
                         from_row, from_col, to_row, to_col = move
                         if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
+                            move_time = time.time() - start_time
                             if turn == 'w':
                                 white_time += time.time() - start_time
                             else:
@@ -387,7 +396,6 @@ def main(player_turn, algorithm):
 
         # Przed renderowaniem
         current_time = time.time()
-        evaluation = get_evaluation(main_board)[0] - get_evaluation(main_board)[1]  # Calculate evaluation
         player_times_font = update_time_display(white_time, black_time, current_time, start_time, turn, player_turn)
 
         # Rendering zawsze na końcu pętli
