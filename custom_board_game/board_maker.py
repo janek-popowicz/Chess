@@ -164,7 +164,7 @@ def main():
                 if pos[0] > SQUARE_SIZE*8 and pos[0] <= width-20 and pos[1] >= height-140 and pos[1] < height-80:
                     running = False
                     return
-
+        
         screen.fill(GRAY)
         draw_board(screen, SQUARE_SIZE, board_state, pieces)
         draw_pieces_selection(screen, SQUARE_SIZE, pieces, config, selected_piece)
