@@ -149,7 +149,9 @@ def do_an_action(selected_option, screen):
             return True
         algorithm = graphics.choose_algorithm_dialog(screen, 100)
         if algorithm == "neural":
-            ml_game.main(player_color)
+            # Temporarily disable neural network
+            print("Neural network not implemented yet")
+            return True
         elif algorithm == "minimax" or algorithm == "monte_carlo":
             algorithms.algorithms_game.main(player_color, algorithm)
         return True

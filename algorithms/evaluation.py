@@ -215,41 +215,110 @@ def count_pieces(board):
 
 def king_to_edge(board):
     """
-    Calculates the distance of kings from the edges of the board.
-
-    Args:
-        board (object): The chess board object.
-
-    Returns:
-        list: A list containing the evaluation for white and black [white_eval, black_eval].
+    Ocena bezpieczeństwa króla i wykrywanie potencjalnych matów
+    Zwraca: [kara_dla_białych, kara_dla_czarnych]
     """
     evaluation_white = 0
     evaluation_black = 0
-    white_king_position = None
-    black_king_position = None
-
+    
+    # Znajdź pozycje królów
+    white_king = None
+    black_king = None
     for i in range(8):
         for j in range(8):
-            field = board.board_state[i][j]
-            if field.figure is not None and field.figure.type == 'K':
-                if field.figure.color == 'w':
-                    white_king_position = (i, j)
+            piece = board.board_state[i][j].figure
+            if piece and piece.type == 'K':
+                if piece.color == 'w':
+                    white_king = (i, j)
                 else:
-                    black_king_position = (i, j)
-                    
-    if white_king_position is not None:
-        rank, file = white_king_position
-        # Obliczamy dystans króla białego do najbliższej krawędzi
-        white_dst = min(rank, 7 - rank) + min(file, 7 - file)
-        evaluation_black += white_dst
-    if black_king_position is not None:
-        rank, file = black_king_position
-        # Obliczamy dystans króla czarnego do najbliższej krawędzi
-        black_dst = min(rank, 7 - rank) + min(file, 7 - file)
-        evaluation_white += black_dst
+                    black_king = (i, j)
+
+    # Analiza dla białego króla
+    if white_king:
+        y, x = white_king
+        # Wykryj mat w rogu
+        if (y in [0,7] and x in [0,7]):
+            # Sprawdź czy otoczony przez własne pionki
+            own_pawns = 0
+            for dy in [-1,0,1]:
+                for dx in [-1,0,1]:
+                    if 0 <= y+dy <8 and 0 <= x+dx <8:
+                        piece = board.board_state[y+dy][x+dx].figure
+                        if piece and piece.color == 'w' and piece.type == 'p':
+                            own_pawns += 1
+            if own_pawns >= 3:
+                evaluation_white -= 250  # Kara za zagrożenie matem
+
+        # Sprawdź mat szachownicowy
+        if y in [3,4] and x in [3,4]:
+            attackers = 0
+            # Sprawdź ataki ze skoczków
+            knight_offsets = [(-2,-1), (-2,1), (-1,-2), (-1,2),
+                             (1,-2), (1,2), (2,-1), (2,1)]
+            for dy, dx in knight_offsets:
+                ny, nx = y+dy, x+dx
+                if 0 <= ny <8 and 0 <= nx <8:
+                    piece = board.board_state[ny][nx].figure
+                    if piece and piece.color == 'b' and piece.type == 'N':
+                        attackers += 1
+            
+            # Sprawdź ataki z linii
+            for dir_y, dir_x in [(-1,0),(1,0),(0,-1),(0,1)]:
+                for step in range(1,8):
+                    ny = y + dir_y*step
+                    nx = x + dir_x*step
+                    if not (0 <= ny <8 and 0 <= nx <8):
+                        break
+                    piece = board.board_state[ny][nx].figure
+                    if piece:
+                        if piece.color == 'b' and piece.type in ['Q','R']:
+                            attackers += 2
+                        break
+
+            if attackers >= 3:
+                evaluation_white -= 375
+
+    # Analogiczna analiza dla czarnego króla
+    if black_king:
+        y, x = black_king
+        if (y in [0,7] and x in [0,7]):
+            own_pawns = 0
+            for dy in [-1,0,1]:
+                for dx in [-1,0,1]:
+                    if 0 <= y+dy <8 and 0 <= x+dx <8:
+                        piece = board.board_state[y+dy][x+dx].figure
+                        if piece and piece.color == 'b' and piece.type == 'p':
+                            own_pawns += 1
+            if own_pawns >= 3:
+                evaluation_black -= 250
+
+        if y in [3,4] and x in [3,4]:
+            attackers = 0
+            knight_offsets = [(-2,-1), (-2,1), (-1,-2), (-1,2),
+                             (1,-2), (1,2), (2,-1), (2,1)]
+            for dy, dx in knight_offsets:
+                ny, nx = y+dy, x+dx
+                if 0 <= ny <8 and 0 <= nx <8:
+                    piece = board.board_state[ny][nx].figure
+                    if piece and piece.color == 'w' and piece.type == 'N':
+                        attackers += 1
+            
+            for dir_y, dir_x in [(-1,0),(1,0),(0,-1),(0,1)]:
+                for step in range(1,8):
+                    ny = y + dir_y*step
+                    nx = x + dir_x*step
+                    if not (0 <= ny <8 and 0 <= nx <8):
+                        break
+                    piece = board.board_state[ny][nx].figure
+                    if piece:
+                        if piece.color == 'w' and piece.type in ['Q','R']:
+                            attackers += 2
+                        break
+
+            if attackers >= 3:
+                evaluation_black -= 375
 
     return [evaluation_white, evaluation_black]
-
 
 def rook_on_open_file(board):
     """

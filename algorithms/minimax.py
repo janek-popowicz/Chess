@@ -17,38 +17,115 @@ class Minimax:
         self.time_limit = time_limit
         self.start_time = None
         self.best_move = None
-        self.path = Path(__file__).parent / "opening.json"
-        self.opening_book = self.load_opening_book()
         self.message = " "
         self.available_moves_from_json = []
 
-    def load_opening_book(self):
+    def get_opening_move(self):
         """
-        Ładuje książkę debiutów z pliku JSON. Jeśli plik nie istnieje, tworzy domyślną książkę debiutów.
-        
-        Zwraca:
-            dict: Słownik zawierający pozycje i możliwe ruchy.
+        Checks opening book JSON for current position and returns a random move if found
+        Returns: (tuple) move in format (y1, x1, y2, x2) or None if not found
         """
         try:
-            if not self.path.exists():
-                # Create default opening book with color information
-                default_book = {
-                    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w": ["d4", "e4", "c4", "Nf3"],
-                    "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b": ["Nf6", "d5", "f5"],
-                    "rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w": ["c4", "Bg5"],
-                    "rnbqkb1r/pppppppp/5n2/8/2PP4/8/PP2PPPP/RNBQKBNR b": ["e6", "c5", "g6"]
-                }
-                with open(self.path, 'w', encoding='utf-8') as f:
-                    json.dump(default_book, f, indent=2)
-                return default_book
+            json_path = Path(__file__).parent / "opening.json"
+            print(f"\n=== Opening Book Search ===")
+            
+            if not json_path.exists():
+                print("❌ Opening book not found")
+                return None
 
-            with open(self.path, 'r', encoding='utf-8') as f:
+            with open(json_path, 'r', encoding='utf-8') as f:
                 opening_book = json.load(f)
-                self.message += f"\nLoaded opening book with {len(opening_book)} positions"
-                return opening_book
+                print(f"📚 Loaded opening book with {len(opening_book)} positions")
+
+            current_fen = board_to_fen_inverted(self.main_board, self.color)
+            fen_parts = current_fen.split(' ')
+            position_key = f"{fen_parts[0]} {fen_parts[1]}"
+            
+            print(f"🔍 Searching for position: {position_key}")
+            
+            if position_key in opening_book:
+                moves = opening_book[position_key]
+                if not moves:
+                    print("❌ No moves found in opening book")
+                    return None
+                
+                self.available_moves_from_json = moves
+                move_notation = random.choice(moves)
+                print(f"✅ Found {len(moves)} moves in opening book")
+                print(f"📌 Selected move: {move_notation}")
+                
+                return engine.notation_to_cords(
+                    self.main_board, 
+                    move_notation, 
+                    self.color
+                )
+
+            print("❌ Position not found in opening book")
+            return None
 
         except Exception as e:
-            return {}
+            print(f"❌ Opening book error: {str(e)}")
+            return None
+
+    def get_best_move(self):
+        """Main move search function"""
+        self.start_time = time.time()
+        print("\n=== Move Search Started ===")
+        
+        # Try opening book first
+        print("\n📖 Checking opening book...")
+        book_move = self.get_opening_move()
+        if book_move:
+            print(f"✨ Using book move: {book_move}")
+            return book_move, self.message, self.available_moves_from_json
+
+        print("\n🔄 Starting minimax search...")
+        moves_by_depth = {}
+        best_move = None
+        best_eval = -float('inf')
+
+        piece_types = {
+            'p': 'Pawn', 'r': 'Rook', 'n': 'Knight',
+            'b': 'Bishop', 'q': 'Queen', 'k': 'King'
+        }
+
+        try:
+            for current_depth in range(1, self.depth + 1):
+                if self.is_time_exceeded():
+                    print(f"⚠️ Time limit reached at depth {current_depth-1}")
+                    break
+                    
+                depth_start = time.time()
+                eval_score, move = self.minimax(self.main_board, current_depth, -float('inf'), float('inf'), True)
+                
+                if move and not self.is_time_exceeded():
+                    moves_by_depth[current_depth] = (move, eval_score)
+                    y1, x1, y2, x2 = move
+                    piece = self.main_board.board_state[y1][x1].figure
+                    piece_name = piece_types.get(piece.type, piece.type)
+                    print(f"\n📊 Depth {current_depth}:")
+                    print(f"   Piece: {piece_name}")
+                    print(f"   Move: {chr(97+x1)}{8-y1} → {chr(97+x2)}{8-y2}")
+                    print(f"   Score: {eval_score:.2f}")
+                    print(f"   Time: {time.time() - depth_start:.3f}s")
+                    
+                    if eval_score > best_eval:
+                        best_move = move
+                        best_eval = eval_score
+                        print(f"   ⭐ New best move!")
+
+            total_time = time.time() - self.start_time
+            print(f"\n=== Search Complete ===")
+            print(f"🕒 Total time: {total_time:.3f}s")
+            print(f"📈 Max depth reached: {len(moves_by_depth)}")
+            print(f"💫 Final best move: {best_move}")
+            print(f"📋 Final score: {best_eval:.2f}")
+            
+            return best_move, self.message, self.available_moves_from_json
+
+        except Exception as e:
+            print(f"❌ Error in search: {e}")
+            return None
 
     def get_mate_pattern_bonus(self, board, color, move):
         """
@@ -282,128 +359,3 @@ class Minimax:
                     if beta <= alpha:
                         break
             return min_eval, best_move
-
-    def check_opening_book(self):
-        """
-        Sprawdza książkę debiutów dla obecnej pozycji i koloru gracza.
-
-        Zwraca:
-            tuple lub None: Ruch w formacie (y1, x1, y2, x2) lub None, jeśli brak ruchu w książce.
-        """
-        try:
-            if not self.opening_book:
-                return None
-
-            # Get FEN with color
-            current_fen = board_to_fen_inverted(self.main_board, self.color)
-            fen_parts = current_fen.split(' ')
-            position_key = f"{fen_parts[0]} {fen_parts[1]}"  # Board + active color
-            
-            self.message += f"\nLooking for position: {position_key}"
-            
-            if position_key in self.opening_book:
-                moves = self.opening_book[position_key]
-                self.message += f"\nFound {len(moves)} possible moves: {moves}"
-                # Use 0-based indexing for randint
-                self.available_moves_from_json = moves
-                move_notation = moves[randint(0, len(moves)-1)]
-                self.message += f"\nSelected move: {move_notation}"
-                return engine.notation_to_cords(self.main_board, move_notation, self.color)
-
-            return None
-
-        except Exception as e:
-            self.message += f"\nError checking opening book: {e}"
-            return None
-
-    def check_move_safety(self, board, move, color):
-        """
-        Placeholder dla oceny bezpieczeństwa ruchu.
-
-        Argumenty:
-            board (Board): Obecny stan planszy.
-            move (tuple): Ruch w formacie (y1, x1, y2, x2).
-            color (str): Kolor gracza wykonującego ruch ('w' lub 'b').
-
-        Zwraca:
-            int: Wartość bezpieczeństwa ruchu (domyślnie 0).
-        """
-        return 0
-
-    def get_best_move(self):
-        """
-        Znajduje najlepszy ruch dla obecnej pozycji, używając algorytmu minimax i książki debiutów.
-
-        Zwraca:
-            tuple lub None: Najlepszy ruch w formacie (y1, x1, y2, x2) lub None, jeśli brak ruchu.
-        """
-        self.start_time = time.time()
-        
-        # Try opening book first
-        book_move = self.check_opening_book()
-        if book_move:
-            self.message += f"\nUsing book move: {book_move}"
-            return book_move
-
-        # Initialize move tracking
-        moves_by_depth = {}
-        best_move = None
-        best_eval = -float('inf')
-        
-        piece_types = {
-            'p': 'Pawn', 'r': 'Rook', 'n': 'Knight',
-            'b': 'Bishop', 'q': 'Queen', 'k': 'King'
-        }
-
-        try:
-            # Iterative deepening
-            for current_depth in range(1, self.depth + 1):
-                if self.is_time_exceeded():
-                    break
-                    
-                depth_start = time.time()
-                eval_score, move = self.minimax(self.main_board, current_depth, -float('inf'), float('inf'), True)
-                
-                if move and not self.is_time_exceeded():
-                    moves_by_depth[current_depth] = (move, eval_score)
-                    
-                    # Print current depth move
-                    y1, x1, y2, x2 = move
-                    piece = self.main_board.board_state[y1][x1].figure
-                    piece_name = piece_types.get(piece.type, piece.type)
-                    self.message += f"\nDepth {current_depth}: {piece_name} from {chr(97+x1)}{8-y1} to {chr(97+x2)}{8-y2} (score: {eval_score:.2f}, time: {time.time() - depth_start:.3f}s)"
-                    
-                    # Update best move with depth preference
-                    if best_move is None:
-                        best_move = move
-                        best_eval = eval_score
-                    else:
-                        # Prefer deeper searches unless they're significantly worse
-                        prev_eval = moves_by_depth[current_depth-1][1]
-                        if eval_score >= prev_eval - 200:  # Allow some tolerance
-                            best_move = move
-                            best_eval = eval_score
-                        elif eval_score < prev_eval - 500:  # If much worse, keep previous
-                            self.message += f"\nDepth {current_depth} significantly worse, keeping previous move"
-
-            # Compare and print all moves
-            self.message += "\nMoves comparison:"
-            selected_depth = None
-            for depth, (move, score) in moves_by_depth.items():
-                y1, x1, y2, x2 = move
-                piece = self.main_board.board_state[y1][x1].figure
-                piece_name = piece_types.get(piece.type, piece.type)
-                mark = "★" if move == best_move else " "
-                self.message += f"\n{mark} Depth {depth}: {piece_name} {chr(97+x1)}{8-y1}-{chr(97+x2)}{8-y2} (score: {score:.2f})"
-                if move == best_move:
-                    selected_depth = depth
-
-            if selected_depth:
-                self.message += f"\nSelected move from depth {selected_depth}"
-
-            self.message += f"\nSearch completed in {time.time() - self.start_time:.3f}s"
-            return best_move, self.message, self.available_moves_from_json
-
-        except Exception as e:
-            self.message += f"\nError in get_best_move: {e}"
-            return None
