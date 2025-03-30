@@ -5,6 +5,7 @@ import engine.engine as engine
 from pathlib import Path
 from engine.fen_operations import *
 import json
+from random import randint
 
 class Minimax:
     def __init__(self, main_board, depth, color, time_limit=10):
@@ -16,7 +17,85 @@ class Minimax:
         self.time_limit = time_limit
         self.start_time = None
         self.best_move = None
-        self.path = Path("algorithms/opening.json")
+        self.path = Path(__file__).parent / "opening.json"
+        self.opening_book = self.load_opening_book()
+
+    def load_opening_book(self):
+        """Load opening book with proper color handling"""
+        try:
+            if not self.path.exists():
+                # Create default opening book with color information
+                default_book = {
+                    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w": ["d4", "e4", "c4", "Nf3"],
+                    "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b": ["Nf6", "d5", "f5"],
+                    "rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w": ["c4", "Bg5"],
+                    "rnbqkb1r/pppppppp/5n2/8/2PP4/8/PP2PPPP/RNBQKBNR b": ["e6", "c5", "g6"]
+                }
+                with open(self.path, 'w', encoding='utf-8') as f:
+                    json.dump(default_book, f, indent=2)
+                return default_book
+
+            with open(self.path, 'r', encoding='utf-8') as f:
+                opening_book = json.load(f)
+                print(f"Loaded opening book with {len(opening_book)} positions")
+                return opening_book
+
+        except Exception as e:
+            print(f"Error loading opening book: {e}")
+            return {}
+
+    def get_mate_pattern_bonus(self, board, color, move):
+        """Evaluate potential checkmate patterns"""
+        y1, x1, y2, x2 = move
+        piece = board.board_state[y1][x1].figure
+        if not piece:  # Add early return if no piece
+            return 0
+            
+        opponent_color = 'b' if color == 'w' else 'w'
+        opponent_king_pos = None
+        bonus = 0
+        
+        # Find opponent's king
+        for y in range(8):
+            for x in range(8):
+                fig = board.board_state[y][x].figure
+                if fig and fig.type == 'k' and fig.color == opponent_color:
+                    opponent_king_pos = (y, x)
+                    break
+        if not opponent_king_pos:
+            return 0
+            
+        ky, kx = opponent_king_pos
+        
+        # Pattern 1: Back rank mate potential
+        if piece.type in ['r', 'q']:  # Changed to lowercase
+            if ky in [0, 7] and abs(y2 - ky) == 0:
+                if all(board.board_state[ky][x].figure and 
+                       board.board_state[ky][x].figure.color == opponent_color 
+                       for x in range(min(kx+1, 7), 8)):
+                    bonus += 500
+
+        # Pattern 2: Corner trap
+        if kx in [0, 7] and ky in [0, 7]:
+            if piece.type in ['q', 'r']:  # Changed to lowercase
+                dist_to_king = abs(y2 - ky) + abs(x2 - kx)
+                if dist_to_king <= 2:
+                    bonus += 300
+
+        # Pattern 3: Queen + Knight mate pattern
+        if piece.type == 'q':  # Changed to lowercase
+            knights = []
+            for y in range(8):
+                for x in range(8):
+                    fig = board.board_state[y][x].figure
+                    if fig and fig.type == 'n' and fig.color == color:  # Changed to lowercase
+                        knights.append((y, x))
+            if knights:
+                dist_to_king = abs(y2 - ky) + abs(x2 - kx)
+                if dist_to_king <= 2:
+                    bonus += 400
+
+        return bonus
 
     def get_evaluation_score(self, board, is_maximizing):
         eval_result = evaluation.get_evaluation(board)
@@ -28,7 +107,14 @@ class Minimax:
                 return -1000000 if is_maximizing else 1000000
             return 0  # Stalemate
             
-        return eval_result[0] - eval_result[1] if color == 'w' else eval_result[1] - eval_result[0]
+        score = eval_result[0] - eval_result[1] if color == 'w' else eval_result[1] - eval_result[0]
+        
+        # Add checkmate pattern detection for the last move
+        if hasattr(board, 'last_move') and board.last_move:
+            mate_bonus = self.get_mate_pattern_bonus(board, color, board.last_move)
+            score += mate_bonus if is_maximizing else -mate_bonus
+        
+        return score
 
     def is_time_exceeded(self):
         if not self.start_time:
@@ -62,6 +148,9 @@ class Minimax:
                     if not engine.tryMove(current_color, new_board, y1, x1, y2, x2):
                         continue
 
+                    # Store last move for pattern detection
+                    new_board.last_move = (y1, x1, y2, x2)
+                    
                     eval_value, _ = self.minimax(new_board, depth - 1, alpha, beta, False)
                     if eval_value is None:
                         continue
@@ -84,6 +173,9 @@ class Minimax:
                     if not engine.tryMove(current_color, new_board, y1, x1, y2, x2):
                         continue
 
+                    # Store last move for pattern detection
+                    new_board.last_move = (y1, x1, y2, x2)
+                    
                     eval_value, _ = self.minimax(new_board, depth - 1, alpha, beta, True)
                     if eval_value is None:
                         continue
@@ -97,20 +189,31 @@ class Minimax:
             return min_eval, best_move
 
     def check_opening_book(self):
+        """Check opening book for current position with color"""
         try:
-            with open(self.path, "r") as f:
-                opening_book = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
+            if not self.opening_book:
+                return None
+
+            # Get FEN with color
+            current_fen = board_to_fen_inverted(self.main_board, self.color)
+            fen_parts = current_fen.split(' ')
+            position_key = f"{fen_parts[0]} {fen_parts[1]}"  # Board + active color
+            
+            print(f"Looking for position: {position_key}")
+            
+            if position_key in self.opening_book:
+                moves = self.opening_book[position_key]
+                print(f"Found {len(moves)} possible moves: {moves}")
+                # Use 0-based indexing for randint
+                move_notation = moves[randint(0, len(moves)-1)]
+                print(f"Selected move: {move_notation}")
+                return engine.notation_to_cords(self.main_board, move_notation, self.color)
+
             return None
 
-        current_fen = board_to_fen_inverted(self.main_board, self.color)
-        position_key = current_fen.split(' ')[0]
-        
-        if position_key in opening_book:
-            moves = opening_book[position_key]
-            move_notation = random.choice(moves)
-            return engine.notation_to_cords(self.main_board, move_notation, self.color)
-        return None
+        except Exception as e:
+            print(f"Error checking opening book: {e}")
+            return None
 
     def get_best_move(self):
         self.start_time = time.time()

@@ -10,6 +10,7 @@ import random
 import engine.figures as figures
 import copy
 import psutil
+import engine.engine as engine
 
 class ChessNN(nn.Module):
     def __init__(self):
@@ -17,17 +18,14 @@ class ChessNN(nn.Module):
         self.network = nn.Sequential(
             nn.Linear(773, 2048),
             nn.LeakyReLU(),
-            nn.BatchNorm1d(2048),
             nn.Dropout(0.3),
             
             nn.Linear(2048, 1024),
             nn.LeakyReLU(),
-            nn.BatchNorm1d(1024),
             nn.Dropout(0.2),
             
             nn.Linear(1024, 512),
             nn.LeakyReLU(),
-            nn.BatchNorm1d(512),
             
             nn.Linear(512, 1),
             nn.Tanh()
@@ -36,78 +34,81 @@ class ChessNN(nn.Module):
     def forward(self, x):
         return self.network(x)
 
-class ChessQLearningAI:
-    def __init__(self, board, learning_rate=0.001):
-        torch.backends.cudnn.benchmark = True
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+class Field:
+    """Field class for board state representation"""
+    def __init__(self):
+        self.figure = None
+        self.x = None  # Add required attributes
+        self.y = None
 
+class ChessQLearningAI:
+    def __init__(self, board, learning_rate=0.001, color='w'):
         self.board = board
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = ChessNN().to(self.device)
+        self.color = color
+        self.initial_board_state = self._create_initial_board_state()
+        self.model = ChessNN()
         self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
         self.criterion = nn.MSELoss()
-        
-        # Setup logging
+        self.logger = self._setup_logger()
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model.to(self.device)
+
+    def _setup_logger(self):
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s: %(message)s',
             handlers=[logging.FileHandler('training.log'), logging.StreamHandler()]
         )
-        self.logger = logging.getLogger(__name__)
-        
-        self.initial_board_state = self._create_initial_board_state()
-        self.current_turn = 'w'  # Add turn tracking to ML class
+        return logging.getLogger(__name__)
 
     def _create_initial_board_state(self):
-        """Creates and stores the initial chess board state"""
-        # Save initial state
+        """Creates proper initial board state with Field objects"""
         initial_state = []
-        
-        # Initial piece setup
-        piece_setup = {
-            0: {'w': [figures.Rook, figures.Knight, figures.Bishop, figures.King,
-                     figures.Queen, figures.Bishop, figures.Knight, figures.Rook]},
-            1: {'w': [figures.Pawn]*8},
-            6: {'b': [figures.Pawn]*8},
-            7: {'b': [figures.Rook, figures.Knight, figures.Bishop, figures.King,
-                     figures.Queen, figures.Bishop, figures.Knight, figures.Rook]}
-        }
-        
         for row in range(8):
             row_state = []
             for col in range(8):
-                if row in piece_setup:
-                    color = list(piece_setup[row].keys())[0]
-                    piece_class = piece_setup[row][color][col]
-                    piece = piece_class(color)
-                else:
-                    piece = None
-                row_state.append(piece)
+                # Create new Field object directly
+                field = Field()
+                field.figure = None
+                row_state.append(field)
             initial_state.append(row_state)
-            
+        
+        # Set up initial pieces
+        piece_setup = {
+            0: {'w': [('R', figures.Rook), ('N', figures.Knight), ('B', figures.Bishop), 
+                      ('K', figures.King), ('Q', figures.Queen), ('B', figures.Bishop), 
+                      ('N', figures.Knight), ('R', figures.Rook)]},
+            1: {'w': [('P', figures.Pawn)]*8},
+            6: {'b': [('P', figures.Pawn)]*8},
+            7: {'b': [('R', figures.Rook), ('N', figures.Knight), ('B', figures.Bishop),
+                      ('K', figures.King), ('Q', figures.Queen), ('B', figures.Bishop),
+                      ('N', figures.Knight), ('R', figures.Rook)]}
+        }
+        
+        # Place pieces
+        for row in piece_setup:
+            color = list(piece_setup[row].keys())[0]
+            for col, (piece_type, piece_class) in enumerate(piece_setup[row][color]):
+                piece = piece_class(color)
+                piece.type = piece_type  # Explicitly set piece type
+                initial_state[row][col].figure = piece
+                
         return initial_state
 
     def _reset_board(self):
-        """Resets the board to initial position without modifying Board class"""
-        # Reset piece positions
-        for row in range(8):
-            for col in range(8):
-                initial_piece = self.initial_board_state[row][col]
-                if initial_piece:
-                    self.board.board_state[row][col].figure = initial_piece.__class__(initial_piece.color)
-                else:
-                    self.board.board_state[row][col].figure = None
-        
-        # Reset piece coordinates
-        self.board.piece_cords = []
-        for row in range(8):
-            for col in range(8):
-                if self.board.board_state[row][col].figure:
-                    self.board.piece_cords.append((row, col))
-        
-        # Reset board state
-        self.board.incheck = False
+        """Reset board with better error handling"""
+        try:
+            self.board.board_state = copy.deepcopy(self.initial_board_state)
+            self.board.piece_cords = []
+            for row in range(8):
+                for col in range(8):
+                    if self.board.board_state[row][col].figure:
+                        self.board.piece_cords.append((row, col))
+            self.board.incheck = False
+            return True
+        except Exception as e:
+            self.logger.error(f"Error resetting board: {e}")
+            return False
 
     def train(self, num_episodes):
         """
@@ -117,6 +118,7 @@ class ChessQLearningAI:
         total_loss = 0
         start_time = time.time()
         checkpoint_interval = 1000  # Save every 1000 episodes
+        eval_interval = 5000  # Evaluate every 5000 episodes
         
         # Create models directory if it doesn't exist
         Path("models").mkdir(exist_ok=True)
@@ -141,91 +143,109 @@ class ChessQLearningAI:
                 total_loss = 0
                 start_time = time.time()
 
+            if episode > 0 and episode % eval_interval == 0:
+                win_rate = self._evaluate_model()
+                self.logger.info(f"Evaluation at episode {episode}: {win_rate:.2%} win rate")
+                self._check_memory()  # Check memory usage
+
     def _train_episode(self):
-        """Training episode with improved error handling"""
+        """Training episode with batch processing"""
         states = []
         rewards = []
         
         try:
-            # Generate training data
-            for _ in range(50):  # Max 50 moves per episode
-                # Verify board state
+            # Collect multiple states before training
+            max_attempts = 50  # Max moves per episode
+            attempts = 0
+            
+            while attempts < max_attempts and len(states) < 32:  # Ensure minimum batch size
                 if not self._verify_board_state():
-                    self._reset_board()  # Reset if invalid state detected
+                    if not self._reset_board():
+                        return 0.0
                     continue
                     
-                state = self.encode_position(self.board)
-                reward = self._get_position_reward()
-                
-                states.append(state)
-                rewards.append(reward)
-                
-                # Get and verify moves
                 try:
+                    state = self.encode_position(self.board)
+                    if state is None:
+                        continue
+                        
+                    reward = self._get_position_reward()
+                    if reward is None:
+                        continue
+                    
+                    states.append(state)
+                    rewards.append(reward)
+                    
+                    # Make moves
                     moves = self._get_safe_moves(self.board, 'w')
                     if not moves:
                         break
                         
-                    # Choose random move for training
                     piece = random.choice(list(moves.keys()))
                     move = random.choice(moves[piece])
-                    self.board.make_move(piece[0], piece[1], move[0], move[1])
+                    if not self.board.make_move(piece[0], piece[1], move[0], move[1]):
+                        break
+                        
                 except Exception as e:
-                    self.logger.warning(f"Move generation error: {e}")
+                    self.logger.debug(f"Move generation error: {e}")
                     break
+                    
+                attempts += 1
+                
+            # Train only if we have enough samples
+            if len(states) >= 2:  # Minimum batch size
+                try:
+                    states_tensor = torch.stack(states)
+                    rewards_tensor = torch.FloatTensor(rewards).to(self.device)
+                    
+                    # Ensure tensors have correct shape
+                    if states_tensor.shape[0] != rewards_tensor.shape[0]:
+                        return 0.0
+                        
+                    self.optimizer.zero_grad()
+                    outputs = self.model(states_tensor).squeeze()
+                    loss = self.criterion(outputs, rewards_tensor)
+                    loss.backward()
+                    self.optimizer.step()
+                    
+                    return float(loss.item())  # Ensure we return a float
+                    
+                except Exception as e:
+                    self.logger.error(f"Training step error: {e}")
+                    return 0.0
                     
         except Exception as e:
             self.logger.error(f"Training episode error: {e}")
-            return 0.0
             
-        # Train on collected data
-        if states:
-            try:
-                states = torch.stack(states)
-                rewards = torch.FloatTensor(rewards).to(self.device)
-                
-                self.optimizer.zero_grad()
-                outputs = self.model(states).squeeze()
-                loss = self.criterion(outputs, rewards)
-                loss.backward()
-                self.optimizer.step()
-                
-                return loss.item()
-            except Exception as e:
-                self.logger.error(f"Training step error: {e}")
-                return 0.0
-                
-        return 0.0
+        return 0.0  # Default return value
 
     def _verify_board_state(self):
-        """Verify that the board state is valid"""
+        """Verify board state with proper type checking"""
         try:
-            # Check for kings
             white_king = False
             black_king = False
-            
-            for row in range(8):
-                for col in range(8):
-                    piece = self.board.board_state[row][col].figure
-                    if piece and piece.type == 'K':
-                        if piece.color == 'w':
-                            white_king = True
-                        else:
-                            black_king = True
-                            
-            # Verify piece coordinates
             valid_cords = []
+            
             for row in range(8):
                 for col in range(8):
-                    if self.board.board_state[row][col].figure:
-                        valid_cords.append((row, col))
+                    field = self.board.board_state[row][col]
+                    if not hasattr(field, 'figure'):
+                        continue
                         
+                    piece = field.figure
+                    if piece is not None:
+                        valid_cords.append((row, col))
+                        if hasattr(piece, 'type') and piece.type == 'K':
+                            if piece.color == 'w':
+                                white_king = True
+                            elif piece.color == 'b':
+                                black_king = True
+                                
             self.board.piece_cords = valid_cords
-            
             return white_king and black_king
             
         except Exception as e:
-            self.logger.warning(f"Board state verification failed: {e}")
+            self.logger.error(f"Board state verification failed: {e}")
             return False
 
     def _get_safe_moves(self, board, color):
@@ -561,7 +581,7 @@ class ChessQLearningAI:
     def get_best_move(self):
         """Get best move for current position"""
         try:
-            moves = self._get_safe_moves(self.board, self.current_turn)
+            moves = self._get_safe_moves(self.board, self.color)
             if not moves:
                 return None
                 
@@ -581,150 +601,249 @@ class ChessQLearningAI:
                             best_value = value
                             best_move = (piece[0], piece[1], move[0], move[1])
             
-            # Update turn after move
-            if best_move:
-                self.current_turn = 'b' if self.current_turn == 'w' else 'w'
-            
             return best_move
             
         except Exception as e:
             print(f"Error getting best move: {e}")
             return None
 
-    def play_interactive_game(self, human_color):
-        """
-        Play an interactive chess game against a human player using Pygame.
-        """
-        from engine.board_and_fields import Board
-        import pygame
-        from pygame.locals import QUIT, MOUSEBUTTONDOWN
+    def _play_validation_game(self):
+        """Play a single validation game with better error handling"""
+        try:
+            board = copy.deepcopy(self.board)
+            board.board_state = copy.deepcopy(self.initial_board_state)
+            moves_count = 0
+            max_moves = 100
 
-        # Initialize Pygame
-        pygame.init()
-        screen = pygame.display.set_mode((800, 800))
-        pygame.display.set_caption("Chess Game")
-        clock = pygame.time.Clock()
-
-        # Colors
-        WHITE = (255, 255, 255)
-        BLACK = (0, 0, 0)
-        HIGHLIGHT = (0, 255, 0)
-        TILE_SIZE = 100
-
-        # Load images for pieces (assuming images are in a folder named 'assets')
-        piece_images = {}
-        for piece in ['wP', 'wN', 'wB', 'wR', 'wQ', 'wK', 'bP', 'bN', 'bB', 'bR', 'bQ', 'bK']:
-            piece_images[piece] = pygame.image.load(f'assets/{piece}.png')
-
-        # Reset the board
-        self._reset_board()
-        current_color = 'w'
-        selected_piece = None
-        legal_moves = []
-
-        def draw_board():
-            """Draw the chessboard and pieces."""
+            # Reset piece coordinates
+            board.piece_cords = []
             for row in range(8):
                 for col in range(8):
-                    # Flip the board for black
-                    display_row = 7 - row if human_color == 'b' else row
-                    display_col = 7 - col if human_color == 'b' else col
+                    if board.board_state[row][col].figure:
+                        board.piece_cords.append((row, col))
 
-                    # Draw tiles
-                    color = WHITE if (row + col) % 2 == 0 else BLACK
-                    pygame.draw.rect(screen, color, (display_col * TILE_SIZE, display_row * TILE_SIZE, TILE_SIZE, TILE_SIZE))
-
-                    # Highlight legal moves
-                    if (row, col) in legal_moves:
-                        pygame.draw.rect(screen, HIGHLIGHT, (display_col * TILE_SIZE, display_row * TILE_SIZE, TILE_SIZE, TILE_SIZE), 5)
-
-                    # Draw pieces
-                    piece = self.board.board_state[row][col].figure
-                    if piece:
-                        piece_str = piece.color + piece.type
-                        if piece_str in piece_images:
-                            screen.blit(piece_images[piece_str], (display_col * TILE_SIZE, display_row * TILE_SIZE))
-
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    running = False
-                elif event.type == MOUSEBUTTONDOWN:
-                    # Handle human player's move
-                    if current_color == human_color:
-                        mouse_x, mouse_y = event.pos
-                        clicked_col = mouse_x // TILE_SIZE
-                        clicked_row = mouse_y // TILE_SIZE
-
-                        # Flip the board for black
-                        board_row = 7 - clicked_row if human_color == 'b' else clicked_row
-                        board_col = 7 - clicked_col if human_color == 'b' else clicked_col
-
-                        if selected_piece:
-                            # Attempt to make a move
-                            if (board_row, board_col) in legal_moves:
-                                self.board.make_move(selected_piece[0], selected_piece[1], board_row, board_col)
-                                current_color = 'w' if current_color == 'b' else 'b'
-                                selected_piece = None
-                                legal_moves = []
-                            else:
-                                # Deselect if clicked outside legal moves
-                                selected_piece = None
-                                legal_moves = []
-                        else:
-                            # Select a piece
-                            piece = self.board.board_state[board_row][board_col].figure
-                            if piece and piece.color == human_color:
-                                selected_piece = (board_row, board_col)
-                                legal_moves = self._get_safe_moves(self.board, human_color).get(selected_piece, [])
-
-            # AI's turn
-            if current_color != human_color:
+            while moves_count < max_moves:
+                # Get AI move
                 try:
-                    moves = self._get_safe_moves(self.board, current_color)
-                    if not moves:
-                        print(f"{current_color} has no legal moves. Game over!")
-                        running = False
-                        continue
-
-                    # Choose a random move for simplicity
-                    piece = random.choice(list(moves.keys()))
-                    move = random.choice(moves[piece])
-                    self.board.make_move(piece[0], piece[1], move[0], move[1])
-                    current_color = 'w' if current_color == 'b' else 'b'
+                    legal_moves = board.get_all_moves(self.color)
+                    if not legal_moves:
+                        return 0.0 if board.is_in_check(self.color) else 0.5
+                        
+                    # Make AI move
+                    move = self.get_best_move()
+                    if not move:
+                        return 0.0
+                        
+                    y1, x1, y2, x2 = move
+                    if not board.make_move(y1, x1, y2, x2):
+                        return 0.0
+                        
+                    # Check opponent status
+                    opponent_color = 'b' if self.color == 'w' else 'w'
+                    opponent_moves = board.get_all_moves(opponent_color)
+                    
+                    if not opponent_moves:
+                        return 1.0 if board.is_in_check(opponent_color) else 0.5
+                        
+                    # Make random opponent move
+                    piece = random.choice(list(opponent_moves.keys()))
+                    move = random.choice(opponent_moves[piece])
+                    if not board.make_move(piece[0], piece[1], move[0], move[1]):
+                        return 0.0
+                        
                 except Exception as e:
-                    print(f"Error during AI move: {e}")
-                    running = False
-
-            # Update the display
-            screen.fill((255, 255, 255))  # Clear the screen
-            draw_board()
-            pygame.display.flip()
-            clock.tick(30)
-
-        pygame.quit()
-
-    def _monitor_resources(self):
-        process = psutil.Process()
-        memory_use = process.memory_info().rss / 1024 / 1024  # MB
-        self.logger.info(f"Memory usage: {memory_use:.1f} MB")
-
-    def validate(self, num_games=100):
-        """Validate model performance"""
-        self.model.eval()
-        wins = 0
-        draws = 0
-        
-        for game in range(num_games):
-            self._reset_board()
-            result = self._play_validation_game()
-            if result == 1:
-                wins += 1
-            elif result == 0:
-                draws += 1
+                    self.logger.debug(f"Move error in validation game: {e}")
+                    return 0.0
+                    
+                moves_count += 1
                 
-        win_rate = wins / num_games
-        draw_rate = draws / num_games
-        self.logger.info(f"Validation: Win rate: {win_rate:.2%}, Draw rate: {draw_rate:.2%}")
-        return win_rate
+            return 0.5  # Draw if max moves reached
+            
+        except Exception as e:
+            self.logger.error(f"Validation game error: {e}")
+            return 0.0
+
+    def validate(self, num_games=20):
+        """Run multiple validation games and return win rate"""
+        try:
+            wins = 0.0  # Use float to handle None values
+            games_played = 0
+            
+            for _ in range(num_games):
+                result = self._play_validation_game()
+                if result is not None:  # Only count valid results
+                    wins += float(result)
+                    games_played += 1
+                    
+            # Calculate win rate only if we have valid games
+            if games_played > 0:
+                win_rate = wins / games_played
+            else:
+                win_rate = 0.0
+                
+            self.logger.info(f"Validation win rate: {win_rate:.2%} ({games_played} games)")
+            return win_rate
+            
+        except Exception as e:
+            self.logger.error(f"Validation error: {e}")
+            return 0.0
+
+    def test_training(self, episodes=200):
+        """Run test training with proper board state handling"""
+        self.logger.info(f"Starting test training with {episodes} episodes...")
+        
+        try:
+            # Initialize game tracking
+            total_games = 0
+            successful_games = 0
+            
+            for episode in range(episodes):
+                # Reset board state
+                if not self._reset_board():
+                    continue
+                    
+                # Run training episode
+                try:
+                    self.model.train()
+                    episode_loss = self._train_episode()
+                    
+                    if episode_loss is not None:
+                        successful_games += 1
+                    total_games += 1
+                    
+                    # Log progress
+                    if (episode + 1) % 20 == 0:
+                        success_rate = successful_games / total_games
+                        self.logger.info(
+                            f"Test episode {episode + 1}/{episodes} | "
+                            f"Loss: {episode_loss:.4f} | "
+                            f"Success rate: {success_rate:.2%}"
+                        )
+                        
+                    # Periodic validation
+                    if (episode + 1) % 50 == 0:
+                        win_rate = self._evaluate_model(num_games=5)
+                        self.logger.info(f"Test validation at episode {episode + 1}: {win_rate:.2%}")
+                        
+                except Exception as e:
+                    self.logger.warning(f"Error in episode {episode}: {e}")
+                    continue
+                    
+            # Final validation
+            self.logger.info("Running final validation...")
+            win_rate = self.validate(num_games=20)
+            self.logger.info(f"Test training completed with {win_rate:.2%} win rate")
+            
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Test training failed: {e}")
+            return False
+
+    def full_training(self):
+        """Run full training with 50K episodes"""
+        self.logger.info("Starting full training with 50K episodes...")
+        start_time = time.time()
+        
+        try:
+            # First run test training
+            if not self.test_training():
+                self.logger.error("Test training failed, aborting full training")
+                return False
+                
+            self.logger.info("Test successful, starting full training...")
+            
+            # Run full training
+            self.train(50000)
+            
+            # Log results
+            elapsed = time.time() - start_time
+            self.logger.info(f"Full training completed in {elapsed:.2f}s")
+            
+            # Final validation
+            win_rate = self.validate(num_games=100)
+            self.logger.info(f"Final validation win rate: {win_rate:.2%}")
+            
+            # Save final model
+            self.save_model("final_model.pt")
+            
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Full training failed: {e}")
+            return False
+
+    def _board_to_tensor(self, board):
+        """Convert board to tensor format"""
+        try:
+            # Use existing encode_position method
+            state = self.encode_position(board)
+            # Add batch dimension
+            return state.unsqueeze(0)
+        except Exception as e:
+            self.logger.error(f"Error converting board to tensor: {e}")
+            # Return zero tensor as fallback
+            return torch.zeros(1, 773).to(self.device)
+
+    def _verify_move(self, board, move):
+        """Verify if a move is legal and safe"""
+        try:
+            y1, x1, y2, x2 = move
+            piece = board.board_state[y1][x1].figure
+            
+            # Basic validation
+            if not piece:
+                return False
+            if piece.color != self.color:
+                return False
+                
+            # Check if move is in legal moves
+            legal_moves = board.get_all_moves(self.color)
+            if (y1, x1) not in legal_moves:
+                return False
+            if (y2, x2) not in legal_moves[(y1, x1)]:
+                return False
+                
+            # Try move on copy
+            temp_board = copy.deepcopy(board)
+            if not temp_board.make_move(y1, x1, y2, x2):
+                return False
+                
+            # Check if we're not in check after move
+            if temp_board.is_in_check(self.color):
+                return False
+                
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Move verification error: {e}")
+            return False
+
+    def _check_memory(self):
+        """Monitor memory usage and cleanup if needed"""
+        try:
+            process = psutil.Process()
+            memory_percent = process.memory_percent()
+            
+            if memory_percent > 80:  # Over 80% memory usage
+                self.logger.warning("High memory usage detected, cleaning up...")
+                import gc
+                gc.collect()
+                torch.cuda.empty_cache()  # If using CUDA
+                
+            return memory_percent
+            
+        except Exception as e:
+            self.logger.error(f"Memory check error: {e}")
+            return None
+
+    def _evaluate_model(self, num_games=10):
+        """Evaluate model performance"""
+        try:
+            self.model.eval()  # Set to evaluation mode
+            win_rate = self.validate(num_games)
+            self.model.train()  # Set back to training mode
+            return win_rate
+        except Exception as e:
+            self.logger.error(f"Model evaluation error: {e}")
+            return 0.0

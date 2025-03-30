@@ -17,3 +17,113 @@
 2025-03-30 01:36:27,555 - INFO: Episode 200/1000 | Loss: 0.0878 | Time: 50.0s
 2025-03-30 01:37:17,167 - INFO: Episode 300/1000 | Loss: 0.0697 | Time: 49.6s
 2025-03-30 01:38:06,945 - INFO: Episode 400/1000 | Loss: 0.0537 | Time: 49.8s
+2025-03-30 01:38:55,917 - INFO: Episode 500/1000 | Loss: 0.0416 | Time: 49.0s
+2025-03-30 01:39:44,679 - INFO: Episode 600/1000 | Loss: 0.0350 | Time: 48.8s
+2025-03-30 01:40:28,965 - INFO: Episode 700/1000 | Loss: 0.0267 | Time: 44.3s
+2025-03-30 01:41:17,066 - INFO: Episode 800/1000 | Loss: 0.0233 | Time: 48.1s
+2025-03-30 01:42:04,053 - INFO: Episode 900/1000 | Loss: 0.0198 | Time: 47.0s
+2025-03-30 01:42:52,848 - INFO: Model saved to models\checkpoint_episode_1000.pt
+2025-03-30 01:42:52,850 - INFO: Episode 1000/1000 | Loss: 0.0201 | Time: 48.8s
+2025-03-30 01:42:52,984 - INFO: Model saved to models\emergency_save.pt
+2025-03-30 01:42:53,118 - INFO: Model saved to models\final_model.pt
+2025-03-30 01:48:00,550 - INFO: Starting test training with 200 episodes...
+2025-03-30 01:48:48,012 - INFO: Episode 100/200 | Loss: 0.2732 | Time: 47.5s
+2025-03-30 01:49:34,146 - INFO: Episode 200/200 | Loss: 0.0171 | Time: 46.1s
+2025-03-30 01:49:34,147 - INFO: Test training completed in 93.59s
+2025-03-30 01:49:34,147 - INFO: Running validation...
+2025-03-30 01:49:34,151 - ERROR: Test training failed: 'ChessQLearningAI' object has no attribute 'color'
+2025-03-30 01:54:42,360 - INFO: Starting test training with 200 episodes...
+2025-03-30 01:54:42,364 - ERROR: Test training failed: 'ChessQLearningAI' object has no attribute 'initial_board_state'
+2025-03-30 03:05:47,256 - INFO: Starting test training with 200 episodes...
+2025-03-30 03:05:47,258 - ERROR: Test training failed: 'Board' object has no attribute 'set_board_state'
+2025-03-30 03:07:17,525 - INFO: Starting test training with 200 episodes...
+2025-03-30 03:07:27,472 - INFO: Test episode 20/200 | Loss: 0.7888
+2025-03-30 03:07:37,339 - INFO: Test episode 40/200 | Loss: 0.1886
+2025-03-30 03:07:42,415 - ERROR: Test training failed: 'NoneType' object has no attribute 'type'
+2025-03-30 03:10:30,580 - INFO: Starting test training with 200 episodes...
+2025-03-30 03:10:30,602 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,610 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,615 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,621 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,628 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,638 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,646 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,655 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,663 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,671 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,679 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,688 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,697 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,705 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,712 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,721 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,727 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,735 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,741 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,747 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,748 - INFO: Test episode 20/200 | Loss: 0.0000
+2025-03-30 03:10:30,754 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,761 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,769 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,778 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,786 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,795 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,804 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,812 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,821 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,829 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,834 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,841 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,848 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,857 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,864 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,871 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,879 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,886 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,894 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,902 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,903 - INFO: Test episode 40/200 | Loss: 0.0000
+2025-03-30 03:10:30,911 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,919 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,927 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,933 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,941 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,946 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,953 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,960 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,968 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,975 - ERROR: Training step error: Expected more than 1 value per channel when training, got input size torch.Size([1, 2048])
+2025-03-30 03:10:30,979 - ERROR: Test training failed: 'Field' object has no attribute 'x'
+2025-03-30 03:11:59,849 - INFO: Starting test training with 200 episodes...
+2025-03-30 03:11:59,942 - INFO: Test episode 20/200 | Loss: 0.0000
+2025-03-30 03:12:00,045 - INFO: Test episode 40/200 | Loss: 0.0000
+2025-03-30 03:12:00,097 - ERROR: Test training failed: unsupported operand type(s) for +: 'NoneType' and 'int'
+2025-03-30 03:12:15,618 - INFO: Starting test training with 200 episodes...
+2025-03-30 03:12:15,692 - INFO: Test episode 20/200 | Loss: 0.0000
+2025-03-30 03:12:15,785 - INFO: Test episode 40/200 | Loss: 0.0000
+2025-03-30 03:12:15,847 - ERROR: Test training failed: unsupported operand type(s) for +: 'NoneType' and 'int'
+2025-03-30 03:13:36,376 - INFO: Starting test training with 200 episodes...
+2025-03-30 03:13:36,482 - INFO: Test episode 20/200 | Loss: 0.0000
+2025-03-30 03:13:36,572 - INFO: Test episode 40/200 | Loss: 0.0000
+2025-03-30 03:13:36,614 - ERROR: Test training failed: unsupported operand type(s) for +: 'NoneType' and 'int'
+2025-03-30 03:17:41,595 - INFO: Starting test training with 200 episodes...
+2025-03-30 03:17:41,682 - INFO: Test episode 20/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:17:41,766 - INFO: Test episode 40/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:17:41,816 - ERROR: Model evaluation error: unsupported operand type(s) for +: 'NoneType' and 'int'
+2025-03-30 03:17:41,817 - INFO: Test validation at episode 50: 0.00%
+2025-03-30 03:17:41,854 - INFO: Test episode 60/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:17:41,929 - INFO: Test episode 80/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:17:42,000 - INFO: Test episode 100/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:17:42,004 - ERROR: Model evaluation error: unsupported operand type(s) for +: 'NoneType' and 'int'
+2025-03-30 03:17:42,005 - INFO: Test validation at episode 100: 0.00%
+2025-03-30 03:17:42,090 - INFO: Test episode 120/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:17:42,165 - INFO: Test episode 140/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:17:42,206 - ERROR: Model evaluation error: unsupported operand type(s) for +: 'NoneType' and 'int'
+2025-03-30 03:17:42,207 - INFO: Test validation at episode 150: 0.00%
+2025-03-30 03:17:42,236 - INFO: Test episode 160/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:17:42,314 - INFO: Test episode 180/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:17:42,393 - INFO: Test episode 200/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 03:17:42,397 - ERROR: Model evaluation error: unsupported operand type(s) for +: 'NoneType' and 'int'
+2025-03-30 03:17:42,397 - INFO: Test validation at episode 200: 0.00%
+2025-03-30 03:17:42,398 - INFO: Running final validation...
+2025-03-30 03:17:42,401 - ERROR: Test training failed: unsupported operand type(s) for +: 'NoneType' and 'int'
