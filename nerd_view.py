@@ -236,3 +236,76 @@ class NetworkStatsWindow:
         """Formatuje znaczniki czasu na osi X"""
         dt = x if isinstance(x, datetime) else datetime.fromtimestamp(x)
         return dt.strftime('%H:%M:%S') if dt else ""
+    
+class InfoWindow:
+    def __init__(self, master, moves_list, algorithm_name, search_depth, additional_info=""):
+        self.master = master
+        self.moves_list = moves_list
+        self.algorithm_name = algorithm_name
+        self.search_depth = search_depth
+        self.additional_info = additional_info
+
+        # Konfiguracja okna
+        self.master.title("Engine Configuration Info")
+        self.frame = tk.Frame(self.master)
+        self.frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # Nagłówki
+        self._create_info_section("Dostępne ruchy z bazy:", row=0)
+        self._create_info_section("Konfiguracja algorytmu:", row=2)
+        self._create_info_section("Dodatkowe informacje:", row=4)
+
+        # Pole dla ruchów
+        self.moves_text = tk.Listbox(self.frame, height=15, width=25)
+        self.moves_text.grid(row=1, column=0, sticky="nsew", padx=5, pady=2)
+        self._update_moves()
+
+        # Pole dla informacji o algorytmie
+        algo_frame = tk.Frame(self.frame)
+        algo_frame.grid(row=3, column=0, sticky="w", padx=5)
+        
+        self.algorithm_var = tk.StringVar(value=self.algorithm_name)
+        self.depth_var = tk.StringVar(value=f"Głębokość: {self.search_depth}")
+        
+        tk.Label(algo_frame, textvariable=self.algorithm_var).pack(anchor="w")
+        tk.Label(algo_frame, textvariable=self.depth_var).pack(anchor="w")
+
+        # Pole dodatkowych informacji
+        self.info_var = tk.StringVar(value=self.additional_info)
+        info_label = tk.Label(self.frame, textvariable=self.info_var, 
+                            justify="left", wraplength=300)
+        info_label.grid(row=5, column=0, sticky="w", padx=5, pady=2)
+
+        # Scrollbar dla listy ruchów
+        scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.moves_text.yview)
+        scrollbar.grid(row=1, column=1, sticky="ns")
+        self.moves_text.configure(yscrollcommand=scrollbar.set)
+
+        # Konfiguracja grid
+        self.frame.grid_rowconfigure(1, weight=1)
+        self.frame.grid_columnconfigure(0, weight=1)
+
+    def _create_info_section(self, title, row):
+        lbl = tk.Label(self.frame, text=title, font=('Arial', 10, 'bold'))
+        lbl.grid(row=row, column=0, sticky="w", padx=5, pady=(10,2))
+
+    def _update_moves(self):
+        self.moves_text.delete(0, tk.END)
+        for move in self.moves_list:
+            self.moves_text.insert(tk.END, move)
+
+    def update_moves(self, new_moves):
+        self.moves_list = new_moves
+        self._update_moves()
+
+    def update_algorithm(self, new_algorithm):
+        self.algorithm_name = new_algorithm
+        self.algorithm_var.set(new_algorithm)
+
+    def update_additional_info(self, new_info):
+        self.additional_info = new_info
+        self.info_var.set(new_info)
+
+    def update_depth(self, new_depth):
+        self.search_depth = new_depth
+        self.depth_var.set(f"Głębokość: {new_depth}")

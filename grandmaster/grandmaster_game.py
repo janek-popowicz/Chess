@@ -11,6 +11,9 @@ from engine.fen_operations import *
 from graphics import *
 from random import randint
 from algorithms.evaluation import *
+from multiprocessing import Process
+from multiprocessing import Queue as multiQueue
+from algorithms.minimax import *
 
 
 def load_grandmaster_moves(grandmaster_name):

@@ -821,7 +821,7 @@ def choose_ai_settings_dialog(screen, SQUARE_SIZE: int, min_depth=1, max_depth=5
 
     # Settings and their ranges
     settings = {
-        "Głębokość przeszukiwania (zalecane 2 dla minimaxa i )": {
+        "Głębokość przeszukiwania": {
             "value": (min_depth + max_depth) // 2,
             "min": min_depth,
             "max": max_depth,

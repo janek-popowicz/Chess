@@ -19,13 +19,13 @@ from multiprocessing import Queue as multiQueue
 
 def calculate_minimax(board,depth,color,time_limit,min_time,result_queue):
     global MIN_TIME
-    # minimax_start_time = time.time()
+    minimax_start_time = time.time()
     board_copy = copy.deepcopy(board)
     minimax_obj = Minimax(board_copy, depth, color, time_limit)
     y1, x1, y2, x2 = minimax_obj.get_best_move()
     best_move = (y1, x1, y2, x2)
-    # if time.time() - minimax_start_time < min_time:
-    #     time.sleep(min_time - (time.time() - minimax_start_time))
+    if time.time() - minimax_start_time < min_time:
+        time.sleep(min_time - (time.time() - minimax_start_time))
     result_queue.put(best_move)
 
 # Dodaj nową klasę po MinimaxThread
@@ -125,8 +125,7 @@ def main(player_turn, algorithm):
     global MIN_TIME
     min_depth = 1 if algorithm == "minimax" else 5
     max_depth = 4 if algorithm == "minimax" else 30
-    try: depth, MIN_TIME, MAX_TIME = choose_ai_settings_dialog(screen, SQUARE_SIZE, min_depth, max_depth)
-    except: return
+    depth, MIN_TIME, MAX_TIME = choose_ai_settings_dialog(screen, SQUARE_SIZE, min_depth, max_depth)
 
     # Dodaj zmienne do obsługi wątku
     minimax_process = None

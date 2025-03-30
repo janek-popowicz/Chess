@@ -10,7 +10,7 @@ from random import randint
 class Minimax:
     def __init__(self, main_board, depth, color, time_limit=50):
         self.main_board = copy.deepcopy(main_board)
-        self.depth = depth = 3
+        self.depth = depth
         self.alpha = -100000
         self.beta = 100000
         self.color = color
