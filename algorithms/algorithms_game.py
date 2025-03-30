@@ -57,8 +57,28 @@ class MonteCarloThread(threading.Thread):
             print(f"Błąd w wątku Monte Carlo: {e}")
             self.result_queue.put(None)
 
+
+def update_times_display(white_time, black_time, turn, player_color, font, SQUARE_SIZE, YELLOW, GRAY, height):
+    """
+    Returns tuple of time displays with player's time at bottom and grandmaster's time at top.
+    
+    """
+    # Determine display positions based on player color
+    return (
+        (font.render(f"{global_translations.get('black')}: {format_time(black_time)}", True, YELLOW if turn == 'b' else GRAY),
+         (8 * SQUARE_SIZE + 10, 80)),
+        (font.render(f"{global_translations.get('white')}: {format_time(white_time)}", True, YELLOW if turn == 'w' else GRAY),
+         (8 * SQUARE_SIZE + 10, height - 150))
+    ) if player_color == 'w' else (
+        (font.render(f"{global_translations.get('white')}: {format_time(white_time)}", True, YELLOW if turn == 'w' else GRAY),
+         (8 * SQUARE_SIZE + 10, 80)),
+        (font.render(f"{global_translations.get('black')}: {format_time(black_time)}", True, YELLOW if turn == 'b' else GRAY),
+         (8 * SQUARE_SIZE + 10, height - 150))
+    )
+
+
 # Funkcja główna
-def main(player_turn, algorithm):
+def main(player_turn, algorithm, game_time):
     pygame.init()
     # Ładowanie konfiguracji
     config = load_config()
@@ -112,13 +132,7 @@ def main(player_turn, algorithm):
     )
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
-    # Czasy graczy
-    start_time = time.time()
-    black_time = 0
-    white_time = 0
-    result = ""
-    winner = ""
-    in_check = None
+
 
     # Właświwości algorytmów
     global MAX_TIME
@@ -136,32 +150,7 @@ def main(player_turn, algorithm):
     minimax_queue = multiQueue()
     calculating = False
 
-    # Aktualizacja wyświetlania czasów
-    def update_time_display(white_time, black_time, current_time, start_time, turn, player_turn):
-        """Update time display with player's time always at bottom"""
-        if turn == 'w':
-            current_white_time = white_time + (current_time - start_time)
-            current_black_time = black_time
-        else:
-            current_black_time = black_time + (current_time - start_time)
-            current_white_time = white_time
-        
-        # If player is white, white time goes bottom
-        if player_turn == 'w':
-            return (
-                (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
-                 (8 * SQUARE_SIZE + 10, 80)),  # Bot's time (black) at top
-                (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
-                 (8 * SQUARE_SIZE + 10, height - 150))  # Player's time (white) at bottom
-            )
-        # If player is black, black time goes bottom
-        else:
-            return (
-                (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY),
-                 (8 * SQUARE_SIZE + 10, 80)),  # Bot's time (white) at top
-                (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
-                 (8 * SQUARE_SIZE + 10, height - 150))  # Player's time (black) at bottom
-            )
+
     nerd_view = config["nerd_view"]
     if nerd_view:
         from queue import Queue
@@ -182,6 +171,14 @@ def main(player_turn, algorithm):
             additional_info="...",
             best_move=(None)
         )
+
+    # Czasy graczy
+    black_time = game_time
+    white_time = game_time
+    start_time = time.time()
+    result = ""
+    winner = ""
+    in_check = None
 
     while running:
         # Obsługa zdarzeń zawsze na początku pętli
@@ -249,9 +246,9 @@ def main(player_turn, algorithm):
                                 pygame.display.flip()
                                 move_time = time.time() - start_time
                                 if turn == 'w':
-                                    white_time += move_time
+                                    white_time -= move_time
                                 else:
-                                    black_time += move_time
+                                    black_time -= move_time
                                 turn = 'w' if turn == 'b' else 'b'
                                 
                                 #sprawdzanie co po ruchu
@@ -317,9 +314,9 @@ def main(player_turn, algorithm):
                         # Handle successful move
                         move_time = time.time() - start_time
                         if turn == 'w':
-                            white_time += time.time() - start_time
+                            white_time -= time.time() - start_time
                         else:
-                            black_time += time.time() - start_time
+                            black_time -= time.time() - start_time
                         turn = 'w' if turn == 'b' else 'b'
                         
                         # Handle promotion and game state
@@ -364,9 +361,9 @@ def main(player_turn, algorithm):
                         if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
                             move_time = time.time() - start_time
                             if turn == 'w':
-                                white_time += time.time() - start_time
+                                white_time -= time.time() - start_time
                             else:
-                                black_time += time.time() - start_time
+                                black_time -= time.time() - start_time
                             turn = 'w' if turn == 'b' else 'b'
                             whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
                             if whatAfter == "promotion":
@@ -394,9 +391,28 @@ def main(player_turn, algorithm):
                     pass  # Kontynuuj bez blokowania
                         
 
+
+        # Aktualizacja czasu gracza na żywo
+        current_time = time.time()
+        if turn == 'w':
+            current_white_time = max(0, 10 * 60 - (current_time - start_time + white_time))  # Odliczanie od 10 minut
+            current_black_time = max(0, 10 * 60 - black_time)  # Zachowaj czas czarnego
+        else:
+            current_black_time = max(0, 10 * 60 - (current_time - start_time + black_time))  # Odliczanie od 10 minut
+            current_white_time = max(0, 10 * 60 - white_time)  # Zachowaj czas białego
+
+        # Sprawdzenie, czy czas się skończył
+        if current_white_time <= 0 or current_black_time <= 0:
+            running = False
+            result = "Czas się skończył!"
+            winner = "Czarny" if current_white_time <= 0 else "Biały"
+            running = False
         # Przed renderowaniem
         current_time = time.time()
-        player_times_font = update_time_display(white_time, black_time, current_time, start_time, turn, player_turn)
+        player_times_font = update_times_display(
+            current_white_time, current_black_time, turn, player_turn,
+            font, SQUARE_SIZE, YELLOW, GRAY, height
+        )
 
         # Rendering zawsze na końcu pętli
         screen.fill(BLACK)

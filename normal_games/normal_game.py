@@ -76,7 +76,7 @@ def main(game_time):
         nerd_view_queue = Queue()
         moves_queue = Queue()
         root = tk.Tk()
-        root.geometry("600x400+800+100")  # Pozycja obok okna gry
+        root.geometry("600x800+800+100")  # Pozycja obok okna gry
         stats_window = NormalStatsWindow(root, nerd_view_queue, moves_queue)
         moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
 
@@ -172,7 +172,7 @@ def main(game_time):
             running = False
             result = "Czas się skończył!"
             winner = "Czarny" if current_white_time <= 0 else "Biały"
-            break
+            running = False
         
 
         player_times_font = (
