@@ -16,7 +16,6 @@ import algorithms.algorithms_game
 import settings
 import graphics
 import grandmaster.pgn_to_fen
-import ai_model.ml_game as ml_game
 from language import global_translations, language_selection_screen  # Add this import at the top
 
 # Funkcja główna
@@ -71,6 +70,7 @@ def main():
     except:
         print(global_translations.get("menu_cursor_sound_warning"))
         menu_cursor_sound = None
+    nerd_view = config["nerd_view"]
 
     # Create language icon rect outside the main loop
     lang_icon_rect = pygame.Rect(screen.get_width() - 70, screen.get_height() - 70, 50, 50)
@@ -107,12 +107,28 @@ def main():
                     text_rect = text_white.get_rect(center=(630, 50 + i * 90))
                     if text_rect.collidepoint(mouse_pos):
                         selected_option = i
-                        if do_an_action(selected_option, screen) == False:
-                            running = False
+                        if not nerd_view:
+                            try:
+                                if do_an_action(selected_option, screen) == False:
+                                    running = False
+                                else:
+                                    # Restart the main function
+                                    pygame.quit()
+                                    return main()
+                            except:
+                                graphics.show_error_dialog(screen,
+            "Wystąpił pewnien błąd. Za utrudnienia przepraszamy. There's an error. Sorry for inconvenience.",
+            120
+            )
                         else:
-                            # Restart the main function
-                            pygame.quit()
-                            return main()
+                            if do_an_action(selected_option, screen) == False:
+                                running = False
+                            else:
+                                # Restart the main function
+                                pygame.quit()
+                                return main()
+                        
+
 
         # Sprawdzenie kolizji myszy z opcjami menu
         for i, (text_white, text_gray) in enumerate(menu_texts):
@@ -135,15 +151,13 @@ def do_an_action(selected_option, screen):
         normal_games.normal_game.main(graphics.choose_time_control_dialog(screen,120))
         return True
     elif selected_option == 1: # Niestandardowa plansza
-        pygame.mixer.music.stop()
         choice = graphics.choose_custom_board_mode(screen, 100)
         if choice == "play":
-            custom_board_game.normal_game_custom_board.main()
+            custom_board_game.normal_game_custom_board.main(graphics.choose_time_control_dialog(screen,120))
         elif choice == "create":
             custom_board_game.board_maker.main()
         return True
     elif selected_option == 2: # Bot
-        pygame.mixer.music.stop()
         player_color = graphics.choose_color_dialog(screen, 100)
         if player_color == None:
             return True
@@ -153,10 +167,9 @@ def do_an_action(selected_option, screen):
             print("Neural network not implemented yet")
             return True
         elif algorithm == "minimax" or algorithm == "monte_carlo":
-            algorithms.algorithms_game.main(player_color, algorithm)
+            algorithms.algorithms_game.main(player_color, algorithm, graphics.choose_time_control_dialog(screen,120))
         return True
     elif selected_option == 3: # Arcymistrz
-        pygame.mixer.music.stop()
         player_color = graphics.choose_color_dialog(screen, 100)
         if player_color == None:
             return True
@@ -175,14 +188,12 @@ def do_an_action(selected_option, screen):
             multiplayer.server.main(graphics.choose_time_control_dialog(screen,120))
         return True
     elif selected_option == 5: # Ustawienia
-        pygame.mixer.music.stop()
         settings.main()
         return True
     elif selected_option == 6: # Wyjście
         pygame.mixer.music.stop()
         return False
     elif selected_option == 7: # Konwerter PGN do FEN
-        pygame.mixer.music.stop()
         grandmaster.pgn_to_fen.main()
         return True
     elif selected_option == 8: #Pomoc

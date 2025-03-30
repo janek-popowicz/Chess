@@ -11,6 +11,7 @@ from engine.engine import *
 from engine.figures import *
 from graphics import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
+from nerd_view import *
 
 
 def load_custom_board(fen_file):
@@ -22,17 +23,17 @@ def load_custom_board(fen_file):
 
 
 # Funkcja główna
-def main():
+def main(game_time):
     pygame.init()
     # Ładowanie konfiguracji
     config = load_config()
     resolution = config["resolution"]
     width, height = map(int, resolution.split('x'))
     SQUARE_SIZE = height // 8
-    print(width, height, SQUARE_SIZE)
+    #print(width, height, SQUARE_SIZE)
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Chess Game")
+    pygame.display.set_caption(global_translations.get("chess_game_launcher"))
     icon_logo = pygame.image.load('program_logo.png')
     pygame.display.set_icon(icon_logo)
 
@@ -56,7 +57,7 @@ def main():
     
     running = True
     fen = load_custom_board("custom_board.fen")
-    print(fen)
+    #print(fen)
     main_board = board_and_fields.Board()
     fen_to_board(fen, main_board)
     main_board.fen_history.pop(0)
@@ -66,26 +67,39 @@ def main():
 
     # Teksty interfejsu
     texts = (
-        (font.render(f"Kolejka: białe", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
-        (font.render(f"Kolejka: czarne", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
-        (font.render(f"Wyjście", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
-        (font.render(f"Cofnij ruch", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Dodano przycisk "Cofnij ruch"
+        (font.render(f"{global_translations.get('turn')}: {global_translations.get('white')}", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"{global_translations.get('turn')}: {global_translations.get('black')}", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(global_translations.get("exit_to_menu"), True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
+        (font.render(global_translations.get("confirm_undo_text"), True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),
     )
-    check_text = font.render("Szach!", True, pygame.Color("red"))
+    check_text = font.render(global_translations.get("check"), True, pygame.Color("red"))
 
     # Czasy graczy
+    white_time = game_time
+    black_time = game_time
     start_time = time.time()
-    black_time = 0
-    white_time = 0
     result = ""
     winner = ""
     in_check = None
 
     is_reversed = False
 
+    nerd_view = config["nerd_view"]
+    #przystosowywanie pod nerd_view
+    if nerd_view:
+        from queue import Queue
+        nerd_view_queue = Queue()
+        moves_queue = Queue()
+        root = tk.Tk()
+        root.geometry("600x800+800+100")  # Pozycja obok okna gry
+        stats_window = NormalStatsWindow(root, nerd_view_queue, moves_queue)
+        moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                try: root.destroy()
+                except: pass
                 running = False
                 pygame.quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -102,9 +116,9 @@ def main():
                         if tryMove(turn, main_board, selected_piece[0], selected_piece[1], row, col):
                             move_time = time.time() - start_time
                             if turn == 'w':
-                                white_time += move_time
+                                white_time -= move_time
                             else:
-                                black_time += move_time
+                                black_time -= move_time
                             turn = 'w' if turn == 'b' else 'b'
                             
                             # Sprawdzanie co po ruchu
@@ -115,18 +129,22 @@ def main():
                                     promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "checkmate":
-                                    result = "Szach Mat!"
-                                    winner = "Białe" if turn == 'b' else "Czarne"
+                                    result = global_translations.get("checkmate")
+                                    winner = global_translations.get("white") if turn == 'b' else global_translations.get("black")
                                     running = False
                                 elif whatAfter == "stalemate":
-                                    result = "Pat"
-                                    winner = "Remis"
+                                    result = global_translations.get("stalemate")
+                                    winner = global_translations.get("draw")
                                     running = False
                                 elif whatAfter == "check":
                                     in_check = turn
                                 else:
                                     in_check = None
                             selected_piece = None
+                            #liczenie liczby ruchów, ważne pod nerd_view
+                            if nerd_view:
+                                moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                                moves_queue.put(move_time)
                             start_time = time.time()
                         else:
                             selected_piece = (row, col)
@@ -135,6 +153,8 @@ def main():
                 # Obsługa przycisku "Wyjście"
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and pos[1] >= height - 80:
                     running = False
+                    try: root.destroy()
+                    except: pass
                     return
                 # Obsługa przycisku "Cofnij ruch"
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and height - 100 <= pos[1] < height - 80:
@@ -145,28 +165,33 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+                    try: root.destroy()
+                    except: pass
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
         if turn == 'w':
-            current_white_time = max(0, 10 * 60 - (current_time - start_time + white_time))  # Odliczanie od 10 minut
-            current_black_time = max(0, 10 * 60 - black_time)  # Zachowaj czas czarnego
+            current_white_time = max(0, white_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_black_time = black_time  # Zachowaj czas czarnego
+            is_reversed = False  # Board from white's perspective
         else:
-            current_black_time = max(0, 10 * 60 - (current_time - start_time + black_time))  # Odliczanie od 10 minut
-            current_white_time = max(0, 10 * 60 - white_time)  # Zachowaj czas białego
+            current_black_time = max(0, black_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_white_time = white_time  # Zachowaj czas białego
+            is_reversed = True   # Board from black's perspective
 
         # Sprawdzenie, czy czas się skończył
         if current_white_time <= 0 or current_black_time <= 0:
             running = False
-            result = "Czas się skończył!"
-            winner = "Czarny" if current_white_time <= 0 else "Biały"
-            break
+            result = global_translations.get("time_out")
+            winner = global_translations.get("black") if current_white_time <= 0 else global_translations.get("white")
+            running = False
 
-        evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
 
-        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
-                              (8 * SQUARE_SIZE + 10, height - 150)),
-                             (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), 
-                              (8 * SQUARE_SIZE + 10, 80)))
+        player_times_font = (
+            (font.render(f"{global_translations.get('white_time_label')}: {format_time(current_white_time)}", True, YELLOW if turn == 'w' else GRAY), 
+             (8 * SQUARE_SIZE + 10, height - 150)),
+            (font.render(f"{global_translations.get('black_time_label')}: {format_time(current_black_time)}", True, YELLOW if turn == 'b' else GRAY), 
+             (8 * SQUARE_SIZE + 10, 80))
+        )
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
         draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
@@ -178,6 +203,12 @@ def main():
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
         pygame.display.flip()
         clock.tick(60)
+        if nerd_view: #rysowanie nerd_view
+            current_time_for_stats = time.time()
+            evaluation = get_evaluation(main_board)
+            evaluation = evaluation[0] - evaluation[1]
+            nerd_view_queue.put((current_time_for_stats, evaluation, moves_number))
+            root.update()
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
     return

@@ -77,7 +77,7 @@ def main(player_color, grandmaster_name, game_time):
     print(width, height, SQUARE_SIZE)
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Grandmaster Game")
+    pygame.display.set_caption(global_translations.get("chess_game_launcher"))
     icon_logo = pygame.image.load('program_logo.png')
     pygame.display.set_icon(icon_logo)
 
@@ -114,24 +114,16 @@ def main(player_color, grandmaster_name, game_time):
 
     # Teksty interfejsu
     texts = (
-        (font.render(f"Kolejka: białe", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
-        (font.render(f"Kolejka: czarne", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
-        (font.render(f"Wyjście", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
-        (font.render(f"Cofnij ruch", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Dodano przycisk "Cofnij ruch"
+        (font.render(f"{global_translations.get('turn')}: {global_translations.get('white')}", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"{global_translations.get('turn')}: {global_translations.get('black')}", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(global_translations.get("exit_to_menu"), True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
+        (font.render(global_translations.get("confirm_undo_text"), True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Dodano przycisk "Cofnij ruch"
     )
-    check_text = font.render("Szach!", True, pygame.Color("red"))
+    check_text = font.render(global_translations.get("check"), True, pygame.Color("red"))
 
-    # Czasy graczy
-    
-    black_time = game_time
-    white_time = game_time
-    start_time = time.time()
-    result = ""
-    winner = ""
-    in_check = None
+
 
     nerd_view = config["nerd_view"]
-    print(nerd_view)
     if nerd_view:
         from queue import Queue
         nerd_view_queue = Queue()
@@ -151,7 +143,13 @@ def main(player_color, grandmaster_name, game_time):
             additional_info="...",
             best_move=(None) 
         )
-
+    # Czasy graczy
+    black_time = game_time
+    white_time = game_time
+    start_time = time.time()
+    result = ""
+    winner = ""
+    in_check = None
 
     if player_color == 'w':
         is_reversed = False
@@ -194,12 +192,12 @@ def main(player_color, grandmaster_name, game_time):
                                     promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "checkmate":
-                                    result = "Szach Mat!"
-                                    winner = "Białe" if turn == 'b' else "Czarne"
+                                    result = global_translations.get("checkmate")
+                                    winner = global_translations.get("white") if turn == 'b' else global_translations.get("black")
                                     running = False
                                 elif whatAfter == "stalemate":
-                                    result = "Pat"
-                                    winner = "Remis"
+                                    result = global_translations.get("stalemate")
+                                    winner = global_translations.get("draw")
                                     running = False
                                 elif whatAfter == "check":
                                     in_check = turn
@@ -270,12 +268,12 @@ def main(player_color, grandmaster_name, game_time):
                     choiceOfPromotion = "4"
                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, x1, y1, x2, y2)
                 if whatAfter == "checkmate":
-                    result = "Szach Mat!"
-                    winner = "Białe" if turn == 'b' else "Czarne"
+                    result = global_translations.get("checkmate")
+                    winner = global_translations.get("white") if turn == 'b' else global_translations.get("black")
                     running = False
                 elif whatAfter == "stalemate":
-                    result = "Pat"
-                    winner = "Remis"
+                    result = global_translations.get("stalemate")
+                    winner = global_translations.get("draw")
                     running = False
                 elif whatAfter == "check":
                     in_check = turn
@@ -323,12 +321,12 @@ def main(player_color, grandmaster_name, game_time):
                         
                         # Update game state
                         if whatAfter == "checkmate":
-                            result = "Szach Mat!"
-                            winner = "Białe" if turn == 'b' else "Czarne"
+                            result = global_translations.get("checkmate")
+                            winner = global_translations.get("white") if turn == 'b' else global_translations.get("black")
                             running = False
                         elif whatAfter == "stalemate":
-                            result = "Pat"
-                            winner = "Remis"
+                            result = global_translations.get("stalemate")
+                            winner = global_translations.get("draw")
                             running = False
                         elif whatAfter == "check":
                             in_check = turn
@@ -345,21 +343,21 @@ def main(player_color, grandmaster_name, game_time):
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
         if turn == 'w':
-            current_white_time = max(0, 10 * 60 - (current_time - start_time + white_time))  # Odliczanie od 10 minut
-            current_black_time = max(0, 10 * 60 - black_time)  # Zachowaj czas czarnego
+            current_white_time = max(0, white_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_black_time = black_time  # Zachowaj czas czarnego
         else:
-            current_black_time = max(0, 10 * 60 - (current_time - start_time + black_time))  # Odliczanie od 10 minut
-            current_white_time = max(0, 10 * 60 - white_time)  # Zachowaj czas białego
+            current_black_time = max(0, black_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_white_time = white_time  # Zachowaj czas białego
 
         # Sprawdzenie, czy czas się skończył
         if current_white_time <= 0 or current_black_time <= 0:
             running = False
-            result = "Czas się skończył!"
-            winner = "Czarny" if current_white_time <= 0 else "Biały"
-            break
+            result = global_translations.get("time_out")
+            winner = global_translations.get("black") if current_white_time <= 0 else global_translations.get("white")
+            running = False
 
         player_times_font = update_times_display(
-            white_time, black_time, turn, player_color,
+            current_white_time, current_black_time, turn, player_color,
             font, SQUARE_SIZE, YELLOW, GRAY, height
         )
         screen.fill(BLACK)
@@ -367,7 +365,7 @@ def main(player_color, grandmaster_name, game_time):
         evaluation = get_evaluation(main_board, turn)[0] - get_evaluation(main_board, turn)[1]  # Calculate evaluation
         draw_interface(screen, turn, SQUARE_SIZE,BLACK, texts, player_times_font, in_check, check_text)
         try:
-            if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == turn:
+            if config["highlight_enemy"] or main_board.get_piece(selected_piece[0],selected_piece[1])[0] == player_color:
                 highlight_moves(screen, main_board.board_state[selected_piece[0]][selected_piece[1]],SQUARE_SIZE,main_board,  HIGHLIGHT_MOVES, HIGHLIGHT_TAKES, is_reversed)
         except TypeError:
             pass

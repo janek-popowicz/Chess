@@ -277,6 +277,7 @@ def king_to_edge(board):
 
             if attackers >= 3:
                 evaluation_white -= 375
+        
 
     # Analogiczna analiza dla czarnego króla
     if black_king:
@@ -319,6 +320,54 @@ def king_to_edge(board):
                 evaluation_black -= 375
 
     return [evaluation_white, evaluation_black]
+def count_pieces(board):
+    """
+    Zlicza wszystkie figury na planszy.
+    Zwraca sumaryczną liczbę figur.
+    """
+    count = 0
+    for i in range(8):
+        for j in range(8):
+            if board.board_state[i][j].figure is not None:
+                count += 1
+    return count
+def mating(board):
+    """
+    Oblicza sumaryczną odległość królów od krawędzi planszy.
+    Dla białych zwraca dystans króla czarnego od krawędzi,
+    a dla czarnych dystans króla białego.
+    Zwraca listę: [ocena_białych, ocena_czarnych].
+    """
+    evaluation_white = 0
+    evaluation_black = 0
+    white_king_position = None
+    black_king_position = None
+
+    for i in range(8):
+        for j in range(8):
+            field = board.board_state[i][j]
+            if field.figure is not None and field.figure.type == 'K':
+                if field.figure.color == 'w':
+                    white_king_position = (i, j)
+                else:
+                    black_king_position = (i, j)
+                    
+    if white_king_position is not None:
+        rank, file = white_king_position
+        # Obliczamy dystans króla białego do najbliższej krawędzi
+        white_dst = min(rank, 7 - rank) + min(file, 7 - file)
+        evaluation_black += white_dst
+    if black_king_position is not None:
+        rank, file = black_king_position
+        # Obliczamy dystans króla czarnego do najbliższej krawędzi
+        black_dst = min(rank, 7 - rank) + min(file, 7 - file)
+        evaluation_white += black_dst
+    x = count_pieces(board)
+    return [evaluation_white * x * 2  , evaluation_black * x * 2 ]
+
+
+def mat(board):
+    ...
 
 def rook_on_open_file(board):
     """
@@ -836,6 +885,7 @@ def get_evaluation(board, current_color=None):
                  situational[0] + 
                  activity[0] + 
                  threats[0] + 
+                 mating(board)[1] +
                  rooks_connected[0])
     
     # Suma wszystkich składników oceny dla czarnych
@@ -848,6 +898,7 @@ def get_evaluation(board, current_color=None):
                  situational[1] + 
                  activity[1] + 
                  threats[1] + 
+                mating(board)[0] +
                  rooks_connected[1])
     
     return [white_eval, black_eval]
