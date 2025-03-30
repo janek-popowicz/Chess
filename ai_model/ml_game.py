@@ -1,167 +1,127 @@
 import pygame
 import sys
-import os
-from pathlib import Path
 import time
-import threading
-import queue
+from pathlib import Path
 from engine.board_and_fields import Board
-from engine.engine import tryMove, afterMove, promotion
+from engine.engine import tryMove, afterMove, promotion, getPossibleMoves
+from graphics import *  # Ensure draw_game_state is defined in this module or imported
+from graphics import draw_game_state  # Explicitly import draw_game_state if it exists
+from ml import ChessQLearningAI, get_best_move
 
-def play_against_ai(ai, human_color='w'):
-    """Play chess against AI using pygame interface"""
+def initialize_ml():
+    """Initialize ML model"""
+    try:
+        board = Board()
+        ml = ChessQLearningAI(board)
+        if not ml.load_model('chess_model.pkl'):
+            print("Warning: Could not load trained model.")
+        return ml
+    except Exception as e:
+        print(f"Error initializing ML: {e}")
+        return None
+
+def main(player_color='w'):
+    """Main game function"""
     pygame.init()
+    config = load_config()
+    resolution = config["resolution"]
+    width, height = map(int, resolution.split('x'))
+    SQUARE_SIZE = height // 8
     
     # Setup display
-    SQUARE_SIZE = 100
-    WIDTH = SQUARE_SIZE * 8
-    HEIGHT = SQUARE_SIZE * 8
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption('Chess ML Game')
+    screen = pygame.display.set_mode((width, height))
+    pygame.display.set_caption("Chess vs ML")
     
-    # Colors
-    WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
-    GRAY = (128, 128, 128)
-    HIGHLIGHT = (100, 200, 100)
-    HIGHLIGHT_TAKES = (147, 168, 50)
-    
-    # Load piece images
-    pieces_dir = Path(__file__).parent.parent / 'assets' / 'pieces'
-    pieces = {}
-    for color in ['w', 'b']:
-        for piece in ['P', 'R', 'N', 'B', 'Q', 'K']:
-            piece_path = pieces_dir / f'{color}{piece}.png'
-            if piece_path.exists():
-                image = pygame.image.load(str(piece_path))
-                pieces[f'{color}{piece}'] = pygame.transform.scale(image, (SQUARE_SIZE-10, SQUARE_SIZE-10))
-    
-    # Game state
+    # Initialize board and ML
     board = Board()
-    turn = 'w'
-    selected_piece = None
+    ml = initialize_ml()
+    if not ml:
+        return
+
+    # Game state
     running = True
+    turn = 'w'
+    selected_square = None
+    possible_moves = []
+    last_move = None
     clock = pygame.time.Clock()
+
+    # Load pieces
+    pieces = load_pieces(SQUARE_SIZE)
     
-    # AI move handling
-    ai_thinking = False
-    move_queue = queue.Queue()
-    
-    def draw_board():
-        """Draw chess board"""
-        for row in range(8):
-            for col in range(8):
-                color = WHITE if (row + col) % 2 == 0 else GRAY
-                pygame.draw.rect(screen, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-    
-    def draw_pieces():
-        """Draw chess pieces"""
-        for row in range(8):
-            for col in range(8):
-                piece = board.board_state[row][col].figure
-                if piece:
-                    piece_str = f'{piece.color}{piece.type}'
-                    if piece_str in pieces:
-                        screen.blit(pieces[piece_str], 
-                                  (col * SQUARE_SIZE + 5, row * SQUARE_SIZE + 5))
-    
-    def highlight_moves(selected):
-        """Highlight legal moves for selected piece"""
-        if not selected:
-            return
-            
-        row, col = selected
-        piece = board.board_state[row][col].figure
-        if piece:
-            legal_moves = board.get_legal_moves(board.board_state[row][col], turn)
-            for move in legal_moves:
-                y, x = move
-                target = board.board_state[y][x].figure
-                color = HIGHLIGHT_TAKES if target else HIGHLIGHT
-                pygame.draw.rect(screen, color, 
-                               (x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 3)
-    
-    def ai_move_thread():
-        """Handle AI move calculation in separate thread"""
-        try:
-            ai_move = ai.get_best_move()
-            move_queue.put(ai_move)
-        except Exception as e:
-            print(f"AI move error: {e}")
-            move_queue.put(None)
-    
-    # Main game loop
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                elif event.key == pygame.K_r:  # Restart
-                    board = Board()
-                    turn = 'w'
-                    selected_piece = None
-            elif event.type == pygame.MOUSEBUTTONDOWN and turn == human_color:
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN and turn == player_color:
                 x, y = pygame.mouse.get_pos()
                 col = x // SQUARE_SIZE
                 row = y // SQUARE_SIZE
                 
-                if selected_piece:
-                    if tryMove(turn, board, selected_piece[0], selected_piece[1], row, col):
-                        # Handle move completion
-                        whatAfter, yForPromotion, xForPromotion = afterMove(turn, board, 
-                            selected_piece[0], selected_piece[1], row, col)
-                            
-                        if whatAfter == "promotion":
-                            promotion(yForPromotion, xForPromotion, board, '4')  # Always queen
-                            
-                        turn = 'w' if turn == 'b' else 'b'
-                        selected_piece = None
-                    else:
-                        selected_piece = (row, col)
+                if selected_square:
+                    move_made = handle_move(board, turn, selected_square, (row, col))
+                    if move_made:
+                        turn = 'b' if turn == 'w' else 'w'
+                        last_move = (selected_square, (row, col))
+                    selected_square = None
+                    possible_moves = []
                 else:
                     piece = board.board_state[row][col].figure
-                    if piece and piece.color == human_color:
-                        selected_piece = (row, col)
-        
-        # Handle AI move
-        if turn != human_color and not ai_thinking:
-            ai_thinking = True
-            threading.Thread(target=ai_move_thread, daemon=True).start()
-            
-        try:
-            ai_move = move_queue.get_nowait()
-            if ai_move:
-                y1, x1, y2, x2 = ai_move
-                if tryMove(turn, board, y1, x1, y2, x2):
-                    whatAfter, yForPromotion, xForPromotion = afterMove(turn, board, y1, x1, y2, x2)
-                    if whatAfter == "promotion":
-                        promotion(yForPromotion, xForPromotion, board, '4')
-                    turn = 'w' if turn == 'b' else 'b'
-            ai_thinking = False
-        except queue.Empty:
-            pass
-        
+                    if piece and piece.color == player_color:
+                        selected_square = (row, col)
+                        possible_moves = getPossibleMoves(turn, board, row, col)
+
+        # AI move
+        if turn != player_color and running:
+            ml_move = get_best_move(board, turn)
+            if ml_move:
+                from_row, from_col, to_row, to_col = ml_move
+                if tryMove(turn, board, from_row, from_col, to_row, to_col):
+                    last_move = ((from_row, from_col), (to_row, to_col))
+                    handle_after_move(board, turn)
+                    turn = 'b' if turn == 'w' else 'w'
+
         # Draw everything
-        screen.fill(BLACK)
-        draw_board()
-        draw_pieces()
-        if selected_piece:
-            highlight_moves(selected_piece)
-            
-        # Show "Thinking..." when AI is calculating
-        if ai_thinking:
-            font = pygame.font.Font(None, 36)
-            text = font.render("AI thinking...", True, (255, 0, 0))
-            screen.blit(text, (10, 10))
-        
+        draw_game_state(screen, board, selected_square, possible_moves, last_move, pieces, SQUARE_SIZE)
         pygame.display.flip()
         clock.tick(60)
-    
+
     pygame.quit()
 
-def watch_ai_game(ai):
-    """Watch AI play against itself"""
-    # Similar implementation as play_against_ai but with AI playing both sides
-    pass
+def handle_move(board, turn, from_pos, to_pos):
+    """Handle move execution and after-move effects"""
+    if tryMove(turn, board, from_pos[0], from_pos[1], to_pos[0], to_pos[1]):
+        handle_after_move(board, turn)
+        return True
+    return False
+
+def handle_after_move(board, turn):
+    """Handle promotion and check game ending conditions"""
+    next_turn = 'b' if turn == 'w' else 'w'
+    whatAfter, yForPromotion, xForPromotion = afterMove(next_turn, board)
+    
+    if whatAfter == "promotion":
+        promotion(yForPromotion, xForPromotion, board, '10')  # Always queen
+        whatAfter, _, _ = afterMove(next_turn, board)
+    
+    if whatAfter == "checkmate":
+        print(f"Checkmate! {'White' if turn == 'w' else 'Black'} wins!")
+    elif whatAfter == "stalemate":
+        print("Stalemate! Game drawn.")
+
+def load_pieces(SQUARE_SIZE):
+    """Load piece images"""
+    config = load_config()
+    pieces = {}
+    icon_type = config["icons"]
+    pieces_short = ["wp", "wR", "wN", "wB", "wQ", "wK", "bp", "bR", "bN", "bB", "bQ", "bK"]
+    for piece in pieces_short:
+        pieces[piece] = pygame.transform.scale(
+            pygame.image.load(f"pieces/{icon_type}/{piece}.png"), 
+            (SQUARE_SIZE-10, SQUARE_SIZE-10)
+        )
+    return pieces
+
+if __name__ == "__main__":
+    main()

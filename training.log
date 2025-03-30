@@ -871,3 +871,26 @@
 2025-03-30 06:57:29,225 - INFO: Validation win rate: 0.00% (50 games)
 2025-03-30 06:57:29,250 - INFO: Model saved to models\final_model_4M_20250330_065729.pt
 2025-03-30 11:17:05,213 - INFO: Model loaded from C:\Users\Julia\Desktop\Chess\models\model_checkpoint_4000000_20250330_065729.pt
+2025-03-30 17:45:30,983 - INFO: Starting test training with 200 episodes...
+2025-03-30 17:45:31,002 - INFO: Test episode 20/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 17:45:31,020 - INFO: Test episode 40/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 17:45:31,036 - INFO: Validation win rate: 50.00% (5 games)
+2025-03-30 17:45:31,037 - INFO: Test validation at episode 50: 50.00%
+2025-03-30 17:45:31,046 - INFO: Test episode 60/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 17:45:31,064 - INFO: Test episode 80/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 17:45:31,082 - INFO: Test episode 100/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 17:45:31,090 - INFO: Validation win rate: 50.00% (5 games)
+2025-03-30 17:45:31,090 - INFO: Test validation at episode 100: 50.00%
+2025-03-30 17:45:31,107 - INFO: Test episode 120/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 17:45:31,125 - INFO: Test episode 140/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 17:45:31,143 - INFO: Validation win rate: 50.00% (5 games)
+2025-03-30 17:45:31,144 - INFO: Test validation at episode 150: 50.00%
+2025-03-30 17:45:31,153 - INFO: Test episode 160/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 17:45:31,172 - INFO: Test episode 180/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 17:45:31,189 - INFO: Test episode 200/200 | Loss: 0.0000 | Success rate: 100.00%
+2025-03-30 17:45:31,197 - INFO: Validation win rate: 50.00% (5 games)
+2025-03-30 17:45:31,197 - INFO: Test validation at episode 200: 50.00%
+2025-03-30 17:45:31,197 - INFO: Running final validation...
+2025-03-30 17:45:31,225 - INFO: Validation win rate: 50.00% (20 games)
+2025-03-30 17:45:31,225 - INFO: Test training completed with 50.00% win rate
+2025-03-30 17:45:46,318 - INFO: Model loaded from C:\Users\ignac\Desktop\Chess\models\model_checkpoint_4000000_20250330_065729.pt
