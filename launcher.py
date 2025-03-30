@@ -28,7 +28,7 @@ def main():
     
     # Ustawienia ekranu
     screen = pygame.display.set_mode((1260, 960))
-    pygame.display.set_caption("Chess Game Launcher")
+    pygame.display.set_caption(global_translations.get("chess_game_launcher"))
     config = load_config()
     volume = config["volume"]
     volume = volume / 100
@@ -66,10 +66,10 @@ def main():
 
     # Load menu sounds
     try:
-        menu_cursor_sound = pygame.mixer.Sound("sounds/menu_cursor.mp3")
+        menu_cursor_sound = pygame.mixer.Sound(global_translations.get("menu_cursor_sound_path"))
         menu_cursor_sound.set_volume(volume)
     except:
-        print("Warning: Could not load menu sound effect")
+        print(global_translations.get("menu_cursor_sound_warning"))
         menu_cursor_sound = None
 
     # Create language icon rect outside the main loop
@@ -132,7 +132,7 @@ def main():
 
 def do_an_action(selected_option, screen):
     if selected_option == 0: # Normalna gra
-        normal_games.normal_game.main(600)
+        normal_games.normal_game.main(graphics.choose_time_control_dialog(screen,120))
         return True
     elif selected_option == 1: # Niestandardowa plansza
         pygame.mixer.music.stop()
@@ -185,7 +185,7 @@ def do_an_action(selected_option, screen):
         grandmaster.pgn_to_fen.main()
         return True
     elif selected_option == 8: #Pomoc
-        open_pdf("help.pdf")
+        open_pdf(global_translations.get("help_pdf_path"))
     return True
 
 
@@ -215,7 +215,7 @@ def draw_menu(selected_option:int, screen, menu_texts, background, text_white, t
     
     # Draw language icon
     try:
-        lang_icon = pygame.image.load('interface/language.png')
+        lang_icon = pygame.image.load(global_translations.get("language_icon_path"))
         lang_icon = pygame.transform.scale(lang_icon, (50, 50))
         lang_icon_rect = pygame.Rect(screen.get_width() - 70, screen.get_height() - 70, 50, 50)
         
@@ -228,17 +228,17 @@ def draw_menu(selected_option:int, screen, menu_texts, background, text_white, t
         
         screen.blit(lang_icon, lang_icon_rect)
     except:
-        print("Warning: Could not load language icon")
+        print(global_translations.get("language_icon_warning"))
             
     pygame.display.flip()
 
 
 def load_config():
     try:
-        with open("config.json", "r") as file:
+        with open(global_translations.get("config_path"), "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return {"volume": 0.5, "resolution": "1260x960"}
+        return global_translations.get("default_config")
 
 def open_pdf(PDF_PATH):
     try:

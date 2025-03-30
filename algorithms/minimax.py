@@ -21,38 +21,34 @@ class Minimax:
         self.available_moves_from_json = []
 
     def get_opening_move(self):
-        """
-        Checks opening book JSON for current position and returns a random move if found
-        Returns: (tuple) move in format (y1, x1, y2, x2) or None if not found
-        """
         try:
             json_path = Path(__file__).parent / "opening.json"
-            print(f"\n=== Opening Book Search ===")
+            self.message += "\n=== Opening Book Search ==="
             
             if not json_path.exists():
-                print("❌ Opening book not found")
+                self.message += "\n❌ Opening book not found"
                 return None
 
             with open(json_path, 'r', encoding='utf-8') as f:
                 opening_book = json.load(f)
-                print(f"📚 Loaded opening book with {len(opening_book)} positions")
+                self.message += f"\n📚 Loaded opening book with {len(opening_book)} positions"
 
             current_fen = board_to_fen_inverted(self.main_board, self.color)
             fen_parts = current_fen.split(' ')
             position_key = f"{fen_parts[0]} {fen_parts[1]}"
             
-            print(f"🔍 Searching for position: {position_key}")
+            self.message += f"\n🔍 Searching for position: {position_key}"
             
             if position_key in opening_book:
                 moves = opening_book[position_key]
                 if not moves:
-                    print("❌ No moves found in opening book")
+                    self.message += "\n❌ No moves found in opening book"
                     return None
                 
                 self.available_moves_from_json = moves
                 move_notation = random.choice(moves)
-                print(f"✅ Found {len(moves)} moves in opening book")
-                print(f"📌 Selected move: {move_notation}")
+                self.message += f"\n✅ Found {len(moves)} moves in opening book"
+                self.message += f"\n📌 Selected move: {move_notation}"
                 
                 return engine.notation_to_cords(
                     self.main_board, 
@@ -60,26 +56,26 @@ class Minimax:
                     self.color
                 )
 
-            print("❌ Position not found in opening book")
+            self.message += "\n❌ Position not found in opening book"
             return None
 
         except Exception as e:
-            print(f"❌ Opening book error: {str(e)}")
+            self.message += f"\n❌ Opening book error: {str(e)}"
             return None
 
     def get_best_move(self):
         """Main move search function"""
         self.start_time = time.time()
-        print("\n=== Move Search Started ===")
+        self.message += "\n=== Move Search Started ==="
         
         # Try opening book first
-        print("\n📖 Checking opening book...")
+        self.message += "\n📖 Checking opening book..."
         book_move = self.get_opening_move()
         if book_move:
-            print(f"✨ Using book move: {book_move}")
+            self.message += f"\n✨ Using book move: {book_move}"
             return book_move, self.message, self.available_moves_from_json
 
-        print("\n🔄 Starting minimax search...")
+        self.message += "\n🔄 Starting minimax search..."
         moves_by_depth = {}
         best_move = None
         best_eval = -float('inf')
@@ -92,7 +88,7 @@ class Minimax:
         try:
             for current_depth in range(1, self.depth + 1):
                 if self.is_time_exceeded():
-                    print(f"⚠️ Time limit reached at depth {current_depth-1}")
+                    self.message += f"\n⚠️ Time limit reached at depth {current_depth-1}"
                     break
                     
                 depth_start = time.time()
@@ -103,28 +99,28 @@ class Minimax:
                     y1, x1, y2, x2 = move
                     piece = self.main_board.board_state[y1][x1].figure
                     piece_name = piece_types.get(piece.type, piece.type)
-                    print(f"\n📊 Depth {current_depth}:")
-                    print(f"   Piece: {piece_name}")
-                    print(f"   Move: {chr(97+x1)}{8-y1} → {chr(97+x2)}{8-y2}")
-                    print(f"   Score: {eval_score:.2f}")
-                    print(f"   Time: {time.time() - depth_start:.3f}s")
+                    self.message += f"\n📊 Depth {current_depth}:"
+                    self.message += f"\n   Piece: {piece_name}"
+                    self.message += f"\n   Move: {chr(97+x1)}{8-y1} → {chr(97+x2)}{8-y2}"
+                    self.message += f"\n   Score: {eval_score:.2f}"
+                    self.message += f"\n   Time: {time.time() - depth_start:.3f}s"
                     
                     if eval_score > best_eval:
                         best_move = move
                         best_eval = eval_score
-                        print(f"   ⭐ New best move!")
+                        self.message += f"\n   ⭐ New best move!"
 
             total_time = time.time() - self.start_time
-            print(f"\n=== Search Complete ===")
-            print(f"🕒 Total time: {total_time:.3f}s")
-            print(f"📈 Max depth reached: {len(moves_by_depth)}")
-            print(f"💫 Final best move: {best_move}")
-            print(f"📋 Final score: {best_eval:.2f}")
+            self.message += f"\n=== Search Complete ==="
+            self.message += f"\n🕒 Total time: {total_time:.3f}s"
+            self.message += f"\n📈 Max depth reached: {len(moves_by_depth)}"
+            self.message += f"\n💫 Final best move: {best_move}"
+            self.message += f"\n📋 Final score: {best_eval:.2f}"
             
             return best_move, self.message, self.available_moves_from_json
 
         except Exception as e:
-            print(f"❌ Error in search: {e}")
+            self.message += f"\n❌ Error in search: {e}"
             return None
 
     def get_mate_pattern_bonus(self, board, color, move):

@@ -176,9 +176,9 @@ def main(game_time):
         
 
         player_times_font = (
-            (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
+            (font.render(f"{global_translations.get('white')}: {format_time(current_white_time)}", True, YELLOW if turn == 'w' else GRAY), 
              (8 * SQUARE_SIZE + 10, height - 150)),
-            (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), 
+            (font.render(f"{global_translations.get('black')}: {format_time(current_black_time)}", True, YELLOW if turn == 'b' else GRAY), 
              (8 * SQUARE_SIZE + 10, 80))
         )
         screen.fill(BLACK)
