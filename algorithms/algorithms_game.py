@@ -22,11 +22,11 @@ def calculate_minimax(board,depth,color,time_limit,min_time,result_queue):
     minimax_start_time = time.time()
     board_copy = copy.deepcopy(board)
     minimax_obj = Minimax(board_copy, depth, color, time_limit)
-    y1, x1, y2, x2 = minimax_obj.get_best_move()
-    best_move = (y1, x1, y2, x2)
+    best_move, additional_info, moves_from_list = minimax_obj.get_best_move()
+    all_info = (best_move, additional_info, moves_from_list)
     if time.time() - minimax_start_time < min_time:
         time.sleep(min_time - (time.time() - minimax_start_time))
-    result_queue.put(best_move)
+    result_queue.put(all_info)
 
 # Dodaj nową klasę po MinimaxThread
 class MonteCarloThread(threading.Thread):
@@ -169,11 +169,24 @@ def main(player_turn, algorithm):
         stats_window = NormalStatsWindow(root, nerd_view_queue, moves_queue)
         moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
 
+        algo_root = tk.Toplevel()
+        moves = []
+        info_window = AlgorithmInfoWindow(
+            algo_root,
+            moves_list = moves,
+            algorithm_name = algorithm,
+            search_depth=depth,
+            additional_info="...",
+            best_move=(-1,-1,-1,-1)
+        )
+
     while running:
         # Obsługa zdarzeń zawsze na początku pętli
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 try: root.destroy()
+                except: pass
+                try: minimax_process.terminate()  # Natychmiastowe zabicie procesu
                 except: pass
                 # W obsłudze wyjścia
                 if monte_carlo_thread and monte_carlo_thread.is_alive():
@@ -198,20 +211,21 @@ def main(player_turn, algorithm):
                         except: pass
                         return
                     elif height - 130 <= pos[1] < height - 80:  # Przycisk "Cofnij ruch"
+                        # Reset thread variables
+                        calculating = False
+                        try: minimax_process.terminate()  # Natychmiastowe zabicie procesu
+                        except: pass
+                        if monte_carlo_thread and monte_carlo_thread.is_alive():
+                            monte_carlo_thread.stop()
+                            monte_carlo_thread.join(timeout=0.1)
+                        
+                        # Clear result queue
+                        while not result_queue.empty():
+                            result_queue.get_nowait()
+                        while not minimax_queue.empty():
+                            minimax_queue.get_nowait()
+                        
                         if confirm_undo_dialog(screen, SQUARE_SIZE):
-                            # Reset thread variables
-                            minimax_process = None
-                            calculating = False
-                            if monte_carlo_thread and monte_carlo_thread.is_alive():
-                                monte_carlo_thread.stop()
-                                monte_carlo_thread.join(timeout=0.1)
-                            
-                            # Clear result queue
-                            while not result_queue.empty():
-                                result_queue.get_nowait()
-                            while not minimax_queue.empty():
-                                minimax_queue.get_nowait()
-                            
                             # Perform undo
                             if undoMove(main_board):
                                 turn = 'w' if turn == 'b' else 'b'
@@ -266,6 +280,8 @@ def main(player_turn, algorithm):
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 # W obsłudze wyjścia
+                    try: minimax_process.terminate()  # Natychmiastowe zabicie procesu
+                    except: pass
                     if monte_carlo_thread and monte_carlo_thread.is_alive():
                         monte_carlo_thread.stop()
                         monte_carlo_thread.join(timeout=0.1)
@@ -282,7 +298,12 @@ def main(player_turn, algorithm):
                     )
                     minimax_process.start()
                 if calculating and not minimax_queue.empty():
-                    move = minimax_queue.get(timeout=0.01)
+                    all_info = minimax_queue.get(timeout=0.01)
+                    move, additional_info, moves_from_list = all_info
+                    if nerd_view:
+                        info_window.update_moves(moves_from_list)
+                        info_window.update_additional_info(additional_info)
+                        info_window.update_best_move(move)
                     y1, x1, y2, x2 = move
                     if tryMove(turn, main_board, y1, x1, y2, x2):
                         # Handle successful move
@@ -318,7 +339,7 @@ def main(player_turn, algorithm):
                             moves_queue.put(move_time)
                         start_time = time.time()
                         calculating = False
-                        minimax_process = None
+                        minimax_process.terminate()  # Natychmiastowe zabicie procesu
 
             elif algorithm == "monte_carlo":
                 if not calculating:
@@ -401,6 +422,8 @@ def main(player_turn, algorithm):
             nerd_view_queue.put((current_time_for_stats, evaluation, moves_number))
             root.update()
     
+    try: minimax_process.terminate()  # Natychmiastowe zabicie procesu
+    except: pass
     # W obsłudze wyjścia
     if monte_carlo_thread and monte_carlo_thread.is_alive():
         monte_carlo_thread.stop()

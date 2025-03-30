@@ -16,6 +16,17 @@ from multiprocessing import Queue as multiQueue
 from algorithms.minimax import *
 
 
+def calculate_minimax(board,color,result_queue):
+    minimax_start_time = time.time()
+    board_copy = copy.deepcopy(board)
+    minimax_obj = Minimax(board_copy, 2, color, 6)
+    y1, x1, y2, x2 = minimax_obj.get_best_move()
+    best_move = (y1, x1, y2, x2)
+    if time.time() - minimax_start_time < 2:
+        time.sleep(2 - (time.time() - minimax_start_time))
+    result_queue.put(best_move)
+
+
 def load_grandmaster_moves(grandmaster_name):
     """Wczytuje ruchy arcymistrza z pliku JSON."""
     json_path = Path(f"grandmaster/json/{grandmaster_name}.json")
@@ -35,8 +46,8 @@ def get_grandmaster_move(board, turn, grandmaster_moves):
     if position_fen in grandmaster_moves:
         moves_list = grandmaster_moves[position_fen]
         print(position_fen, len(moves_list))
-        return moves_list[randint(1,len(moves_list))-1]  # Bierzemy losowy ruch
-    return None
+        return moves_list[randint(1,len(moves_list))-1], moves_list  # Bierzemy losowy ruch
+    return None, []
 
 def update_times_display(white_time, black_time, current_time, start_time, turn, player_color, font, SQUARE_SIZE, YELLOW, GRAY, height):
     """
@@ -123,6 +134,11 @@ def main(player_color, grandmaster_name):
     turn = 'w'
     selected_piece = None
     clock = pygame.time.Clock()
+
+    # Minimax awaryjny
+    minimax_process = None
+    minimax_queue = multiQueue()
+    calculating = False
 
     # Teksty interfejsu
     texts = (
