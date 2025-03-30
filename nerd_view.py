@@ -36,10 +36,6 @@ class NormalStatsWindow:
         self.ax_moves_time.set_xlabel("Numer ruchu")
         self.ax_moves_time.set_ylabel("Czas (s)")
         self.ax_moves_time.grid(True, alpha=0.3)
-        
-        # Formatowanie osi czasu
-        self.ax_moves.xaxis.set_major_formatter(mdates.DateFormatter('%M:%S'))
-        self.figure.autofmt_xdate()
 
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.frame)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
@@ -62,16 +58,21 @@ class NormalStatsWindow:
         self.update_plots()
         self.master.after(100, self.update_data)
 
+
     def update_plots(self):
         # Czyszczenie obu wykresów
         self.ax_eval.clear()
         self.ax_moves.clear()
         
         if self.timestamps:
+            # Oblicz czas, który upłynął od pierwszego timestampu
+            start_time = self.timestamps[0]
+            elapsed_seconds = [(ts - start_time).total_seconds() for ts in self.timestamps]
+            
             # Wykres ewaluacji
-            self.ax_eval.plot(self.timestamps, self.evaluations, 
+            self.ax_eval.plot(elapsed_seconds, self.evaluations, 
                             'b-', label="Przewaga białych", linewidth=1.5)
-            self.ax_eval.plot(self.timestamps, [-x for x in self.evaluations], 
+            self.ax_eval.plot(elapsed_seconds, [-x for x in self.evaluations], 
                             'r--', label="Przewaga czarnych", alpha=0.7)
             self.ax_eval.axhline(0, color='gray', linestyle=':', linewidth=1)
             self.ax_eval.set_title("Analiza pozycji w czasie rzeczywistym")
@@ -80,7 +81,7 @@ class NormalStatsWindow:
             self.ax_eval.grid(True, alpha=0.3)
             
             # Wykres liczby ruchów
-            self.ax_moves.plot(self.timestamps, self.move_counts, 
+            self.ax_moves.plot(elapsed_seconds, self.move_counts, 
                              'g-', label="Dostępne ruchy", linewidth=1.5)
             self.ax_moves.set_title("Liczba możliwych ruchów")
             self.ax_moves.set_xlabel("Czas gry (MM:SS)")
@@ -88,19 +89,20 @@ class NormalStatsWindow:
             self.ax_moves.legend(loc='upper left')
             self.ax_moves.grid(True, alpha=0.3)
             
-            # Automatyczne skalowanie osi X
-            self.ax_eval.relim()
-            self.ax_eval.autoscale_view(scalex=True)
-            self.ax_moves.relim()
-            self.ax_moves.autoscale_view(scalex=True)
+            # Formatowanie osi X jako MM:SS
+            def format_func(x, pos):
+                minutes = int(x // 60)
+                seconds = int(x % 60)
+                return f"{minutes:02d}:{seconds:02d}"
             
-            # Marginesy dla lepszej widoczności
-            padding = timedelta(seconds=10)
-            if len(self.timestamps) > 1:
-                self.ax_eval.set_xlim(
-                    self.timestamps[0] - padding, 
-                    self.timestamps[-1] + padding
-                )
+            self.ax_eval.xaxis.set_major_formatter(ticker.FuncFormatter(format_func))
+            
+            # Automatyczne skalowanie osi X z marginesem
+            padding = 10  # sekundy
+            if len(elapsed_seconds) > 0:
+                min_x = max(0, elapsed_seconds[0] - padding)
+                max_x = elapsed_seconds[-1] + padding
+                self.ax_eval.set_xlim(min_x, max_x)
             
             self.canvas.draw()
         if self.move_times:
@@ -204,16 +206,32 @@ class NetworkStatsWindow:
         """Przerysowuje wszystkie elementy wizualne"""
         # Wykres pingu
         self.ax_ping.clear()
-        if self.ping_data:
-            self.ax_ping.plot(self.timestamps, self.ping_data, 'g-', label="Ping (ms)")
-            self.ax_ping.xaxis.set_major_formatter(ticker.FuncFormatter(self._format_time))
+        if self.ping_data and self.timestamps:
+            # Oblicz czas, który upłynął od startu
+            elapsed_seconds = [(ts - self.start_time).total_seconds() for ts in self.timestamps]
+            self.ax_ping.plot(elapsed_seconds, self.ping_data, 'g-', label="Ping (ms)")
+            
+            # Formatowanie osi X jako MM:SS
+            def format_func(x, pos):
+                minutes = int(x // 60)
+                seconds = int(x % 60)
+                return f"{minutes:02d}:{seconds:02d}"
+            
+            self.ax_ping.xaxis.set_major_formatter(ticker.FuncFormatter(format_func))
+            self.ax_ping.set_xlabel("Czas (MM:SS)")
             self.ax_ping.legend()
             self.ax_ping.grid(True, alpha=0.3)
+            
+            # Automatyczne skalowanie osi X z marginesem
+            if len(elapsed_seconds) > 0:
+                padding = 10  # sekundy
+                min_x = max(0, elapsed_seconds[0] - padding)
+                max_x = elapsed_seconds[-1] + padding
+                self.ax_ping.set_xlim(min_x, max_x)
         
         # Panel informacyjny
         self._update_info_panel()
         self.canvas.draw()
-
     def _format_time(self, x, pos):
         """Formatuje znaczniki czasu na osi X"""
         dt = x if isinstance(x, datetime) else datetime.fromtimestamp(x)

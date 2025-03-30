@@ -297,12 +297,12 @@ def main():
         try:
             data = conn.recv(1024).decode('utf-8')
             if data:
-                if data == "exit":
+                if data.startswith("exit") :
                     running = False
                     result = "Disconnected"
                     winner = "You"
                     break
-                elif data == "undo_request":
+                elif data.startswith("undo_request"):
                     if confirm_undo_dialog(screen, SQUARE_SIZE):
                         conn.sendall("undo_confirm".encode('utf-8'))
                         undoMove(main_board)
@@ -311,12 +311,12 @@ def main():
                         start_time = time.time()
                     else:
                         conn.sendall("undo_reject".encode('utf-8'))
-                elif data == "undo_confirm":
+                elif data.startswith("undo_confirm"):
                     undoMove(main_board)
                     turn = 'w' if turn == 'b' else 'b'
                     print("✅ Cofnięto ruch.")
                     start_time = time.time()
-                elif data == "undo_reject":
+                elif data.startswith("undo_reject"):
                     print("❌ Cofnięcie ruchu zostało odrzucone.")
                 elif data.startswith("ping"):
                     conn.sendall("pong".encode('utf-8'))

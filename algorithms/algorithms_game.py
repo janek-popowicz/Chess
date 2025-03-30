@@ -247,7 +247,7 @@ def main(player_turn, algorithm):
         # Ruch AI w osobnym bloku
         if turn != player_turn and running:
             if algorithm == "minimax":
-                minimax_obj = Minimax(main_board, 3, turn, 1000)
+                minimax_obj = Minimax(main_board, 2, turn, 1000)
                 y1, x1, y2, x2 = minimax_obj.get_best_move()
                 if tryMove(turn, main_board, y1, x1, y2, x2):
                     # Handle successful move

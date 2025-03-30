@@ -306,7 +306,12 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                disconnect()
+                try: disconnect()
+                except: pass
+                try: 
+                    root.destroy()
+                    root_network.destroy()
+                except: pass
                 pygame.quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
@@ -347,6 +352,10 @@ def main():
                                     in_check = turn
                                 else:
                                     in_check = None
+                            #nerd view:
+                            if nerd_view:
+                                moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                                moves_queue.put(move_time)
                             selected_piece = None
                             start_time = time.time()
                         else:
@@ -359,7 +368,12 @@ def main():
                         client.sendall("undo_request".encode('utf-8'))
                         print("📤 Wysłano żądanie cofnięcia ruchu.")
                 if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80: #kliknięcie wyjścia
-                    disconnect()
+                    try: disconnect()
+                    except: pass
+                    try: 
+                        root.destroy()
+                        root_network.destroy()
+                    except: pass
                     running = False
                     return
             elif event.type == pygame.KEYDOWN:
@@ -370,12 +384,12 @@ def main():
         try:
             data = client.recv(1024).decode('utf-8')
             if data:
-                if data == "exit":
+                if data.startswith("exit"):
                     running = False
                     result = "Rozłączono"
                     winner = "Ty"
                     break
-                elif data == "undo_request":
+                elif data.startswith("undo_request"):
                     if confirm_undo_dialog(screen, SQUARE_SIZE):
                         client.sendall("undo_confirm".encode('utf-8'))
                         undoMove(main_board)
@@ -384,16 +398,19 @@ def main():
                         start_time = time.time()
                     else:
                         client.sendall("undo_reject".encode('utf-8'))
-                elif data == "undo_confirm":
+                elif data.startswith("undo_confirm"):
                     undoMove(main_board)
                     turn = 'w' if turn == 'b' else 'b'
                     print("✅ Cofnięto ruch.")
                     start_time = time.time()
-                elif data == "undo_reject":
+                elif data.startswith("undo_reject"):
                     print("❌ Cofnięcie ruchu zostało odrzucone.")
-                elif data == "pong":
+                elif data.startswith("pong"):
                     ping_time = round((time.time() - ping_start_time) * 1000, 2)  # Convert to ms and round to 2 decimal places
                     print(f"Ping: {ping_time:.2f} ms")
+                    if nerd_view:
+                        ping_nerd_view_queue.put(ping_time)
+                        root_network.update()
                     client.sendall(("ptime " + str(ping_time)).encode('utf-8'))
                 else:
                     print(f"📩 Otrzymano ruch: {data}")
@@ -431,6 +448,10 @@ def main():
                             else:
                                 in_check = None
                         selected_piece = None
+                        #nerd view:
+                        if nerd_view:
+                            moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                            moves_queue.put(move_time)
                         start_time = time.time()
                     
                 data = None
@@ -465,9 +486,25 @@ def main():
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
         pygame.display.flip()
         clock.tick(60)
+
+
+        #nerd view
+        if nerd_view:
+            current_time_for_stats = time.time()
+            evaluation = get_evaluation(main_board)
+            evaluation = evaluation[0] - evaluation[1]
+            nerd_view_queue.put((current_time_for_stats, evaluation, moves_number))
+            root.update()
+            
+
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
-    disconnect()
+    try:disconnect()
+    except:pass
+    try: 
+        root.destroy()
+        root_network.destroy()
+    except: pass
     return
 
 
