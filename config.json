@@ -1,8 +1,1 @@
-{
-    "language": "pl",
-    "volume": 7,
-    "resolution": "1260x960",
-    "icons": "classic",
-    "highlight_enemy": false,
-    "nerd_view": false
-}
+{"language": "pl", "volume": 0, "resolution": "1260x960", "icons": "classic", "highlight_enemy": false, "nerd_view": true}
