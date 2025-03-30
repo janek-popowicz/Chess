@@ -57,6 +57,7 @@ class Board:
         self.incheck = False
         self.moves_numeric = []
         self.moves_algebraic = []
+        self.moves_algebraic_long = []
         self.halfmove_clock = 0
         self.fen_history = [fen_operations.board_to_fen_inverted(self,"w")]
         self.piece_cords = []

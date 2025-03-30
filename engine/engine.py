@@ -293,6 +293,141 @@ def promotion(y: int, x: int, main_board: board_and_fields.Board, choice: str) -
         main_board.board_state[y][x].figure = figures.Queen(color)
     else:
         raise ValueError("Invalid promotion choice. Please select '1', '2', '3', or '4'.")
+    
+def save_in_short_algebraic(board, winner, result):
+    """
+    Saves the game moves in PGN format with timestamp filename.
+    
+    Args:
+        board (Board): The chess board containing move history
+        
+    Returns:
+        str: Path to the saved file or None if failed
+    """
+    from datetime import datetime
+    import os
+
+    if winner=="Biały" or winner=="White":
+        result_number = "1-0"
+    elif winner=="Czarny" or winner=="Black":
+        result_number = "0-1"
+    elif winner=="Remis" or winner =="Draw":
+        result_number = "1/2-1/2"
+    else:
+        result_number = "*"
+
+    try:
+        # Create pgn folder if it doesn't exist
+        if not os.path.exists('saves'):
+            os.makedirs('saves')
+            
+        # Generate timestamp filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"saves/game_{timestamp}.pgn"
+
+        
+        # Format moves with move numbers
+        formatted_moves = []
+        for i in range(0, len(board.moves_algebraic), 2):
+            move_number = i // 2 + 1
+            white_move = board.moves_algebraic[i]
+            
+            if i + 1 < len(board.moves_algebraic):
+                black_move = board.moves_algebraic[i + 1]
+                formatted_moves.append(f"{move_number}. {white_move} {black_move}")
+            else:
+                formatted_moves.append(f"{move_number}. {white_move}")
+        
+        # Create PGN content with headers
+        pgn_content = [
+            '[Event "Chess Game"]',
+            f'[Date "{datetime.now().strftime("%Y.%m.%d")}"]',
+            '[White "Player 1"]',
+            '[Black "Player 2"]',
+            f'[Result "{result}"]',
+            '',
+            ' '.join(formatted_moves),
+            f' {result_number}',
+            ''
+        ]
+        
+        # Save to file
+        with open(filename, 'w') as f:
+            f.write('\n'.join(pgn_content))
+            
+        return filename
+        
+    except Exception as e:
+        print(f"Error saving PGN file: {str(e)}")
+        return None
+
+def save_in_long_algebraic(board, winner, result):
+    """
+    Saves the game moves in long PGN format with timestamp filename.
+    
+    Args:
+        board (Board): The chess board containing move history
+        
+    Returns:
+        str: Path to the saved file or None if failed
+    """
+    from datetime import datetime
+    import os
+
+    if winner=="Biały" or winner=="White":
+        result_number = "1-0"
+    elif winner=="Czarny" or winner=="Black":
+        result_number = "0-1"
+    elif winner=="Remis" or winner =="Draw":
+        result_number = "1/2-1/2"
+    else:
+        result_number = "*"
+
+    try:
+        # Create pgn folder if it doesn't exist
+        if not os.path.exists('saves'):
+            os.makedirs('saves')
+            
+        # Generate timestamp filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"saves/game_{timestamp}.pgn"
+
+        
+        # Format moves with move numbers
+        formatted_moves = []
+        for i in range(0, len(board.moves_algebraic_long), 2):
+            move_number = i // 2 + 1
+            white_move = board.moves_algebraic_long[i]
+            
+            if i + 1 < len(board.moves_algebraic_long):
+                black_move = board.moves_algebraic_long[i + 1]
+                formatted_moves.append(f"{move_number}. {white_move} {black_move}")
+            else:
+                formatted_moves.append(f"{move_number}. {white_move}")
+        
+        # Create PGN content with headers
+        pgn_content = [
+            '[Event "Chess Game"]',
+            f'[Date "{datetime.now().strftime("%Y.%m.%d")}"]',
+            '[White "Player 1"]',
+            '[Black "Player 2"]',
+            f'[Result "{result}"]',
+            '',
+            ' '.join(formatted_moves),
+            f' {result_number}',
+            ''
+        ]
+        
+        # Save to file
+        with open(filename, 'w') as f:
+            f.write('\n'.join(pgn_content))
+            
+        return filename
+        
+    except Exception as e:
+        print(f"Error saving PGN file: {str(e)}")
+        return None
+
 '''
 running = True
 main_board = board_and_fields.Board()
