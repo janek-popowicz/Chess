@@ -30,7 +30,7 @@ def main(game_time):
     resolution = config["resolution"]
     width, height = map(int, resolution.split('x'))
     SQUARE_SIZE = height // 8
-    print(width, height, SQUARE_SIZE)
+    #print(width, height, SQUARE_SIZE)
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption(global_translations.get("chess_game_launcher"))
@@ -57,7 +57,7 @@ def main(game_time):
     
     running = True
     fen = load_custom_board("custom_board.fen")
-    print(fen)
+    #print(fen)
     main_board = board_and_fields.Board()
     fen_to_board(fen, main_board)
     main_board.fen_history.pop(0)
