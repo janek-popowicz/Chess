@@ -127,11 +127,11 @@ class NormalStatsWindow:
 
 
 class NetworkStatsWindow:
-    def __init__(self, master, ping_queue, ip_address, hostname, is_server=False):
+    def __init__(self, master, ping_queue, your_ip_address, other_ip_adress, is_server=False):
         self.master = master
         self.ping_queue = ping_queue
-        self.ip_address = ip_address
-        self.hostname = hostname
+        self.your_ip_address = your_ip_address
+        self.other_ip_adress = other_ip_adress
         self.is_server = is_server
         self.start_time = datetime.now()
         
@@ -172,8 +172,8 @@ class NetworkStatsWindow:
         """Aktualizuje panel ze statycznymi informacjami"""
         role = "SERVER" if self.is_server else "CLIENT"
         text = (
-            f"IP: {self.ip_address}\n"
-            f"Host: {self.hostname}\n"
+            f"IP: {self.your_ip_address}\n"
+            f"Host: {self.other_ip_adress}\n"
             f"Role: {role}\n"
             f"Uptime: {datetime.now() - self.start_time}"
         )

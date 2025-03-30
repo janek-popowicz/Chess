@@ -288,8 +288,8 @@ def main():
         moves_queue = Queue()
         root = tk.Tk()
         root_network = tk.Tk()
-        root_network.geometry("600x400+800+500")
-        root.geometry("600x400+800+100")
+        root_network.geometry("600x600+800+500")
+        root.geometry("600x600+800+100")
         stats_window = NormalStatsWindow(root, nerd_view_queue, moves_queue)
         network_stats_window = NetworkStatsWindow(root_network, ping_nerd_view_queue, get_ip(), HOST, False)
         moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
@@ -486,7 +486,6 @@ def main():
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces)
         pygame.display.flip()
         clock.tick(60)
-
 
         #nerd view
         if nerd_view:
