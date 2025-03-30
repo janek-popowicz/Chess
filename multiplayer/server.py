@@ -15,14 +15,15 @@ from nerd_view import *
 
 def start_server():
     """Tworzy serwer, akceptuje jedno połączenie i kończy działanie wątku."""
-    global server, conn, addr, client_connected
+    global server, conn, addr, client_connected, client_ip
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
     server.listen(1)
     print("🔵 Serwer czeka na połączenie...")
     
     conn, addr = server.accept()
-    print(f"🟢 Połączono z {addr}")
+    client_ip = addr[0]  # Get client IP address
+    print(f"🟢 Połączono z {client_ip}")
     client_connected = True  # Informujemy główną pętlę, że można rozpocząć grę
 
 def disconnect():
@@ -228,6 +229,20 @@ def main():
             bool: True, jeśli gracz chce cofnąć ruch, False w przeciwnym razie.
         """
         return confirm_undo_dialog(screen, SQUARE_SIZE)
+    
+    nerd_view = config["nerd_view"]
+    if nerd_view:
+        from queue import Queue
+        nerd_view_queue = Queue()
+        ping_nerd_view_queue = Queue()
+        moves_queue = Queue()
+        root = tk.Tk()
+        root_network = tk.Tk()
+        root_network.geometry("600x600+800+500")
+        root.geometry("600x600+800+100")
+        stats_window = NormalStatsWindow(root, nerd_view_queue, moves_queue)
+        network_stats_window = NetworkStatsWindow(root_network, ping_nerd_view_queue, server_ip, client_ip, is_server=True)
+        moves_number = sum(len(value) for value in main_board.get_all_moves(turn))        
 
     while running:
         
@@ -235,7 +250,12 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-                disconnect()
+                try: disconnect()
+                except: pass
+                try: 
+                    root.destroy()
+                    root_network.destroy()
+                except: pass
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 print(pos)
@@ -277,13 +297,22 @@ def main():
                                 else:
                                     in_check = None
                             selected_piece = None
+                            #nerd view:
+                            if nerd_view:
+                                moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                                moves_queue.put(move_time)
                             start_time = time.time()
                         else:
                             selected_piece = (row, col)
                     else:
                         selected_piece = (row, col)
                 if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80:
-                    disconnect()
+                    try: disconnect()
+                    except: pass
+                    try: 
+                        root.destroy()
+                        root_network.destroy()
+                    except: pass
                     running = False
                     return
                 # Obsługa przycisku "Cofnij ruch"
@@ -359,6 +388,10 @@ def main():
                             else:
                                 in_check = None
                         selected_piece = None
+                        #nerd view:
+                        if nerd_view:
+                            moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                            moves_queue.put(move_time)
                         start_time = time.time()
                 data = None
                 
@@ -393,9 +426,22 @@ def main():
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
         pygame.display.flip()
         clock.tick(60)
+
+        #nerd view
+        if nerd_view:
+            current_time_for_stats = time.time()
+            evaluation = get_evaluation(main_board)
+            evaluation = evaluation[0] - evaluation[1]
+            nerd_view_queue.put((current_time_for_stats, evaluation, moves_number))
+            root.update()
     
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
-    disconnect()
+    try:disconnect()
+    except:pass
+    try: 
+        root.destroy()
+        root_network.destroy()
+    except: pass
     return
 if __name__ == "__main__":
 
