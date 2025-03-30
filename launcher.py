@@ -16,7 +16,6 @@ import algorithms.algorithms_game
 import settings
 import graphics
 import grandmaster.pgn_to_fen
-import ai_model.ml_game as ml_game
 from language import global_translations, language_selection_screen  # Add this import at the top
 
 # Funkcja główna
