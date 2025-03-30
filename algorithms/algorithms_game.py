@@ -12,6 +12,7 @@ from graphics import *
 from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
+from nerd_view import *
 
 MONTE_CARLO_LIMIT = 10
 MONTE_CARLO_DEPTH = 5
@@ -141,11 +142,22 @@ def main(player_turn, algorithm):
                 (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY),
                  (8 * SQUARE_SIZE + 10, height - 150))  # Player's time (black) at bottom
             )
+    nerd_view = config["nerd_view"]
+    if nerd_view:
+        from queue import Queue
+        nerd_view_queue = Queue()
+        moves_queue = Queue()
+        root = tk.Tk()
+        root.geometry("600x400+800+100")  # Pozycja obok okna gry
+        stats_window = NormalStatsWindow(root, nerd_view_queue, moves_queue)
+        moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
 
     while running:
         # Obsługa zdarzeń zawsze na początku pętli
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                try: root.destroy()
+                except: pass
                 if minimax_thread and minimax_thread.is_alive():
                     minimax_thread.stop()
                     minimax_thread.join(timeout=0.1)
@@ -227,6 +239,10 @@ def main(player_turn, algorithm):
                                     else:
                                         in_check = None
                                 selected_piece = None
+                                #liczenie liczby ruchów, ważne pod nerd_view
+                                if nerd_view:
+                                    moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                                    moves_queue.put(move_time)
                                 start_time = time.time()
 
                             else:
@@ -348,6 +364,13 @@ def main(player_turn, algorithm):
 
         pygame.display.flip()
         clock.tick(60)
+
+        if nerd_view: #rysowanie nerd_view
+            current_time_for_stats = time.time()
+            evaluation = get_evaluation(main_board)
+            evaluation = evaluation[0] - evaluation[1]
+            nerd_view_queue.put((current_time_for_stats, evaluation, moves_number))
+            root.update()
     
     # Upewnij się, że wątek zostanie zakończony przy wyjściu
     if minimax_thread and minimax_thread.is_alive():
