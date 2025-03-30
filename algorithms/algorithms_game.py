@@ -54,7 +54,7 @@ class MonteCarloThread(threading.Thread):
                 if not self.stopped():
                     self.result_queue.put(move)
         except Exception as e:
-            print(f"Błąd w wątku Monte Carlo: {e}")
+            #print(f"Błąd w wątku Monte Carlo: {e}")
             self.result_queue.put(None)
 
 
@@ -85,7 +85,7 @@ def main(player_turn, algorithm, game_time):
     resolution = config["resolution"]
     width, height = map(int, resolution.split('x'))
     SQUARE_SIZE = height // 8
-    print(width, height, SQUARE_SIZE)
+    #print(width, height, SQUARE_SIZE)
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Chess Game")
