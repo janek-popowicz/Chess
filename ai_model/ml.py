@@ -9,6 +9,7 @@ from engine.board_and_fields import Board
 import random
 import engine.figures as figures
 import copy
+import psutil
 
 class ChessNN(nn.Module):
     def __init__(self):
@@ -37,6 +38,10 @@ class ChessNN(nn.Module):
 
 class ChessQLearningAI:
     def __init__(self, board, learning_rate=0.001):
+        torch.backends.cudnn.benchmark = True
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
         self.board = board
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = ChessNN().to(self.device)
@@ -106,18 +111,25 @@ class ChessQLearningAI:
 
     def train(self, num_episodes):
         """
-        Trains the model for specified number of episodes
+        Trains the model for specified number of episodes with checkpoints
         """
         self.model.train()
         total_loss = 0
         start_time = time.time()
+        checkpoint_interval = 1000  # Save every 1000 episodes
+        
+        # Create models directory if it doesn't exist
+        Path("models").mkdir(exist_ok=True)
         
         for episode in range(num_episodes):
-            # Use our custom reset method
             self._reset_board()
             episode_loss = self._train_episode()
             total_loss += episode_loss
             
+            # Save checkpoint
+            if (episode + 1) % checkpoint_interval == 0:
+                self.save_model(f"checkpoint_episode_{episode+1}.pt")
+                
             if (episode + 1) % 100 == 0:
                 avg_loss = total_loss / 100
                 elapsed = time.time() - start_time
@@ -128,8 +140,6 @@ class ChessQLearningAI:
                 )
                 total_loss = 0
                 start_time = time.time()
-                
-        return total_loss / num_episodes
 
     def _train_episode(self):
         """Training episode with improved error handling"""
@@ -694,3 +704,27 @@ class ChessQLearningAI:
             clock.tick(30)
 
         pygame.quit()
+
+    def _monitor_resources(self):
+        process = psutil.Process()
+        memory_use = process.memory_info().rss / 1024 / 1024  # MB
+        self.logger.info(f"Memory usage: {memory_use:.1f} MB")
+
+    def validate(self, num_games=100):
+        """Validate model performance"""
+        self.model.eval()
+        wins = 0
+        draws = 0
+        
+        for game in range(num_games):
+            self._reset_board()
+            result = self._play_validation_game()
+            if result == 1:
+                wins += 1
+            elif result == 0:
+                draws += 1
+                
+        win_rate = wins / num_games
+        draw_rate = draws / num_games
+        self.logger.info(f"Validation: Win rate: {win_rate:.2%}, Draw rate: {draw_rate:.2%}")
+        return win_rate

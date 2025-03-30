@@ -7,6 +7,20 @@ import ai_model.ml as ml
 import ai_model.ml_game as ml_game
 from engine.board_and_fields import Board  # Direct import of Board
 from pathlib import Path
+import torch
+import time
+import psutil
+
+def monitor_resources():
+    """Monitor system resources during training"""
+    process = psutil.Process()
+    memory = process.memory_info().rss / 1024 / 1024  # MB
+    cpu_percent = process.cpu_percent()
+    if torch.cuda.is_available():
+        gpu_memory = torch.cuda.memory_allocated() / 1024 / 1024  # MB
+        print(f"GPU Memory: {gpu_memory:.1f}MB | RAM: {memory:.1f}MB | CPU: {cpu_percent}%")
+    else:
+        print(f"RAM: {memory:.1f}MB | CPU: {cpu_percent}%")
 
 def load_model_menu(models_dir):
     """Handle model loading with better error handling and feedback"""
@@ -181,4 +195,66 @@ def main():
             print("\nInvalid choice. Please try again.")
 
 if __name__ == "__main__":
-    main()
+    # Set up optimal PyTorch settings
+    if torch.cuda.is_available():
+        torch.backends.cudnn.benchmark = True
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+
+    # Training configuration
+    EPISODES_PER_EPOCH = 1000
+    TOTAL_EPOCHS = 50  # Total 50,000 episodes
+    VALIDATE_EVERY = 1000
+    SAVE_EVERY = 5000
+    
+    # Initialize board and AI
+    board = Board()
+    ai = ml.ChessQLearningAI(board, learning_rate=0.0001)  # Lower learning rate for stability
+    
+    try:
+        # Load existing model if available
+        if ai.load_model("latest_model.pt"):
+            print("Loaded existing model, continuing training...")
+        
+        best_win_rate = 0.0
+        start_time = time.time()
+        
+        for epoch in range(TOTAL_EPOCHS):
+            print(f"\nEpoch {epoch + 1}/{TOTAL_EPOCHS}")
+            print("-" * 50)
+            
+            # Train for one epoch
+            ai.train(EPISODES_PER_EPOCH)
+            
+            # Monitor system resources
+            monitor_resources()
+            
+            # Validate and save progress
+            if (epoch + 1) % (VALIDATE_EVERY // EPISODES_PER_EPOCH) == 0:
+                win_rate = ai.validate(num_games=50)
+                
+                # Save if improved
+                if win_rate > best_win_rate:
+                    best_win_rate = win_rate
+                    ai.save_model(f"best_model_winrate_{win_rate:.2f}.pt")
+                
+            # Regular checkpoint save
+            if (epoch + 1) % (SAVE_EVERY // EPISODES_PER_EPOCH) == 0:
+                ai.save_model(f"checkpoint_epoch_{epoch+1}.pt")
+                ai.save_model("latest_model.pt")
+            
+            # Print progress
+            elapsed = time.time() - start_time
+            print(f"Time elapsed: {elapsed/3600:.1f}h")
+            print(f"Best win rate so far: {best_win_rate:.2%}")
+            
+    except KeyboardInterrupt:
+        print("\nTraining interrupted by user. Saving final model...")
+        ai.save_model("interrupted_model.pt")
+    except Exception as e:
+        print(f"\nError during training: {e}")
+        ai.save_model("emergency_save.pt")
+    finally:
+        # Always save final model
+        ai.save_model("final_model.pt")
+        print("\nTraining completed!")
