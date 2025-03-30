@@ -9,53 +9,84 @@ from graphics import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
 from nerd_view import *
 
-def get_ip():
+def get_ip() -> str:
     """
-    Pobiera adres IP tego komputera
+    Retrieves the IP address of the current machine.
+
+    This function uses the system's hostname to determine the IP address
+    of the machine on which it is executed.
 
     Returns:
-        str: Adres IP
+        str: The IP address of the current machine.
     """
     hostname = socket.gethostname()
     ip = socket.gethostbyname(hostname)
     return ip
     
 
-server_connected_event = threading.Event()  # Zamiast zmiennej server_connected
+server_connected_event = threading.Event()  # Event to signal server connection status.
 
-def disconnect():
+def disconnect() -> None:
+    """
+    Disconnects the client from the server.
+
+    This function sends an "exit" message to the server and closes the socket connection.
+    It ensures a clean disconnection from the server.
+    """
     global client
     client.sendall("exit".encode('utf-8'))
     client.close()
-def force_quit():
+
+def force_quit() -> None:
+    """
+    Forces the client to close the connection.
+
+    This function closes the socket connection without sending any message to the server.
+    It is used in scenarios where immediate termination is required.
+    """
     global client
     client.close()
-def connect_to_server():
-    """Próbuje połączyć się z serwerem i kończy działanie wątku po sukcesie."""
+
+def connect_to_server() -> None:
+    """
+    Attempts to connect to the server in a loop until successful.
+
+    This function creates a socket and continuously tries to establish a connection
+    with the server. Once connected, it sets the `server_connected_event` to signal
+    that the connection has been established.
+
+    Raises:
+        socket.error: If there is an issue with the socket connection.
+        ConnectionRefusedError: If the server refuses the connection.
+    """
     global client
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
-    while not server_connected_event.is_set():  # Sprawdzamy, czy połączenie zostało nawiązane
+    while not server_connected_event.is_set():  # Check if the connection has been established
         try:
-            print("🔵 Próba połączenia z serwerem...")
+            print("🔵 Attempting to connect to the server...")
             client.connect((HOST, PORT))
-            print("🟢 Połączono z serwerem!")
-            server_connected_event.set()  # Ustawiamy flagę, że połączenie zostało nawiązane
+            print("🟢 Connected to the server!")
+            server_connected_event.set()  # Set the flag indicating the connection has been established
         except (socket.error, ConnectionRefusedError):
-            time.sleep(0.1)  # Skracamy czas oczekiwania na kolejną próbę
+            time.sleep(0.1)  # Reduce the wait time for the next attempt
 
-def connect_to_server_with_timeout(host, port, timeout=3):
+def connect_to_server_with_timeout(host: str, port: int, timeout: int = 3) -> socket.socket | None:
     """
-    Próbuje połączyć się z serwerem w określonym czasie.
+    Attempts to connect to the server within a specified timeout period.
 
     Args:
-        host (str): Adres IP serwera.
-        port (int): Port serwera.
-        timeout (int): Maksymalny czas oczekiwania na połączenie w sekundach.
+        host (str): The IP address of the server.
+        port (int): The port number of the server.
+        timeout (int): Maximum time (in seconds) to wait for a connection.
 
     Returns:
-        socket.socket: Połączone gniazdo, jeśli połączenie się powiedzie.
-        None: Jeśli połączenie nie zostanie nawiązane w określonym czasie.
+        socket.socket: The connected socket object if successful.
+        None: If the connection could not be established within the timeout period.
+
+    Raises:
+        socket.timeout: If the connection attempt exceeds the timeout.
+        ConnectionRefusedError: If the server refuses the connection.
     """
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -65,16 +96,20 @@ def connect_to_server_with_timeout(host, port, timeout=3):
     except (socket.timeout, ConnectionRefusedError):
         return None
 
-def ip_input_screen(screen, font):
+def ip_input_screen(screen: pygame.Surface, font: pygame.font.Font) -> str | None:
     """
-    Wyświetla elegancki ekran wejściowy do wpisania adresu IP serwera.
+    Displays an elegant input screen for entering the server's IP address.
+
+    This function creates a graphical interface using Pygame to allow the user
+    to input the server's IP address. It includes buttons for connecting or canceling.
 
     Args:
-        screen (pygame.Surface): Powierzchnia ekranu gry.
-        font (pygame.Font): Czcionka do renderowania tekstu.
+        screen (pygame.Surface): The Pygame screen surface.
+        font (pygame.Font): The font used for rendering text.
 
     Returns:
-        str: Wpisany adres IP lub None jeśli użytkownik anulował.
+        str: The entered IP address if the user confirms.
+        None: If the user cancels the input or closes the window.
     """
     input_active = True
     ip_address = ""
@@ -164,77 +199,99 @@ def ip_input_screen(screen, font):
 
     return None
 
-def waiting_screen(screen, font):
-    """Animacja łączenia się z serwerem."""
+def waiting_screen(screen: pygame.Surface, font: pygame.font.Font) -> None:
+    """
+    Displays a waiting animation while attempting to connect to the server.
+
+    This function shows a simple animation with dots to indicate that the client
+    is trying to establish a connection with the server.
+
+    Args:
+        screen (pygame.Surface): The Pygame screen surface.
+        font (pygame.Font): The font used for rendering text.
+    """
     dots = ""
     clock = pygame.time.Clock()
-    while not server_connected_event.is_set():  # Sprawdzamy flagę zamiast zmiennej
+    while not server_connected_event.is_set():  # Check the flag instead of a variable
         screen.fill((0, 0, 0))
         text = font.render(f"Łączenie z serwerem{dots}", True, (255, 255, 255))
         screen.blit(text, (250, 300))
         pygame.display.flip()
 
         dots = "." * ((len(dots) + 1) % 4)
-        clock.tick(30)  # Ograniczamy liczbę odświeżeń do 30 FPS
+        clock.tick(30)  # Limit refresh rate to 30 FPS
 
-def request_undo(screen, SQUARE_SIZE):
+def request_undo(screen: pygame.Surface, SQUARE_SIZE: int) -> bool:
     """
-    Wyświetla okno dialogowe z pytaniem, czy gracz chce cofnąć ruch.
+    Displays a dialog box asking the player if they want to undo their move.
 
     Args:
-        screen (pygame.Surface): Powierzchnia ekranu gry.
-        SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
+        screen (pygame.Surface): The Pygame screen surface.
+        SQUARE_SIZE (int): The size of a single square on the chessboard.
 
     Returns:
-        bool: True, jeśli gracz chce cofnąć ruch, False w przeciwnym razie.
+        bool: True if the player agrees to undo the move, False otherwise.
     """
     return confirm_undo_dialog(screen, SQUARE_SIZE)
 
-# Funkcja główna
-def main():
+def main() -> None:
+    """
+    The main function that initializes and runs the chess game.
+
+    This function sets up the game environment, including the Pygame screen,
+    fonts, and configurations. It handles the game loop, player interactions,
+    and communication with the server.
+
+    Global Variables:
+        HOST (str): The server's IP address.
+        PORT (int): The server's port number.
+        client (socket.socket): The socket object for server communication.
+
+    Raises:
+        pygame.error: If there is an issue with Pygame initialization or rendering.
+        socket.error: If there is an issue with server communication.
+    """
     global HOST, PORT, client
     PORT = 12345
     client = None
 
     pygame.init()
-    # Ładowanie konfiguracji
+    # Load configuration
     config = load_config()
     resolution = config["resolution"]
     nerd_view = config["nerd_view"]
     width, height = map(int, resolution.split('x'))
     SQUARE_SIZE = height // 8
     print(width, height, SQUARE_SIZE)
-    # Ustawienia ekranu
+    # Screen settings
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Chess Game")
     icon_logo = pygame.image.load('program_logo.png')
     pygame.display.set_icon(icon_logo)
 
-    # Czcionka
+    # Font
     font = pygame.font.Font(None, 36)
 
-    
-
-    # Pętla do wpisywania adresu IP i próby połączenia
+    # Loop for entering IP address and attempting connection
     while True:
         HOST = ip_input_screen(screen, font)
         if HOST == None:
             return
         client = connect_to_server_with_timeout(HOST, PORT)
         if client:
-            print("🟢 Połączono z serwerem!")
+            print("🟢 Connected to the server!")
             break
         else:
-            # Wyświetlenie komunikatu o błędzie
+            # Display error message
             error_text = font.render("Nie udało się połączyć z serwerem. Spróbuj ponownie.", True, (255, 0, 0))
             screen.fill((0, 0, 0))
             screen.blit(error_text, (250, 300))
             pygame.display.flip()
-            pygame.time.wait(2000)  # Wyświetl komunikat przez 2 sekundy
+            pygame.time.wait(2000)  # Display message for 2 seconds
 
     client.settimeout(0.05)
 
-    # Kolory
+    # Colors
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     GRAY = (100, 100, 100)
@@ -242,7 +299,7 @@ def main():
     HIGHLIGHT_MOVES = (100, 200, 100)
     HIGHLIGHT_TAKES = (147, 168, 50)
 
-    # Ładowanie ikon figur
+    # Load piece icons
     icon_type = config["icons"]
     pieces_short = ["wp", "wR", "wN", "wB", "wQ", "wK", "bp", "bR", "bN", "bB", "bQ", "bK"]
     pieces = {}
@@ -256,17 +313,17 @@ def main():
     clock = pygame.time.Clock()
     ping_time = 0
 
-    # Teksty interfejsu
+    # Interface texts
     texts = (
         (font.render(f"Kolejka: białe", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
         (font.render(f"Kolejka: czarne", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
         (font.render(f"Wyjście", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
-        (font.render(f"Cofnij ruch", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Dodano przycisk "Cofnij ruch"
+        (font.render(f"Cofnij ruch", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Added "Undo Move" button
     )
     check_text = font.render("Szach!", True, pygame.Color("red"))
 
     ping_start_time = time.time()
-    # Czasy graczy
+    # Player times
     start_time = time.time()
     black_time = 0
     white_time = 0
@@ -279,8 +336,7 @@ def main():
     ping_interval = 2.0  # Send ping every 2 seconds
     ping_start_time = 0
 
-
-    # Dane do nerd_view:
+    # Nerd view data:
     if nerd_view:
         from queue import Queue
         nerd_view_queue = Queue()
@@ -330,7 +386,7 @@ def main():
                                 black_time += move_time
                             turn = 'w' if turn == 'b' else 'b'
                             
-                            #sprawdzanie co po ruchu
+                            # Check after move
                             if selected_piece!=None:
                                 whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
                                 message = str(selected_piece[0])+" "+str(selected_piece[1])+" "+str(row)+" "+str(col)
@@ -352,7 +408,7 @@ def main():
                                     in_check = turn
                                 else:
                                     in_check = None
-                            #nerd view:
+                            # Nerd view:
                             if nerd_view:
                                 moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
                                 moves_queue.put(move_time)
@@ -362,12 +418,12 @@ def main():
                             selected_piece = (row, col)
                     else:
                         selected_piece = (row, col)
-                # Obsługa przycisku "Cofnij ruch"
+                # Handle "Undo Move" button
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20 and height - 100 <= pos[1] < height - 80:
                     if request_undo(screen, SQUARE_SIZE):
                         client.sendall("undo_request".encode('utf-8'))
-                        print("📤 Wysłano żądanie cofnięcia ruchu.")
-                if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80: #kliknięcie wyjścia
+                        print("📤 Undo request sent.")
+                if pos[0]> SQUARE_SIZE*8 and pos[0]<= width-20 and pos[1] >= height-80: # Click exit
                     try: disconnect()
                     except: pass
                     try: 
@@ -394,17 +450,17 @@ def main():
                         client.sendall("undo_confirm".encode('utf-8'))
                         undoMove(main_board)
                         turn = 'w' if turn == 'b' else 'b'
-                        print("✅ Cofnięto ruch.")
+                        print("✅ Move undone.")
                         start_time = time.time()
                     else:
                         client.sendall("undo_reject".encode('utf-8'))
                 elif data.startswith("undo_confirm"):
                     undoMove(main_board)
                     turn = 'w' if turn == 'b' else 'b'
-                    print("✅ Cofnięto ruch.")
+                    print("✅ Move undone.")
                     start_time = time.time()
                 elif data.startswith("undo_reject"):
-                    print("❌ Cofnięcie ruchu zostało odrzucone.")
+                    print("❌ Undo request rejected.")
                 elif data.startswith("pong"):
                     ping_time = round((time.time() - ping_start_time) * 1000, 2)  # Convert to ms and round to 2 decimal places
                     print(f"Ping: {ping_time:.2f} ms")
@@ -413,7 +469,7 @@ def main():
                         root_network.update()
                     client.sendall(("ptime " + str(ping_time)).encode('utf-8'))
                 else:
-                    print(f"📩 Otrzymano ruch: {data}")
+                    print(f"📩 Received move: {data}")
                     data = data.split()
                     selected_piece = (int(data[0]), int(data[1]))
                     row = int(data[2])
@@ -428,7 +484,7 @@ def main():
                             black_time += move_time
                         turn = 'w' if turn == 'b' else 'b'
                         
-                        #sprawdzanie co po ruchu
+                        # Check after move
                         if selected_piece!=None:
                             whatAfter, yForPromotion, xForPromotion = afterMove(turn,main_board, selected_piece[0], selected_piece[1], row, col)
                             if whatAfter == "promotion":
@@ -448,7 +504,7 @@ def main():
                             else:
                                 in_check = None
                         selected_piece = None
-                        #nerd view:
+                        # Nerd view:
                         if nerd_view:
                             moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
                             moves_queue.put(move_time)
@@ -458,7 +514,7 @@ def main():
         except socket.timeout:
             pass
 
-        # Aktualizacja czasu gracza na żywo
+        # Update player time live
         current_time = time.time()
         if turn == 'w':
             current_white_time = white_time + (current_time - start_time)
@@ -487,7 +543,7 @@ def main():
         pygame.display.flip()
         clock.tick(60)
 
-        #nerd view
+        # Nerd view
         if nerd_view:
             current_time_for_stats = time.time()
             evaluation = get_evaluation(main_board)

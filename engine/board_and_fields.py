@@ -8,7 +8,7 @@ class Field:
     """
     Klasa reprezentująca pojedyncze pole na planszy szachowej.
     """
-    def __init__(self, x, y, figure=None):
+    def __init__(self, x: int, y: int, figure=None):
         """
         Inicjalizuje pole na planszy.
 
@@ -21,9 +21,12 @@ class Field:
         self.y = y
         self.figure = figure
 
-    def remove_figure(self):
+    def remove_figure(self) -> None:
         """
         Usuwa figurę z pola.
+
+        Returns:
+            None: Funkcja nie zwraca wartości.
         """
         self.figure = None
 
@@ -71,11 +74,19 @@ class Board:
             x1 (int): Współrzędna kolumny początkowej.
             y2 (int): Współrzędna wiersza docelowego.
             x2 (int): Współrzędna kolumny docelowej.
+
+        Returns:
+            None: Funkcja nie zwraca wartości.
+
+        Raises:
+            ValueError: Jeśli współrzędne są poza zakresem planszy.
         """
+        if not (0 <= y1 < 8 and 0 <= x1 < 8 and 0 <= y2 < 8 and 0 <= x2 < 8):
+            raise ValueError("Współrzędne muszą być w zakresie od 0 do 7.")
         self.board_state[y2][x2].figure = self.board_state[y1][x1].figure
         self.board_state[y1][x1].figure = None
         
-    def get_regular_moves(self, field):
+    def get_regular_moves(self, field: Field) -> list[tuple[int, int]]:
         """
         Generuje możliwe ruchy dla figury na danym polu (bez uwzględnienia ataków).
 
@@ -83,8 +94,10 @@ class Board:
             field (Field): Pole, dla którego generowane są ruchy.
 
         Returns:
-            list: Lista możliwych współrzędnych ruchów.
+            list[tuple[int, int]]: Lista możliwych współrzędnych ruchów.
         """
+        if not isinstance(field, Field):
+            return []
         possible_cords = [] 
         if field.figure == None:
             print("Na tym polu nie ma figury!",end=" ")
@@ -111,7 +124,7 @@ class Board:
 
         return possible_cords   
 
-    def get_attack_moves(self, field):
+    def get_attack_moves(self, field: Field) -> list[tuple[int, int]]:
         """
         Generuje możliwe ruchy ataku dla figury na danym polu.
 
@@ -119,8 +132,10 @@ class Board:
             field (Field): Pole, dla którego generowane są ruchy ataku.
 
         Returns:
-            list: Lista możliwych współrzędnych ataków.
+            list[tuple[int, int]]: Lista możliwych współrzędnych ataków.
         """
+        if not isinstance(field, Field):
+            return []
         possible_cords = [] 
         try:
             attackscheme = field.figure.attack_scheme 
@@ -145,7 +160,7 @@ class Board:
                     break
         return possible_cords
 
-    def is_attacked(self, field, color=None):
+    def is_attacked(self, field: Field, color: str = None) -> bool:
         """
         Sprawdza, czy dane pole jest atakowane przez przeciwnika.
 
@@ -156,6 +171,8 @@ class Board:
         Returns:
             bool: True, jeśli pole jest atakowane, False w przeciwnym razie.
         """
+        if not isinstance(field, Field) or (color not in {'w', 'b', None}):
+            return False
         if color==None:
             color = field.figure.color
         attackschemes = {
@@ -188,13 +205,18 @@ class Board:
                             break
         return False
 
-    def is_in_check(self, color):
+    def is_in_check(self, color: str) -> None:
         """
         Sprawdza, czy król danego koloru jest szachowany.
 
         Args:
-            color (str): Kolor króla do sprawdzenia.
+            color (str): Kolor króla do sprawdzenia ('w' lub 'b').
+
+        Returns:
+            None: Funkcja nie zwraca wartości.
         """
+        if color not in {'w', 'b'}:
+            return
         for cord in self.piece_cords:
             tile = self.board_state[cord[0]][cord[1]]
             if tile.figure.type == 'K' and tile.figure.color == color:
@@ -204,12 +226,15 @@ class Board:
                 self.incheck = True
         else:
             self.incheck = False  
-    def is_in_check_minimax(self, color):
+    def is_in_check_minimax(self, color: str) -> bool:
         """
         Sprawdza, czy król danego koloru jest szachowany (wersja do minimaxu).
 
         Args:
-            color (str): Kolor króla do sprawdzenia.
+            color (str): Kolor króla do sprawdzenia ('w' lub 'b').
+
+        Returns:
+            bool: True, jeśli król jest szachowany, False w przeciwnym razie.
         """
         for i in range(8):
             for j in range(8):
@@ -217,7 +242,7 @@ class Board:
                 if tile.figure and tile.figure.type == 'K' and tile.figure.color == color:
                     king_position = tile
         return self.is_attacked(king_position)
-    def get_all_moves(self,turn):
+    def get_all_moves(self, turn: str) -> dict[tuple[int, int], list[tuple[int, int]]]:
         """
         Generuje wszystkie możliwe ruchy dla danego koloru.
 
@@ -225,8 +250,10 @@ class Board:
             turn (str): Aktualna tura ('w' lub 'b').
 
         Returns:
-            list: Lista wszystkich możliwych ruchów.
+            dict[tuple[int, int], list[tuple[int, int]]]: Słownik z możliwymi ruchami.
         """
+        if turn not in {'w', 'b'}:
+            return {}
         all_moves = {}
         for i in range(len(self.piece_cords)):
                 cord = self.piece_cords[i]
@@ -236,7 +263,7 @@ class Board:
                         all_moves[(cord[0],cord[1])] = self.get_legal_moves(field,turn)
                 self.piece_cords.sort() 
         return {k: v for k, v in all_moves.items() if v}
-    def get_legal_moves(self, field, turn):
+    def get_legal_moves(self, field: Field, turn: str) -> list[tuple[int, int]]:
         """
         Generuje legalne ruchy dla figury na danym polu.
 
@@ -245,8 +272,10 @@ class Board:
             turn (str): Aktualna tura ('w' lub 'b').
 
         Returns:
-            list: Lista legalnych ruchów.
+            list[tuple[int, int]]: Lista legalnych ruchów.
         """
+        if not isinstance(field, Field) or turn not in {'w', 'b'}:
+            return []
         if field.figure == None:
             print("Na tym polu nie ma figury!",end=" ")
             return []
@@ -293,9 +322,12 @@ class Board:
                         j = 1 
             return legal_cords
         
-    def print_board(self):
+    def print_board(self) -> None:
         """
         Wyświetla aktualny stan planszy w terminalu.
+
+        Returns:
+            None: Funkcja nie zwraca wartości.
         """
         print("+" + "----+" *8 )
         for x in range(7,-1,-1):
@@ -310,7 +342,7 @@ class Board:
             print("+" + "----+" *8 )
         print("  7    6    5    4    3    2    1    0")
 
-    def get_piece(self, row: int, col: int):
+    def get_piece(self, row: int, col: int) -> str:
         """
         Zwraca figurę znajdującą się na danym polu.
 
@@ -321,6 +353,8 @@ class Board:
         Returns:
             str: Reprezentacja figury lub "--", jeśli pole jest puste.
         """
+        if not (0 <= row < 8 and 0 <= col < 8):
+            return "--"
         if self.board_state[row][col].figure == None:
             return "--"
         else:
