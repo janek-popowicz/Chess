@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        ol>li>ul {
+            list-style: disc;
+        }
+
+        footer {
+            margin: 1em;
+        }
+
+        .content {
+            margin: 1em;
+        }
+
+        .guzik {
+            border: 1px solid black;
+            border-radius: 0.5em;
+            padding: 2px;
+            background-color: lightgray;
+        }
+    </style>
+    <title>Konwerter</title>
+</head>
+
+<body>
+    <h1>Ładowanie pliku PGN</h1>
+    <img src="img/gradient.png" alt="gradient" width="100%" height="10px">
+    <div class="content">
+        <p>Jeżeli chcemy grać przeciwko arcymistrzowi bazującym na pliku z danymi posunięć, przed rozpoczęciem <a href="grandmaster.html">gry z arcymistrzem</a> trzeba przekonwertować plik PGN na JSON.</p>
+        <p>Właśnie do tego służy ta funkcja w programie.</p>
+        <hr>
+        <p>Aby przekonwertować swój plik PGN, należy:</p>
+        <ol>
+            <li>Umieścić plik PGN w folderze /grandmaster/pgn/, a następnie go wybrać, np.:
+                <br>
+                <img src="img/pgn_folder.png" alt="Przykładowy plik" width="400px">
+            </li>
+            <br>
+            <li><p>Wybrać preferowany przez nas sposób zapisu ruchów, gdy zobaczymy ten dialog:</p>
+                <img src="img/pgn_type.png" alt="Zgoda na cofnięcie" width="400px">
+            </li>
+            <br>
+            <li>Poczekać na zakończenie konwersji przez program:
+                <br>
+                <img src="img/loading.png" alt="Ekran ładowania" width="400px">
+            </li>
+        </ol>
+        <hr>
+        <p>Plik po konwersji będzie możliwy do odnalezienia w folderze /grandmaster/json/, skąd będzie można użyć go przy <a href="grandmaster.html">grze z arcymistrzem</a>.</p>
+        <hr>
+        <button onclick="history.back()">Powrót</button>
+    </div>
+    <footer>
+        <p>©2025 Wiktor Szpilczak</p>
+    </footer>
+</body>
+
+</html>
