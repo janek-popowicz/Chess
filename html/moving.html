@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        ol>li>ul {
+            list-style: disc;
+        }
+
+        footer {
+            margin: 1em;
+        }
+
+        .content {
+            margin: 1em;
+        }
+    </style>
+    <title>Poruszanie się</title>
+</head>
+
+<body>
+    <h1>Poruszanie pionków/figur</h1>
+    <img src="img/gradient.png" alt="gradient" width="100%" height="10px">
+    <div class="content">
+        <p>Aby poruszyć figurą/pionkiem, należy:</p>
+        <ol>
+            <li>Kliknąć lewym przyciskiem myszy na figurę, którą chcemy poruszyć:
+                <br><br>
+                <img src="img/pawn.png" alt="Pionek" width="200px">
+                <br><br>
+                Podświetlone zostaną pola, gdzie możliwy jest ruch.
+            </li>
+            <br>
+            <li>
+                Nacisnąć lewym przyciskiem myszy na pole, gdzie chcemy przesunąć figurę.
+                <br><br>
+                <img src="img/pawn_moved.png" alt="Poruszony pionek" width="200px">
+                <br><br>
+                Figura zostanie przesunięta, i w razie przypadku <a href="gamefriend.html">gry z przyjacielem</a>, plansza zostanie obrócona.
+            </li>
+        </ol>
+        <hr>
+        <p>Aby wykonać roszadę, należy:</p>
+        <ol>
+            <li>Kliknąć lewym przyciskiem myszy na króla:
+                <br><br>
+                <img src="img/king_select.png" alt="Pionek" width="200px">
+                <br><br>
+                Podświetlona zostanie wieża (lub wieże), w kierunku których można wykonać roszadę.
+            </li>
+            <br>
+            <li>
+                Nacisnąć lewym przyciskiem myszy na wieżę, w kierunku której chcemy wykonać roszadę.
+                <br><br>
+                <img src="img/king_move.png" alt="Poruszony pionek" width="200px">
+                <br><br>
+                Roszada zostanie wykonana, i w razie przypadku <a href="gamefriend.html">gry z przyjacielem</a>, plansza zostanie obrócona.
+            </li>
+        </ol>
+        <hr>
+        <button onclick="history.back()">Powrót</button>
+    </div>
+    <footer>
+        <p>©2025 Wiktor Szpilczak</p>
+    </footer>
+</body>
+
+</html>
