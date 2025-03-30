@@ -237,13 +237,14 @@ class NetworkStatsWindow:
         dt = x if isinstance(x, datetime) else datetime.fromtimestamp(x)
         return dt.strftime('%H:%M:%S') if dt else ""
     
-class InfoWindow:
-    def __init__(self, master, moves_list, algorithm_name, search_depth, additional_info=""):
+class AlgorithmInfoWindow:
+    def __init__(self, master, moves_list, algorithm_name, search_depth, additional_info="", best_move=None):
         self.master = master
         self.moves_list = moves_list
         self.algorithm_name = algorithm_name
         self.search_depth = search_depth
         self.additional_info = additional_info
+        self.best_move = best_move
 
         # Konfiguracja okna
         self.master.title("Engine Configuration Info")
@@ -254,6 +255,7 @@ class InfoWindow:
         self._create_info_section("Dostępne ruchy z bazy:", row=0)
         self._create_info_section("Konfiguracja algorytmu:", row=2)
         self._create_info_section("Dodatkowe informacje:", row=4)
+        self._create_info_section("Najlepszy ruch:", row=6)
 
         # Pole dla ruchów
         self.moves_text = tk.Listbox(self.frame, height=15, width=25)
@@ -275,6 +277,19 @@ class InfoWindow:
         info_label = tk.Label(self.frame, textvariable=self.info_var, 
                             justify="left", wraplength=300)
         info_label.grid(row=5, column=0, sticky="w", padx=5, pady=2)
+
+        # Best move display frame
+        self.best_move_frame = tk.Frame(self.frame)
+        self.best_move_frame.grid(row=7, column=0, sticky="w", padx=5, pady=2)
+        
+        self.best_move_var = tk.StringVar(value=self._format_best_move(best_move))
+        self.best_move_label = tk.Label(
+            self.best_move_frame, 
+            textvariable=self.best_move_var,
+            font=('Courier', 12),
+            fg='green'
+        )
+        self.best_move_label.pack(anchor="w")
 
         # Scrollbar dla listy ruchów
         scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.moves_text.yview)
@@ -309,3 +324,20 @@ class InfoWindow:
     def update_depth(self, new_depth):
         self.search_depth = new_depth
         self.depth_var.set(f"Głębokość: {new_depth}")
+
+    def _format_best_move(self, move):
+        """Format best move for display"""
+        if not move:
+            return "Brak ruchu"
+        if isinstance(move, (list, tuple)) and len(move) >= 4:
+            letters = 'hgfedcba'
+            numbers = '12345678'
+            from_pos = f"{letters[move[1]]}{numbers[move[0]]}"
+            to_pos = f"{letters[move[3]]}{numbers[move[2]]}"
+            return f"Z: {from_pos} → Na: {to_pos}"
+        return str(move)
+
+    def update_best_move(self, new_move):
+        """Update the displayed best move"""
+        self.best_move = new_move
+        self.best_move_var.set(self._format_best_move(new_move))

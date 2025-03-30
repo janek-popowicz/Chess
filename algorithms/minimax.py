@@ -19,6 +19,8 @@ class Minimax:
         self.best_move = None
         self.path = Path(__file__).parent / "opening.json"
         self.opening_book = self.load_opening_book()
+        self.message = " "
+        self.available_moves_from_json = []
 
     def load_opening_book(self):
         """
@@ -42,11 +44,10 @@ class Minimax:
 
             with open(self.path, 'r', encoding='utf-8') as f:
                 opening_book = json.load(f)
-                print(f"Loaded opening book with {len(opening_book)} positions")
+                self.message += f"\nLoaded opening book with {len(opening_book)} positions"
                 return opening_book
 
         except Exception as e:
-            print(f"Error loading opening book: {e}")
             return {}
 
     def get_mate_pattern_bonus(self, board, color, move):
@@ -298,20 +299,21 @@ class Minimax:
             fen_parts = current_fen.split(' ')
             position_key = f"{fen_parts[0]} {fen_parts[1]}"  # Board + active color
             
-            print(f"Looking for position: {position_key}")
+            self.message += f"\nLooking for position: {position_key}"
             
             if position_key in self.opening_book:
                 moves = self.opening_book[position_key]
-                print(f"Found {len(moves)} possible moves: {moves}")
+                self.message += f"\nFound {len(moves)} possible moves: {moves}"
                 # Use 0-based indexing for randint
+                self.available_moves_from_json = moves
                 move_notation = moves[randint(0, len(moves)-1)]
-                print(f"Selected move: {move_notation}")
+                self.message += f"\nSelected move: {move_notation}"
                 return engine.notation_to_cords(self.main_board, move_notation, self.color)
 
             return None
 
         except Exception as e:
-            print(f"Error checking opening book: {e}")
+            self.message += f"\nError checking opening book: {e}"
             return None
 
     def check_move_safety(self, board, move, color):
@@ -340,7 +342,7 @@ class Minimax:
         # Try opening book first
         book_move = self.check_opening_book()
         if book_move:
-            print(f"Using book move: {book_move}")
+            self.message += f"\nUsing book move: {book_move}"
             return book_move
 
         # Initialize move tracking
@@ -369,7 +371,7 @@ class Minimax:
                     y1, x1, y2, x2 = move
                     piece = self.main_board.board_state[y1][x1].figure
                     piece_name = piece_types.get(piece.type, piece.type)
-                    print(f"Depth {current_depth}: {piece_name} from {chr(97+x1)}{8-y1} to {chr(97+x2)}{8-y2} (score: {eval_score:.2f}, time: {time.time() - depth_start:.3f}s)")
+                    self.message += f"\nDepth {current_depth}: {piece_name} from {chr(97+x1)}{8-y1} to {chr(97+x2)}{8-y2} (score: {eval_score:.2f}, time: {time.time() - depth_start:.3f}s)"
                     
                     # Update best move with depth preference
                     if best_move is None:
@@ -382,26 +384,26 @@ class Minimax:
                             best_move = move
                             best_eval = eval_score
                         elif eval_score < prev_eval - 500:  # If much worse, keep previous
-                            print(f"Depth {current_depth} significantly worse, keeping previous move")
+                            self.message += f"\nDepth {current_depth} significantly worse, keeping previous move"
 
             # Compare and print all moves
-            print("\nMoves comparison:")
+            self.message += "\nMoves comparison:"
             selected_depth = None
             for depth, (move, score) in moves_by_depth.items():
                 y1, x1, y2, x2 = move
                 piece = self.main_board.board_state[y1][x1].figure
                 piece_name = piece_types.get(piece.type, piece.type)
                 mark = "★" if move == best_move else " "
-                print(f"{mark} Depth {depth}: {piece_name} {chr(97+x1)}{8-y1}-{chr(97+x2)}{8-y2} (score: {score:.2f})")
+                self.message += f"\n{mark} Depth {depth}: {piece_name} {chr(97+x1)}{8-y1}-{chr(97+x2)}{8-y2} (score: {score:.2f})"
                 if move == best_move:
                     selected_depth = depth
 
             if selected_depth:
-                print(f"\nSelected move from depth {selected_depth}")
+                self.message += f"\nSelected move from depth {selected_depth}"
 
-            print(f"Search completed in {time.time() - self.start_time:.3f}s")
-            return best_move
+            self.message += f"\nSearch completed in {time.time() - self.start_time:.3f}s"
+            return best_move, self.message, self.available_moves_from_json
 
         except Exception as e:
-            print(f"Error in get_best_move: {e}")
+            self.message += f"\nError in get_best_move: {e}"
             return None
