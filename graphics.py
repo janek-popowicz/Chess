@@ -499,8 +499,7 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
     # Opcje algorytmów
     options = [
         (global_translations.get("minimax"), pygame.Color("blue"), 'minimax'),
-        (global_translations.get("monte_carlo"), pygame.Color("green"), 'monte_carlo'),
-        (global_translations.get("neural_network"), pygame.Color("purple"), 'neural')
+        (global_translations.get("monte_carlo"), pygame.Color("green"), 'monte_carlo')
     ]
     
     # Dostosowanie wielkości i pozycji przycisków
@@ -1041,3 +1040,105 @@ def choose_time_control_dialog(screen, SQUARE_SIZE: int) -> int:
                     index = event.key - pygame.K_1
                     if index < len(time_options):
                         return time_options[index] * 60
+
+def show_error_dialog(screen, message: str, SQUARE_SIZE: int) -> None:
+    """
+    Displays a modal error dialog with an OK button.
+    
+    Args:
+        screen (pygame.Surface): Game screen surface
+        message (str): Error message to display
+        SQUARE_SIZE (int): Size of a board square for scaling
+    """
+    font = pygame.font.Font(None, 36)
+    
+    # Dialog box properties
+    DIALOG_WIDTH = min(screen.get_width() - 100, max(400, len(message) * 15))
+    DIALOG_HEIGHT = 200
+    dialog_rect = pygame.Rect(
+        (screen.get_width() - DIALOG_WIDTH) // 2,
+        (screen.get_height() - DIALOG_HEIGHT) // 2,
+        DIALOG_WIDTH,
+        DIALOG_HEIGHT
+    )
+    
+    # OK button properties
+    BUTTON_WIDTH = 100
+    BUTTON_HEIGHT = 40
+    button_rect = pygame.Rect(
+        (screen.get_width() - BUTTON_WIDTH) // 2,
+        dialog_rect.bottom - BUTTON_HEIGHT - 20,
+        BUTTON_WIDTH,
+        BUTTON_HEIGHT
+    )
+    
+    # Error icon (X symbol)
+    icon_size = 40
+    icon_surface = pygame.Surface((icon_size, icon_size), pygame.SRCALPHA)
+    icon_color = pygame.Color("red")
+    pygame.draw.circle(icon_surface, icon_color, (icon_size//2, icon_size//2), icon_size//2)
+    pygame.draw.line(icon_surface, pygame.Color("white"), 
+                    (12, 12), (icon_size-12, icon_size-12), 4)
+    pygame.draw.line(icon_surface, pygame.Color("white"), 
+                    (12, icon_size-12), (icon_size-12, 12), 4)
+    
+    # Sound effect
+    menu_cursor_sound = pygame.mixer.Sound("sounds/menu_cursor.mp3")
+    menu_cursor_sound.set_volume(0.5)
+    error_sound = pygame.mixer.Sound("sounds/error.mp3")
+    error_sound.play()
+    
+    last_hovered = False
+    
+    # Store the background
+    background = screen.copy()
+    
+    while True:
+        # Draw semi-transparent overlay
+        overlay = pygame.Surface((screen.get_width(), screen.get_height()))
+        overlay.fill((0, 0, 0))
+        overlay.set_alpha(128)
+        screen.blit(background, (0, 0))
+        screen.blit(overlay, (0, 0))
+        
+        # Draw dialog box
+        pygame.draw.rect(screen, pygame.Color("gray20"), dialog_rect)
+        pygame.draw.rect(screen, pygame.Color("red"), dialog_rect, 3)
+        
+        # Draw error icon
+        icon_pos = (dialog_rect.centerx - icon_size//2, dialog_rect.top + 20)
+        screen.blit(icon_surface, icon_pos)
+        
+        # Draw error message
+        text_surface = font.render(message, True, pygame.Color("white"))
+        text_rect = text_surface.get_rect(
+            center=(dialog_rect.centerx, dialog_rect.centery)
+        )
+        screen.blit(text_surface, text_rect)
+        
+        # Draw OK button
+        mouse_pos = pygame.mouse.get_pos()
+        button_hovered = button_rect.collidepoint(mouse_pos)
+        
+        if button_hovered and not last_hovered:
+            menu_cursor_sound.play()
+        
+        button_color = pygame.Color("gold") if button_hovered else pygame.Color("white")
+        pygame.draw.rect(screen, pygame.Color("gray40"), button_rect, border_radius=5)
+        pygame.draw.rect(screen, button_color, button_rect, 3, border_radius=5)
+        
+        ok_text = font.render("OK", True, button_color)
+        ok_rect = ok_text.get_rect(center=button_rect.center)
+        screen.blit(ok_text, ok_rect)
+        
+        last_hovered = button_hovered
+        
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if button_rect.collidepoint(event.pos):
+                    return
+            elif event.type == pygame.KEYDOWN:
+                if event.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_ESCAPE):
+                    return

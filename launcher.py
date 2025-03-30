@@ -71,6 +71,7 @@ def main():
     except:
         print(global_translations.get("menu_cursor_sound_warning"))
         menu_cursor_sound = None
+    nerd_view = config["nerd_view"]
 
     # Create language icon rect outside the main loop
     lang_icon_rect = pygame.Rect(screen.get_width() - 70, screen.get_height() - 70, 50, 50)
@@ -107,12 +108,28 @@ def main():
                     text_rect = text_white.get_rect(center=(630, 50 + i * 90))
                     if text_rect.collidepoint(mouse_pos):
                         selected_option = i
-                        if do_an_action(selected_option, screen) == False:
-                            running = False
+                        if not nerd_view:
+                            try:
+                                if do_an_action(selected_option, screen) == False:
+                                    running = False
+                                else:
+                                    # Restart the main function
+                                    pygame.quit()
+                                    return main()
+                            except:
+                                graphics.show_error_dialog(screen,
+            "Wystąpił pewnien błąd. Za utrudnienia przepraszamy. There's an error. Sorry for inconvenience.",
+            120
+            )
                         else:
-                            # Restart the main function
-                            pygame.quit()
-                            return main()
+                            if do_an_action(selected_option, screen) == False:
+                                running = False
+                            else:
+                                # Restart the main function
+                                pygame.quit()
+                                return main()
+                        
+
 
         # Sprawdzenie kolizji myszy z opcjami menu
         for i, (text_white, text_gray) in enumerate(menu_texts):

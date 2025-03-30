@@ -125,12 +125,12 @@ def main(player_turn, algorithm, game_time):
 
     # Teksty interfejsu
     texts = (
-        (font.render(f"Kolejka: białe", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
-        (font.render(f"Kolejka: czarne", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
-        (font.render(f"Wyjście", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
-        (font.render(f"Cofnij ruch", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Dodano przycisk "Cofnij ruch"
+        (font.render(f"{global_translations.get('turn_white')}", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"{global_translations.get('turn_black')}", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"{global_translations.get('exit')}", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
+        (font.render(f"{global_translations.get('confirm_undo_text')}", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # "Cofnij ruch"
     )
-    check_text = font.render("Szach!", True, pygame.Color("red"))
+    check_text = font.render(global_translations.get("check"), True, pygame.Color("red"))
 
 
 
@@ -259,12 +259,12 @@ def main(player_turn, algorithm, game_time):
                                         promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                         whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                     if whatAfter == "checkmate":
-                                        result = "Szach Mat!"
-                                        winner = "Białe" if turn == 'b' else "Czarne"
+                                        result = global_translations.get("checkmate")  # "Szach Mat!"
+                                        winner = global_translations.get("white") if turn == 'b' else global_translations.get("black")
                                         running = False
                                     elif whatAfter == "stalemate":
-                                        result = "Pat"
-                                        winner = "Remis"
+                                        result = global_translations.get("stalemate")  # "Pat"
+                                        winner = global_translations.get("draw")  # "Remis"
                                         running = False
                                     elif whatAfter == "check":
                                         in_check = turn
@@ -314,9 +314,9 @@ def main(player_turn, algorithm, game_time):
                         # Handle successful move
                         move_time = time.time() - start_time
                         if turn == 'w':
-                            white_time -= time.time() - start_time
+                            white_time -= move_time
                         else:
-                            black_time -= time.time() - start_time
+                            black_time -= move_time
                         turn = 'w' if turn == 'b' else 'b'
                         
                         # Handle promotion and game state
@@ -327,12 +327,12 @@ def main(player_turn, algorithm, game_time):
                         
                         # Update game state
                         if whatAfter == "checkmate":
-                            result = "Szach Mat!"
-                            winner = "Białe" if turn == 'b' else "Czarne"
+                            result = global_translations.get("checkmate")  # "Szach Mat!"
+                            winner = global_translations.get("white") if turn == 'b' else global_translations.get("black")
                             running = False
                         elif whatAfter == "stalemate":
-                            result = "Pat"
-                            winner = "Remis"
+                            result = global_translations.get("stalemate")  # "Pat"
+                            winner = global_translations.get("draw")  # "Remis"
                             running = False
                         elif whatAfter == "check":
                             in_check = turn
@@ -361,9 +361,9 @@ def main(player_turn, algorithm, game_time):
                         if tryMove(turn, main_board, from_row, from_col, to_row, to_col):
                             move_time = time.time() - start_time
                             if turn == 'w':
-                                white_time -= time.time() - start_time
+                                white_time -= move_time
                             else:
-                                black_time -= time.time() - start_time
+                                black_time -= move_time
                             turn = 'w' if turn == 'b' else 'b'
                             whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
                             if whatAfter == "promotion":
@@ -371,12 +371,12 @@ def main(player_turn, algorithm, game_time):
                                 promotion(yForPromotion, xForPromotion, main_board, promotion_choice)
                                 whatAfter, _, _ = afterMove(turn, main_board, from_row, from_col, to_row, to_col)
                             if whatAfter == "checkmate":
-                                result = "Szach Mat!"
-                                winner = "Białe" if turn == 'b' else "Czarne"
+                                result = global_translations.get("checkmate")  # "Szach Mat!"
+                                winner = global_translations.get("white") if turn == 'b' else global_translations.get("black")
                                 running = False
                             elif whatAfter == "stalemate":
-                                result = "Pat"
-                                winner = "Remis"
+                                result = global_translations.get("stalemate")  # "Pat"
+                                winner = global_translations.get("draw")  # "Remis"
                                 running = False
                             elif whatAfter == "check":
                                 in_check = turn
@@ -395,17 +395,17 @@ def main(player_turn, algorithm, game_time):
         # Aktualizacja czasu gracza na żywo
         current_time = time.time()
         if turn == 'w':
-            current_white_time = max(0, 10 * 60 - (current_time - start_time + white_time))  # Odliczanie od 10 minut
-            current_black_time = max(0, 10 * 60 - black_time)  # Zachowaj czas czarnego
+            current_white_time = max(0, white_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_black_time = black_time  # Zachowaj czas czarnego
         else:
-            current_black_time = max(0, 10 * 60 - (current_time - start_time + black_time))  # Odliczanie od 10 minut
-            current_white_time = max(0, 10 * 60 - white_time)  # Zachowaj czas białego
+            current_black_time = max(0, black_time - (current_time - start_time))  # Odliczanie od ustawionego czasu
+            current_white_time = white_time  # Zachowaj czas białego
 
         # Sprawdzenie, czy czas się skończył
         if current_white_time <= 0 or current_black_time <= 0:
             running = False
-            result = "Czas się skończył!"
-            winner = "Czarny" if current_white_time <= 0 else "Biały"
+            result = global_translations.get("time_out")  # "Czas się skończył!"
+            winner = global_translations.get("black") if current_white_time <= 0 else global_translations.get("white")
             running = False
         # Przed renderowaniem
         current_time = time.time()
@@ -430,7 +430,7 @@ def main(player_turn, algorithm, game_time):
         draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
         
         if calculating:
-            calculating_text = font.render("Obliczanie...", True, WHITE)
+            calculating_text = font.render(global_translations.get("calculating"), True, WHITE)
             screen.blit(calculating_text, (8 * SQUARE_SIZE + 10, height - 200))
             dots = "." * ((int(time.time() * 2) % 4))
             calculating_dots = font.render(dots, True, WHITE)

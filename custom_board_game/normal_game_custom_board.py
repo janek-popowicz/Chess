@@ -33,7 +33,7 @@ def main(game_time):
     print(width, height, SQUARE_SIZE)
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Chess Game")
+    pygame.display.set_caption(global_translations.get("chess_game_launcher"))
     icon_logo = pygame.image.load('program_logo.png')
     pygame.display.set_icon(icon_logo)
 
@@ -67,12 +67,12 @@ def main(game_time):
 
     # Teksty interfejsu
     texts = (
-        (font.render(f"Kolejka: białe", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
-        (font.render(f"Kolejka: czarne", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
-        (font.render(f"Wyjście", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
-        (font.render(f"Cofnij ruch", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # Dodano przycisk "Cofnij ruch"
+        (font.render(f"{global_translations.get('turn')}: {global_translations.get('white')}", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(f"{global_translations.get('turn')}: {global_translations.get('black')}", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
+        (font.render(global_translations.get("exit_to_menu"), True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
+        (font.render(global_translations.get("confirm_undo_text"), True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),
     )
-    check_text = font.render("Szach!", True, pygame.Color("red"))
+    check_text = font.render(global_translations.get("check"), True, pygame.Color("red"))
 
     # Czasy graczy
     white_time = game_time
@@ -129,12 +129,12 @@ def main(game_time):
                                     promotion(yForPromotion, xForPromotion, main_board, choiceOfPromotion)
                                     whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                                 if whatAfter == "checkmate":
-                                    result = "Szach Mat!"
-                                    winner = "Białe" if turn == 'b' else "Czarne"
+                                    result = global_translations.get("checkmate")
+                                    winner = global_translations.get("white") if turn == 'b' else global_translations.get("black")
                                     running = False
                                 elif whatAfter == "stalemate":
-                                    result = "Pat"
-                                    winner = "Remis"
+                                    result = global_translations.get("stalemate")
+                                    winner = global_translations.get("draw")
                                     running = False
                                 elif whatAfter == "check":
                                     in_check = turn
@@ -181,15 +181,17 @@ def main(game_time):
         # Sprawdzenie, czy czas się skończył
         if current_white_time <= 0 or current_black_time <= 0:
             running = False
-            result = "Czas się skończył!"
-            winner = "Czarny" if current_white_time <= 0 else "Biały"
+            result = global_translations.get("time_out")
+            winner = global_translations.get("black") if current_white_time <= 0 else global_translations.get("white")
             running = False
 
 
-        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
-                              (8 * SQUARE_SIZE + 10, height - 150)),
-                             (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), 
-                              (8 * SQUARE_SIZE + 10, 80)))
+        player_times_font = (
+            (font.render(f"{global_translations.get('white_time_label')}: {format_time(current_white_time)}", True, YELLOW if turn == 'w' else GRAY), 
+             (8 * SQUARE_SIZE + 10, height - 150)),
+            (font.render(f"{global_translations.get('black_time_label')}: {format_time(current_black_time)}", True, YELLOW if turn == 'b' else GRAY), 
+             (8 * SQUARE_SIZE + 10, 80))
+        )
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
         draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
