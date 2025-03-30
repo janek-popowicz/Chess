@@ -470,9 +470,9 @@ def main(game_time) -> None:
             winner = "Czarny" if current_white_time <= 0 else "Biały"
             break
 
-        player_times_font = ((font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
+        player_times_font = ((font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), 
                               (8 * SQUARE_SIZE + 10, height - 150)),
-                             (font.render(format_time(current_black_time), True, YELLOW if turn == 'b' else GRAY), 
+                             (font.render(format_time(current_white_time), True, YELLOW if turn == 'w' else GRAY), 
                               (8 * SQUARE_SIZE + 10, 80)))
         screen.fill(BLACK)
         draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed)
