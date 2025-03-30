@@ -13,8 +13,16 @@ from algorithms.evaluation import get_evaluation  # Import evaluation function
 from nerd_view import *
 
 
-def start_server():
-    """Tworzy serwer, akceptuje jedno połączenie i kończy działanie wątku."""
+def start_server() -> None:
+    """
+    Inicjalizuje i uruchamia serwer, umożliwiając akceptację jednego połączenia klienta.
+
+    Funkcja tworzy gniazdo, wiąże je z określonym hostem i portem oraz nasłuchuje na przychodzące połączenia.
+    Po połączeniu klienta akceptuje je i zapisuje globalnie adres IP klienta.
+
+    Wyjątki:
+        socket.error: W przypadku problemów z tworzeniem, wiązaniem lub nasłuchiwaniem gniazda.
+    """
     global server, conn, addr, client_connected, client_ip
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
@@ -26,37 +34,70 @@ def start_server():
     print(f"🟢 Połączono z {client_ip}")
     client_connected = True  # Informujemy główną pętlę, że można rozpocząć grę
 
-def disconnect():
+def disconnect() -> None:
+    """
+    Rozłącza serwer i klienta w sposób kontrolowany.
+
+    Wysyła wiadomość "exit" do klienta, zamyka połączenie i wyłącza gniazdo serwera.
+    Aktualizuje globalną flagę `client_connected`, aby wskazać rozłączenie.
+
+    Wyjątki:
+        socket.error: W przypadku problemów z wysyłaniem lub zamykaniem gniazda.
+    """
     global server, conn, addr, client_connected
     conn.sendall("exit".encode('utf-8'))
     conn.close()
     server.close()
     client_connected = False
-def force_quit():
+
+def force_quit() -> None:
+    """
+    Wymusza zamknięcie serwera bez powiadamiania klienta.
+
+    Zamyka gniazda serwera i klienta, ignorując wszelkie błędy, które mogą wystąpić podczas procesu.
+    Funkcja używana w sytuacjach awaryjnych.
+    """
     global server, conn
     try:
         conn.close()
         server.close()
     except:
         None
-    """Wyłącza sockety, bez powiadamiania klienta
-    """
 
-def get_server_ip():
+def get_server_ip() -> str:
     """
     Pobiera adres IP serwera.
 
-    Returns:
+    Używa nazwy hosta systemu do określenia adresu IP serwera.
+
+    Zwraca:
         str: Adres IP serwera.
+
+    Wyjątki:
+        socket.error: W przypadku problemów z pobieraniem nazwy hosta lub adresu IP.
     """
     hostname = socket.gethostname()
     server_ip = socket.gethostbyname(hostname)
     return server_ip
 
 
-def waiting_screen(screen, font, server_ip):
+def waiting_screen(screen: pygame.Surface, font: pygame.font.Font, server_ip: str) -> bool:
     """
-    Elegancki ekran oczekiwania na klienta z animacją i kodem IP.
+    Wyświetla ekran oczekiwania z animacją i adresem IP serwera.
+
+    Ekran zawiera przycisk anulowania, który pozwala użytkownikowi zakończyć proces oczekiwania.
+    Funkcja działa do momentu połączenia klienta lub anulowania przez użytkownika.
+
+    Argumenty:
+        screen (pygame.Surface): Powierzchnia Pygame, na której rysowany jest ekran oczekiwania.
+        font (pygame.font.Font): Czcionka używana do renderowania tekstu na ekranie.
+        server_ip (str): Adres IP serwera do wyświetlenia.
+
+    Zwraca:
+        bool: True, jeśli klient się połączył, False, jeśli użytkownik anulował.
+
+    Wyjątki:
+        pygame.error: W przypadku problemów z renderowaniem lub obsługą zdarzeń.
     """
     global start_time
     
@@ -135,8 +176,17 @@ def waiting_screen(screen, font, server_ip):
     start_time = time.time()
     return True
 
-# Funkcja główna
-def main():
+def main() -> None:
+    """
+    Główna funkcja inicjalizująca serwer i uruchamiająca grę w szachy.
+
+    Funkcja konfiguruje serwer, inicjalizuje środowisko Pygame i obsługuje główną pętlę gry.
+    Zarządza również interfejsem graficznym, interakcjami graczy i komunikacją między serwerem a klientem.
+
+    Wyjątki:
+        pygame.error: W przypadku problemów z inicjalizacją lub renderowaniem Pygame.
+        socket.error: W przypadku problemów z komunikacją serwer-klient.
+    """
     global conn
     global HOST, PORT, server, conn, addr, client_connected, start_time
     HOST = '0.0.0.0'
@@ -217,15 +267,15 @@ def main():
     # Po podłączeniu klienta ustawiamy timeout
     conn.settimeout(0.05)
 
-    def request_undo(screen, SQUARE_SIZE):
+    def request_undo(screen: pygame.Surface, SQUARE_SIZE: int) -> bool:
         """
-        Wyświetla okno dialogowe z pytaniem, czy gracz chce cofnąć ruch.
+        Wyświetla okno dialogowe pytające gracza, czy chce cofnąć swój ruch.
 
-        Args:
+        Argumenty:
             screen (pygame.Surface): Powierzchnia ekranu gry.
             SQUARE_SIZE (int): Rozmiar pojedynczego pola na szachownicy.
 
-        Returns:
+        Zwraca:
             bool: True, jeśli gracz chce cofnąć ruch, False w przeciwnym razie.
         """
         return confirm_undo_dialog(screen, SQUARE_SIZE)
@@ -443,6 +493,6 @@ def main():
         root_network.destroy()
     except: pass
     return
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     main()
