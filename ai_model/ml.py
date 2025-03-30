@@ -41,7 +41,7 @@ class Field:
         self.x = None  # Add required attributes
         self.y = None
 
-class ChessQLearningAI:
+class ChessQLearningAI: 
     def __init__(self, board, learning_rate=0.001, color='w'):
         self.board = board
         self.color = color
@@ -573,31 +573,45 @@ class ChessQLearningAI:
         
         return score
 
-    def get_best_move(self):
-        """Get best move for current position"""
+    def get_best_move(self, board, time_limit=10):
+        """
+        Get best move for given board position with time limit
+        
+        Args:
+            board: Current board state
+            time_limit: Maximum time in seconds (default 10)
+        
+        Returns:
+            tuple: Best move as (from_row, from_col, to_row, to_col) or None if no move found
+        """
         try:
-            moves = self._get_safe_moves(self.board, self.color)
+            start_time = time.time()
+            moves = self._get_safe_moves(board, self.color)
             if not moves:
                 return None
                 
-            # Choose best move based on Q-learning
             best_move = None
             best_value = float('-inf')
             
             for piece, piece_moves in moves.items():
+                # Check time limit
+                if time.time() - start_time > time_limit:
+                    break
+                    
                 for move in piece_moves:
-                    # Try move
-                    temp_board = copy.deepcopy(self.board)
+                    # Try move on temporary board
+                    temp_board = copy.deepcopy(board)
                     if temp_board.make_move(piece[0], piece[1], move[0], move[1]):
                         state = self.encode_position(temp_board)
-                        value = self.model(state).item()
-                        
+                        with torch.no_grad():  # Disable gradient calculation for prediction
+                            value = self.model(state).item()
+                            
                         if value > best_value:
                             best_value = value
                             best_move = (piece[0], piece[1], move[0], move[1])
             
             return best_move
-            
+                
         except Exception as e:
             print(f"Error getting best move: {e}")
             return None
@@ -625,7 +639,7 @@ class ChessQLearningAI:
                         return 0.0 if board.is_in_check(self.color) else 0.5
                         
                     # Make AI move
-                    move = self.get_best_move()
+                    move = self.get_best_move(board)
                     if not move:
                         return 0.0
                         
