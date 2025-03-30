@@ -8,9 +8,9 @@ import json
 from random import randint
 
 class Minimax:
-    def __init__(self, main_board, depth, color, time_limit=10):
+    def __init__(self, main_board, depth, color, time_limit=50):
         self.main_board = copy.deepcopy(main_board)
-        self.depth = depth = 2
+        self.depth = depth = 3
         self.alpha = -100000
         self.beta = 100000
         self.color = color
@@ -48,7 +48,7 @@ class Minimax:
         """Evaluate potential checkmate patterns"""
         y1, x1, y2, x2 = move
         piece = board.board_state[y1][x1].figure
-        if not piece:  # Add early return if no piece
+        if not piece:
             return 0
             
         opponent_color = 'b' if color == 'w' else 'w'
@@ -68,7 +68,7 @@ class Minimax:
         ky, kx = opponent_king_pos
         
         # Pattern 1: Back rank mate potential
-        if piece.type in ['r', 'q']:  # Changed to lowercase
+        if piece.type in ['r', 'q']:
             if ky in [0, 7] and abs(y2 - ky) == 0:
                 if all(board.board_state[ky][x].figure and 
                        board.board_state[ky][x].figure.color == opponent_color 
@@ -77,24 +77,74 @@ class Minimax:
 
         # Pattern 2: Corner trap
         if kx in [0, 7] and ky in [0, 7]:
-            if piece.type in ['q', 'r']:  # Changed to lowercase
+            if piece.type in ['q', 'r']:
                 dist_to_king = abs(y2 - ky) + abs(x2 - kx)
                 if dist_to_king <= 2:
                     bonus += 300
 
         # Pattern 3: Queen + Knight mate pattern
-        if piece.type == 'q':  # Changed to lowercase
+        if piece.type == 'q':
             knights = []
             for y in range(8):
                 for x in range(8):
                     fig = board.board_state[y][x].figure
-                    if fig and fig.type == 'n' and fig.color == color:  # Changed to lowercase
+                    if fig and fig.type == 'n' and fig.color == color:
                         knights.append((y, x))
             if knights:
                 dist_to_king = abs(y2 - ky) + abs(x2 - kx)
                 if dist_to_king <= 2:
                     bonus += 400
 
+        # Pattern 4: Single Rook mate pattern
+        if piece.type == 'r':
+            # Check if king is restricted to edge
+            if ky in [0, 7] or kx in [0, 7]:
+                # Check if rook is cutting off king's escape
+                if (y2 == ky and abs(x2 - kx) > 1) or (x2 == kx and abs(y2 - ky) > 1):
+                    # Verify king has limited escape squares
+                    escape_squares = 0
+                    for dy in [-1, 0, 1]:
+                        for dx in [-1, 0, 1]:
+                            new_y, new_x = ky + dy, kx + dx
+                            if 0 <= new_y < 8 and 0 <= new_x < 8:
+                                target = board.board_state[new_y][new_x].figure
+                                if not target or (target.color != opponent_color):
+                                    escape_squares += 1
+                    if escape_squares <= 3:
+                        bonus += 600
+
+        # Pattern 5: Bishop + Knight mate pattern
+        if piece.type in ['b', 'n']:
+            bishops = []
+            knights = []
+            # Find all bishops and knights of same color
+            for y in range(8):
+                for x in range(8):
+                    fig = board.board_state[y][x].figure
+                    if fig and fig.color == color:
+                        if fig.type == 'b':
+                            bishops.append((y, x))
+                        elif fig.type == 'n':
+                            knights.append((y, x))
+            
+            # If we have both bishop and knight
+            if bishops and knights:
+                # Check if king is near corner
+                corner_distance = min(
+                    abs(ky - 0) + abs(kx - 0),
+                    abs(ky - 0) + abs(kx - 7),
+                    abs(ky - 7) + abs(kx - 0),
+                    abs(ky - 7) + abs(kx - 7)
+                )
+                if corner_distance <= 2:
+                    # Check if pieces are in good positions
+                    for by, bx in bishops:
+                        for ny, nx in knights:
+                            bishop_dist = abs(by - ky) + abs(bx - kx)
+                            knight_dist = abs(ny - ky) + abs(nx - kx)
+                            if bishop_dist <= 3 and knight_dist <= 2:
+                                bonus += 700
+                                
         return bonus
 
     def get_evaluation_score(self, board, is_maximizing):
@@ -215,38 +265,79 @@ class Minimax:
             print(f"Error checking opening book: {e}")
             return None
 
+    def check_move_safety(self, board, move, color):
+        """Placeholder for move safety evaluation."""
+        # Implement logic to evaluate move safety or return a default value
+        return 0
+
     def get_best_move(self):
         self.start_time = time.time()
         
         # Try opening book first
         book_move = self.check_opening_book()
         if book_move:
-            print(f"Using book move (time: {time.time() - self.start_time:.3f}s)")
+            print(f"Using book move: {book_move}")
             return book_move
 
-        # Iterative deepening
+        # Initialize move tracking
+        moves_by_depth = {}
         best_move = None
-        for current_depth in range(1, self.depth + 1):
-            if self.is_time_exceeded():
-                break
+        best_eval = -float('inf')
+        
+        piece_types = {
+            'p': 'Pawn', 'r': 'Rook', 'n': 'Knight',
+            'b': 'Bishop', 'q': 'Queen', 'k': 'King'
+        }
+
+        try:
+            # Iterative deepening
+            for current_depth in range(1, self.depth + 1):
+                if self.is_time_exceeded():
+                    break
+                    
+                depth_start = time.time()
+                eval_score, move = self.minimax(self.main_board, current_depth, -float('inf'), float('inf'), True)
                 
-            depth_start = time.time()
-            _, move = self.minimax(self.main_board, current_depth, -float('inf'), float('inf'), True)
-            
-            if move and not self.is_time_exceeded():
-                best_move = move
-                print(f"Depth {current_depth} completed in {time.time() - depth_start:.3f}s")
-            else:
-                break
+                if move and not self.is_time_exceeded():
+                    moves_by_depth[current_depth] = (move, eval_score)
+                    
+                    # Print current depth move
+                    y1, x1, y2, x2 = move
+                    piece = self.main_board.board_state[y1][x1].figure
+                    piece_name = piece_types.get(piece.type, piece.type)
+                    print(f"Depth {current_depth}: {piece_name} from {chr(97+x1)}{8-y1} to {chr(97+x2)}{8-y2} (score: {eval_score:.2f}, time: {time.time() - depth_start:.3f}s)")
+                    
+                    # Update best move with depth preference
+                    if best_move is None:
+                        best_move = move
+                        best_eval = eval_score
+                    else:
+                        # Prefer deeper searches unless they're significantly worse
+                        prev_eval = moves_by_depth[current_depth-1][1]
+                        if eval_score >= prev_eval - 200:  # Allow some tolerance
+                            best_move = move
+                            best_eval = eval_score
+                        elif eval_score < prev_eval - 500:  # If much worse, keep previous
+                            print(f"Depth {current_depth} significantly worse, keeping previous move")
 
-        # Use random move if no move found
-        if not best_move:
-            legal_moves = self.main_board.get_all_moves(self.color)
-            if legal_moves:
-                figure = random.choice(list(legal_moves.keys()))
-                move_coords = random.choice(legal_moves[figure])
-                best_move = (*figure, *move_coords)
-                print("Using random move (emergency)")
+            # Compare and print all moves
+            print("\nMoves comparison:")
+            selected_depth = None
+            for depth, (move, score) in moves_by_depth.items():
+                y1, x1, y2, x2 = move
+                piece = self.main_board.board_state[y1][x1].figure
+                piece_name = piece_types.get(piece.type, piece.type)
+                mark = "★" if move == best_move else " "
+                print(f"{mark} Depth {depth}: {piece_name} {chr(97+x1)}{8-y1}-{chr(97+x2)}{8-y2} (score: {score:.2f})")
+                if move == best_move:
+                    selected_depth = depth
 
-        print(f"Search finished in {time.time() - self.start_time:.3f}s")
-        return best_move
+            if selected_depth:
+                print(f"\nSelected move from depth {selected_depth}")
+
+            print(f"Search completed in {time.time() - self.start_time:.3f}s")
+            return best_move
+
+        except Exception as e:
+            print(f"Error in get_best_move: {e}")
+            return None
