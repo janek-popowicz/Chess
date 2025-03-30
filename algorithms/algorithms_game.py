@@ -411,7 +411,7 @@ def main(player_turn, algorithm):
             pass
 
         draw_pieces(screen, main_board, SQUARE_SIZE, pieces, is_reversed)
-        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text, evaluation=evaluation)
+        draw_interface(screen, turn, SQUARE_SIZE, BLACK, texts, player_times_font, in_check, check_text)
         
         if calculating:
             calculating_text = font.render("Obliczanie...", True, WHITE)

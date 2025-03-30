@@ -12,6 +12,7 @@ import tkinter as tk
 from tkinter import filedialog
 from pathlib import Path
 import subprocess
+from language import global_translations  # Add this import
 CONFIG_FILE = "config.json"
 
 def load_config():
@@ -232,15 +233,15 @@ def promotion_dialog(screen, SQUARE_SIZE: int, color: str) -> str:
     button_font = pygame.font.Font(None, 36)
 
     # Tekst pytania
-    dialog_text = "Wybierz figurę do promocji:"
+    dialog_text = global_translations.get("promotion_dialog_text")
     dialog = font.render(dialog_text, True, pygame.Color("white"))
 
     # Opcje figur
     options = [
-        ("1. Skoczek", pygame.Color("blue")),
-        ("2. Goniec", pygame.Color("green")),
-        ("3. Wieża", pygame.Color("purple")),
-        ("4. Królowa", pygame.Color("gold"))
+        ("1. " + global_translations.get("knight"), pygame.Color("blue")),
+        ("2. " + global_translations.get("bishop"), pygame.Color("green")),
+        ("3. " + global_translations.get("rook"), pygame.Color("purple")),
+        ("4. " + global_translations.get("queen"), pygame.Color("gold"))
     ]
     button_width = SQUARE_SIZE * 2
     button_height = SQUARE_SIZE * 2
@@ -322,12 +323,12 @@ def end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, widt
     font = pygame.font.Font(None, 36)
     pygame.draw.rect(screen, BLACK, pygame.Rect(SQUARE_SIZE*8, 0, 200, SQUARE_SIZE*8))
     result_text = font.render(result, True, WHITE)
-    winner_text = font.render(f"Zwycięzca: {winner}", True, WHITE)
-    white_time_label = font.render("Czas białego gracza:", True, WHITE)
+    winner_text = font.render(f"{global_translations.get('winner')}: {winner}", True, WHITE)
+    white_time_label = font.render(global_translations.get("white_time_label"), True, WHITE)
     white_time_value = font.render(format_time(white_time), True, WHITE)
-    black_time_label = font.render("Czas czarnego gracza:", True, WHITE)
+    black_time_label = font.render(global_translations.get("black_time_label"), True, WHITE)
     black_time_value = font.render(format_time(black_time), True, WHITE)
-    exit_text = font.render("Wyjście do menu", True, pygame.Color("yellow"))
+    exit_text = font.render(global_translations.get("exit_to_menu"), True, pygame.Color("yellow"))
     screen.blit(result_text, (SQUARE_SIZE*8+10, SQUARE_SIZE*2))
     screen.blit(winner_text, (SQUARE_SIZE*8+10, SQUARE_SIZE*3))
     screen.blit(white_time_label, (SQUARE_SIZE*8+10, SQUARE_SIZE*4))
@@ -362,11 +363,11 @@ def confirm_undo_dialog(screen, SQUARE_SIZE: int) -> bool:
     font = pygame.font.Font(None, 36)
 
     # Tekst pytania
-    dialog_text = "Czy zgadzasz się na cofnięcie ruchu?"
+    dialog_text = global_translations.get("confirm_undo_text")
     dialog = font.render(dialog_text, True, pygame.Color("white"))
 
     # Opcje
-    options = ["Tak", "Nie"]
+    options = [global_translations.get("yes"), global_translations.get("no")]
     option_rects = []
     for i, option in enumerate(options):
         text = font.render(option, True, pygame.Color("white"))
@@ -424,14 +425,14 @@ def choose_color_dialog(screen, SQUARE_SIZE: int) -> str:
     button_font = pygame.font.Font(None, 36)
 
     # Tekst pytania
-    dialog_text = "Wybierz kolor gry:"
+    dialog_text = global_translations.get("choose_color_text")
     dialog = font.render(dialog_text, True, pygame.Color("white"))
 
     # Opcje kolorów
     options = [
-        ("Biały", pygame.Color("white"), 'w'),
-        ("Czarny", pygame.Color("black"), 'b'),
-        ("Anuluj", pygame.Color("red"), None)  # Add "Cancel" option
+        (global_translations.get("white"), pygame.Color("white"), 'w'),
+        (global_translations.get("black"), pygame.Color("black"), 'b'),
+        (global_translations.get("cancel"), pygame.Color("red"), None)  # Add "Cancel" option
     ]
     button_width = SQUARE_SIZE * 2
     button_height = SQUARE_SIZE * 2
@@ -507,14 +508,14 @@ def choose_algorithm_dialog(screen, SQUARE_SIZE: int) -> str:
     button_font = pygame.font.Font(None, 36)
 
     # Tekst pytania
-    dialog_text = "Wybierz algorytm gry:"
+    dialog_text = global_translations.get("choose_algorithm_text")
     dialog = font.render(dialog_text, True, pygame.Color("white"))
 
     # Opcje algorytmów
     options = [
-        ("Minimax", pygame.Color("blue"), 'minimax'),
-        ("Monte Carlo", pygame.Color("green"), 'monte_carlo'),
-        ("Sieć neuronowa", pygame.Color("purple"), 'neural')
+        (global_translations.get("minimax"), pygame.Color("blue"), 'minimax'),
+        (global_translations.get("monte_carlo"), pygame.Color("green"), 'monte_carlo'),
+        (global_translations.get("neural_network"), pygame.Color("purple"), 'neural')
     ]
     
     # Dostosowanie wielkości i pozycji przycisków
@@ -631,7 +632,7 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
         screen.fill(pygame.Color("gray20"))
         
         # Tytuł
-        title_text = font.render("Wybierz Arcymistrza", True, pygame.Color("gold"))
+        title_text = font.render(global_translations.get("choose_grandmaster_title"), True, pygame.Color("gold"))
         title_rect = title_text.get_rect(center=(1260 // 2, 80))
         screen.blit(title_text, title_rect)
         
@@ -663,7 +664,7 @@ def choose_grandmaster_dialog(screen, SQUARE_SIZE: int) -> str:
         else:
             color = pygame.Color("white")
         pygame.draw.rect(screen, color, button_rect, 3)
-        button_text = font.render("Wybierz własny plik", True, color)
+        button_text = font.render(global_translations.get("choose_custom_file"), True, color)
         button_text_rect = button_text.get_rect(center=button_rect.center)
         screen.blit(button_text, button_text_rect)
         
@@ -708,7 +709,10 @@ def choose_custom_board_mode(screen, SQUARE_SIZE: int) -> str:
     clock = pygame.time.Clock()
     
     # Opcje
-    options = ["Graj z własną planszą", "Kreator planszy"]
+    options = [
+        global_translations.get("play_custom_board"),
+        global_translations.get("create_custom_board")
+    ]
     selected = None
     
     # Przyciski
@@ -730,7 +734,7 @@ def choose_custom_board_mode(screen, SQUARE_SIZE: int) -> str:
         screen.fill(pygame.Color("gray20"))
         
         # Tytuł
-        title = font.render("Wybierz tryb", True, pygame.Color("gold"))
+        title = font.render(global_translations.get("choose_custom_board_mode_title"), True, pygame.Color("gold"))
         title_rect = title.get_rect(center=(1260 // 2, 150))
         screen.blit(title, title_rect)
         
@@ -953,3 +957,102 @@ def choose_ai_settings_dialog(screen, SQUARE_SIZE: int, min_depth=1, max_depth=5
                 
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 return None
+
+def choose_time_control_dialog(screen, SQUARE_SIZE: int) -> int:
+    """
+    Displays a dialog for selecting game time control.
+    
+    Args:
+        screen (pygame.Surface): Game screen surface
+        SQUARE_SIZE (int): Size of a board square
+        
+    Returns:
+        int: Selected time in minutes or None if canceled
+    """
+    font = pygame.font.Font(None, 48)
+    button_font = pygame.font.Font(None, 36)
+
+    # Time options in minutes
+    time_options = [1, 2, 3, 5, 10, 30, 60]
+    
+    # Button properties
+    BUTTON_WIDTH = SQUARE_SIZE * 2
+    BUTTON_HEIGHT = SQUARE_SIZE
+    BUTTONS_PER_ROW = 4
+    SPACING_X = SQUARE_SIZE // 2
+    SPACING_Y = SQUARE_SIZE // 2
+
+    # Calculate layout
+    total_width = min(BUTTONS_PER_ROW, len(time_options)) * (BUTTON_WIDTH + SPACING_X) - SPACING_X
+    total_rows = (len(time_options) + BUTTONS_PER_ROW - 1) // BUTTONS_PER_ROW
+    start_x = (screen.get_width() - total_width) // 2
+    start_y = (screen.get_height() - (total_rows * (BUTTON_HEIGHT + SPACING_Y) - SPACING_Y)) // 2
+
+    # Create buttons
+    buttons = []
+    for i, minutes in enumerate(time_options):
+        row = i // BUTTONS_PER_ROW
+        col = i % BUTTONS_PER_ROW
+        x = start_x + col * (BUTTON_WIDTH + SPACING_X)
+        y = start_y + row * (BUTTON_HEIGHT + SPACING_Y)
+        buttons.append((
+            pygame.Rect(x, y, BUTTON_WIDTH, BUTTON_HEIGHT),
+            minutes
+        ))
+
+    # Sound effect
+    menu_cursor_sound = pygame.mixer.Sound(global_translations.get("menu_cursor_sound_path"))
+    menu_cursor_sound.set_volume(0.5)
+    last_hovered = None
+
+    while True:
+        screen.fill(pygame.Color("gray20"))
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Draw title
+        title = font.render(global_translations.get("choose_time_control_title"), True, pygame.Color("gold"))
+        title_rect = title.get_rect(center=(screen.get_width()//2, start_y - 80))
+        screen.blit(title, title_rect)
+
+        # Draw time buttons
+        for button, minutes in buttons:
+            # Handle hover effect
+            if button.collidepoint(mouse_pos):
+                if last_hovered != button:
+                    menu_cursor_sound.play()
+                    last_hovered = button
+                pygame.draw.rect(screen, pygame.Color("gold"), button.inflate(10, 10), border_radius=15)
+            
+            # Draw button background
+            pygame.draw.rect(screen, pygame.Color("gray40"), button, border_radius=15)
+            pygame.draw.rect(screen, pygame.Color("gold"), button, 3, border_radius=15)
+            
+            # Draw time text
+            if minutes >= 60:
+                text = f"{minutes//60}{global_translations.get('hours_suffix')}"
+            else:
+                text = f"{minutes}{global_translations.get('minutes_suffix')}"
+            
+            time_text = button_font.render(text, True, pygame.Color("white"))
+            text_rect = time_text.get_rect(center=button.center)
+            screen.blit(time_text, text_rect)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return None
+                
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                for button, minutes in buttons:
+                    if button.collidepoint(event.pos):
+                        return float(minutes * 60)  # Return time in seconds
+                        
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return None
+                # Number keys 1-7 for quick selection
+                elif event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7]:
+                    index = event.key - pygame.K_1
+                    if index < len(time_options):
+                        return time_options[index] * 60
