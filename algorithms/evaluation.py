@@ -6,14 +6,28 @@ import copy
 domyśly_color = "white"
 
 def get_color(color):
+    """
+    Returns the given color.
+
+    Args:
+        color (str): The color to return.
+
+    Returns:
+        str: The same color passed as input.
+    """
     return color 
 
 player_color = get_color(domyśly_color)
 
 def rotate_pst(white_pst):
     """
-    Obraca planszę (listę list) o 180 stopni,
-    co umożliwia wygenerowanie tablicy PST dla czarnych.
+    Rotates a Position-Specific Table (PST) for white pieces to generate the PST for black pieces.
+
+    Args:
+        white_pst (list): A 2D list representing the PST for white pieces.
+
+    Returns:
+        list: A 2D list representing the PST for black pieces.
     """
     return white_pst[::-1]
 
@@ -105,8 +119,13 @@ PIECE_VALUES = {
 
 def ocena_materiału(board):
     """
-    Oblicza wartość materiału na planszy.
-    Zwraca listę: [waga_białych, waga_czarnych].
+    Calculates the material value on the board.
+
+    Args:
+        board (object): The chess board object.
+
+    Returns:
+        list: A list containing the material value for white and black [white_value, black_value].
     """
     waga_białych = 0
     waga_czarnych = 0
@@ -130,8 +149,13 @@ def ocena_materiału(board):
 
 def bonus_squares(board):
     """
-    Oblicza bonus pozycyjny według tablic PST.
-    Zwraca listę: [bonus_białych, bonus_czarnych].
+    Calculates the positional bonus based on Position-Specific Tables (PST).
+
+    Args:
+        board (object): The chess board object.
+
+    Returns:
+        list: A list containing the positional bonus for white and black [white_bonus, black_bonus].
     """
     bonus_białych = 0
     bonus_czarnych = 0
@@ -173,8 +197,13 @@ def bonus_squares(board):
 
 def count_pieces(board):
     """
-    Zlicza wszystkie figury na planszy.
-    Zwraca sumaryczną liczbę figur.
+    Counts all the pieces on the board.
+
+    Args:
+        board (object): The chess board object.
+
+    Returns:
+        int: The total number of pieces on the board.
     """
     count = 0
     for i in range(8):
@@ -186,10 +215,13 @@ def count_pieces(board):
 
 def king_to_edge(board):
     """
-    Oblicza sumaryczną odległość królów od krawędzi planszy.
-    Dla białych zwraca dystans króla czarnego od krawędzi,
-    a dla czarnych dystans króla białego.
-    Zwraca listę: [ocena_białych, ocena_czarnych].
+    Calculates the distance of kings from the edges of the board.
+
+    Args:
+        board (object): The chess board object.
+
+    Returns:
+        list: A list containing the evaluation for white and black [white_eval, black_eval].
     """
     evaluation_white = 0
     evaluation_black = 0
@@ -221,8 +253,13 @@ def king_to_edge(board):
 
 def rook_on_open_file(board):
     """
-    Przyznaje bonus za wieże na otwartych i półotwartych liniach.
-    Zwraca listę: [bonus_białych, bonus_czarnych].
+    Awards bonuses for rooks on open and semi-open files.
+
+    Args:
+        board (object): The chess board object.
+
+    Returns:
+        list: A list containing the bonus for white and black [white_bonus, black_bonus].
     """
     bonus_białych = 0
     bonus_czarnych = 0
@@ -262,8 +299,13 @@ def rook_on_open_file(board):
 
 def bishop_pair_bonus(board):
     """
-    Przyznaje bonus za posiadanie pary gońców.
-    Zwraca listę: [bonus_białych, bonus_czarnych].
+    Awards a bonus for having a pair of bishops.
+
+    Args:
+        board (object): The chess board object.
+
+    Returns:
+        list: A list containing the bonus for white and black [white_bonus, black_bonus].
     """
     white_bishops = 0
     black_bishops = 0
@@ -285,8 +327,14 @@ def bishop_pair_bonus(board):
 
 def development_bonus(board, move_number=None):
     """
-    Przyznaje bonus za rozwój figur w otwarciu i wczesnym midgame.
-    Zwraca listę: [bonus_białych, bonus_czarnych].
+    Awards bonuses for piece development in the opening and early midgame.
+
+    Args:
+        board (object): The chess board object.
+        move_number (int, optional): The current move number. Defaults to None.
+
+    Returns:
+        list: A list containing the bonus for white and black [white_bonus, black_bonus].
     """
     bonus_białych = 0
     bonus_czarnych = 0
@@ -362,8 +410,13 @@ def development_bonus(board, move_number=None):
 
 def knight_bishop_situational(board):
     """
-    Dostosowuje wartość skoczków i gońców w zależności od struktury pionków.
-    Zwraca listę: [bonus_białych, bonus_czarnych].
+    Adjusts the value of knights and bishops based on pawn structure.
+
+    Args:
+        board (object): The chess board object.
+
+    Returns:
+        list: A list containing the bonus for white and black [white_bonus, black_bonus].
     """
     bonus_białych = 0
     bonus_czarnych = 0
@@ -419,8 +472,13 @@ def knight_bishop_situational(board):
 
 def piece_activity(board):
     """
-    Ocenia aktywność figur na podstawie ich mobilności i wpływu na planszę.
-    Zwraca listę: [bonus_białych, bonus_czarnych].
+    Evaluates piece activity based on mobility and influence on the board.
+
+    Args:
+        board (object): The chess board object.
+
+    Returns:
+        list: A list containing the bonus for white and black [white_bonus, black_bonus].
     """
     bonus_białych = 0
     bonus_czarnych = 0
@@ -450,8 +508,15 @@ def piece_activity(board):
 
 def count_available_moves(board, rank, file):
     """
-    Pomocnicza funkcja do policzenia dostępnych ruchów figury.
-    W rzeczywistym silniku szachowym należałoby użyć istniejącej funkcji.
+    Helper function to count the available moves for a piece.
+
+    Args:
+        board (object): The chess board object.
+        rank (int): The rank (row) of the piece.
+        file (int): The file (column) of the piece.
+
+    Returns:
+        int: The number of available moves for the piece.
     """
     # To jest znacznie uproszczone - w praktyce musielibyśmy używać funkcji
     # z silnika szachowego, które generują legalne ruchy
@@ -511,8 +576,13 @@ def count_available_moves(board, rank, file):
 
 def checks_and_threats(board):
     """
-    Ocenia pozycję na podstawie szachów i gróźb.
-    Zwraca listę: [bonus_białych, bonus_czarnych].
+    Evaluates the position based on checks and threats.
+
+    Args:
+        board (object): The chess board object.
+
+    Returns:
+        list: A list containing the bonus for white and black [white_bonus, black_bonus].
     """
     bonus_białych = 0
     bonus_czarnych = 0
@@ -574,8 +644,13 @@ def checks_and_threats(board):
 
 def connected_rooks(board):
     """
-    Przyznaje bonus za połączone wieże (wieże, które się nawzajem bronią).
-    Zwraca listę: [bonus_białych, bonus_czarnych].
+    Awards a bonus for connected rooks (rooks that defend each other).
+
+    Args:
+        board (object): The chess board object.
+
+    Returns:
+        list: A list containing the bonus for white and black [white_bonus, black_bonus].
     """
     bonus_białych = 0
     bonus_czarnych = 0
@@ -645,12 +720,14 @@ def connected_rooks(board):
 
 def get_evaluation(board, current_color=None):
     """
-    Zwraca ocenę pozycji w formie listy [wartość_białych, wartość_czarnych]
-    oraz wykrywa sytuacje matowe i patowe.
+    Returns the evaluation of the position as a list [white_value, black_value] and detects checkmate or stalemate.
 
     Args:
-        board: Plansza do oceny
-        current_color: Kolor gracza wykonującego ruch ('w' lub 'b')
+        board (object): The chess board object.
+        current_color (str, optional): The color of the player making the move ('w' or 'b'). Defaults to None.
+
+    Returns:
+        list: A list containing the evaluation for white and black [white_eval, black_eval].
     """
     if current_color:
         # Sprawdź warunki końca gry
