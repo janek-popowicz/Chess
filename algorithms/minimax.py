@@ -21,7 +21,12 @@ class Minimax:
         self.opening_book = self.load_opening_book()
 
     def load_opening_book(self):
-        """Load opening book with proper color handling"""
+        """
+        Ładuje książkę debiutów z pliku JSON. Jeśli plik nie istnieje, tworzy domyślną książkę debiutów.
+        
+        Zwraca:
+            dict: Słownik zawierający pozycje i możliwe ruchy.
+        """
         try:
             if not self.path.exists():
                 # Create default opening book with color information
@@ -45,7 +50,17 @@ class Minimax:
             return {}
 
     def get_mate_pattern_bonus(self, board, color, move):
-        """Evaluate potential checkmate patterns"""
+        """
+        Oblicza bonus za potencjalne wzorce matowe na podstawie ruchu.
+
+        Argumenty:
+            board (Board): Obecny stan planszy.
+            color (str): Kolor gracza wykonującego ruch ('w' lub 'b').
+            move (tuple): Ruch w formacie (y1, x1, y2, x2).
+
+        Zwraca:
+            int: Bonus punktowy za wzorce matowe.
+        """
         y1, x1, y2, x2 = move
         piece = board.board_state[y1][x1].figure
         if not piece:
@@ -148,6 +163,16 @@ class Minimax:
         return bonus
 
     def get_evaluation_score(self, board, is_maximizing):
+        """
+        Oblicza ocenę pozycji na planszy, uwzględniając wzorce matowe i inne czynniki.
+
+        Argumenty:
+            board (Board): Obecny stan planszy.
+            is_maximizing (bool): Czy obecny gracz maksymalizuje wynik.
+
+        Zwraca:
+            int: Wynik oceny pozycji.
+        """
         eval_result = evaluation.get_evaluation(board)
         color = self.color if is_maximizing else ('w' if self.color == 'b' else 'b')
         
@@ -167,11 +192,30 @@ class Minimax:
         return score
 
     def is_time_exceeded(self):
+        """
+        Sprawdza, czy limit czasu na obliczenia został przekroczony.
+
+        Zwraca:
+            bool: True, jeśli czas został przekroczony, w przeciwnym razie False.
+        """
         if not self.start_time:
             return False
         return time.time() - self.start_time >= self.time_limit - 0.1  # 100ms buffer
 
     def minimax(self, board, depth, alpha, beta, is_maximizing):
+        """
+        Implementacja algorytmu minimax z przycinaniem alfa-beta.
+
+        Argumenty:
+            board (Board): Obecny stan planszy.
+            depth (int): Głębokość rekursji.
+            alpha (float): Wartość alfa dla przycinania.
+            beta (float): Wartość beta dla przycinania.
+            is_maximizing (bool): Czy obecny gracz maksymalizuje wynik.
+
+        Zwraca:
+            tuple: Najlepszy wynik i ruch w formacie (wynik, ruch).
+        """
         # Immediate time check
         if self.is_time_exceeded():
             return None, None
@@ -239,7 +283,12 @@ class Minimax:
             return min_eval, best_move
 
     def check_opening_book(self):
-        """Check opening book for current position with color"""
+        """
+        Sprawdza książkę debiutów dla obecnej pozycji i koloru gracza.
+
+        Zwraca:
+            tuple lub None: Ruch w formacie (y1, x1, y2, x2) lub None, jeśli brak ruchu w książce.
+        """
         try:
             if not self.opening_book:
                 return None
@@ -266,11 +315,26 @@ class Minimax:
             return None
 
     def check_move_safety(self, board, move, color):
-        """Placeholder for move safety evaluation."""
-        # Implement logic to evaluate move safety or return a default value
+        """
+        Placeholder dla oceny bezpieczeństwa ruchu.
+
+        Argumenty:
+            board (Board): Obecny stan planszy.
+            move (tuple): Ruch w formacie (y1, x1, y2, x2).
+            color (str): Kolor gracza wykonującego ruch ('w' lub 'b').
+
+        Zwraca:
+            int: Wartość bezpieczeństwa ruchu (domyślnie 0).
+        """
         return 0
 
     def get_best_move(self):
+        """
+        Znajduje najlepszy ruch dla obecnej pozycji, używając algorytmu minimax i książki debiutów.
+
+        Zwraca:
+            tuple lub None: Najlepszy ruch w formacie (y1, x1, y2, x2) lub None, jeśli brak ruchu.
+        """
         self.start_time = time.time()
         
         # Try opening book first
