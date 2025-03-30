@@ -13,12 +13,21 @@ from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
 from nerd_view import *
+from multiprocessing import Process
+from multiprocessing import Queue as multiQueue
 
 MONTE_CARLO_LIMIT = 10
 MONTE_CARLO_DEPTH = 5
 
-def minimaxThread():
-    pass
+def calculate_minimax(board,depth,color,time_limit,min_time,result_queue):
+    # minimax_start_time = time.time()
+    board_copy = copy.deepcopy(board)
+    minimax_obj = Minimax(board_copy, depth, color, time_limit)
+    y1, x1, y2, x2 = minimax_obj.get_best_move()
+    best_move = (y1, x1, y2, x2)
+    # if time.time() - minimax_start_time < min_time:
+    #     time.sleep(min_time - (time.time() - minimax_start_time))
+    result_queue.put(best_move)
 
 # Dodaj nową klasę po MinimaxThread
 class MonteCarloThread(threading.Thread):
@@ -81,7 +90,7 @@ def main(player_turn, algorithm):
     for piece in pieces_short:
         pieces[piece] = pygame.transform.scale(pygame.image.load("pieces/" + icon_type + "/" + piece + ".png"), (SQUARE_SIZE-10, SQUARE_SIZE-10))
     
-    minimax_thread = 0
+
     monte_carlo_thread = 0
     running = True
     main_board = Board()
@@ -89,7 +98,7 @@ def main(player_turn, algorithm):
     selected_piece = None
     clock = pygame.time.Clock()
 
-    minimax_thread = None
+    minimax_process = None
     monte_carlo_thread = None
 
     is_reversed = False if player_turn == 'w' else True
@@ -111,9 +120,13 @@ def main(player_turn, algorithm):
     winner = ""
     in_check = None
 
+    # Właświwości algorytmów
+    depth, min_time, max_time = 2, 1, 10
+
     # Dodaj zmienne do obsługi wątku
-    minimax_thread = None
+    minimax_process = None
     result_queue = queue.Queue()
+    minimax_queue = multiQueue()
     calculating = False
 
     # Aktualizacja wyświetlania czasów
@@ -158,9 +171,6 @@ def main(player_turn, algorithm):
             if event.type == pygame.QUIT:
                 try: root.destroy()
                 except: pass
-                if minimax_thread and minimax_thread.is_alive():
-                    minimax_thread.stop()
-                    minimax_thread.join(timeout=0.1)
                 # W obsłudze wyjścia
                 if monte_carlo_thread and monte_carlo_thread.is_alive():
                     monte_carlo_thread.stop()
@@ -179,25 +189,24 @@ def main(player_turn, algorithm):
                 # Obsługa przycisków zawsze dostępna
                 if pos[0] > SQUARE_SIZE * 8 and pos[0] <= width - 20:
                     if pos[1] >= height - 80:  # Przycisk "Wyjście"
-                        if minimax_thread and minimax_thread.is_alive():
-                            minimax_thread.stop()
-                            minimax_thread.join(timeout=0.1)
                         running = False
+                        try: root.destroy()
+                        except: pass
                         return
                     elif height - 130 <= pos[1] < height - 80:  # Przycisk "Cofnij ruch"
                         if confirm_undo_dialog(screen, SQUARE_SIZE):
-                            # Stop minimax thread if running
-                            if minimax_thread and minimax_thread.is_alive():
-                                minimax_thread.stop()
-                                minimax_thread.join(timeout=0.1)
-                            
                             # Reset thread variables
-                            minimax_thread = None
+                            minimax_process = None
                             calculating = False
+                            if monte_carlo_thread and monte_carlo_thread.is_alive():
+                                monte_carlo_thread.stop()
+                                monte_carlo_thread.join(timeout=0.1)
                             
                             # Clear result queue
                             while not result_queue.empty():
                                 result_queue.get_nowait()
+                            while not minimax_queue.empty():
+                                minimax_queue.get_nowait()
                             
                             # Perform undo
                             if undoMove(main_board):
@@ -251,9 +260,6 @@ def main(player_turn, algorithm):
                             selected_piece = (row, col)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    if minimax_thread and minimax_thread.is_alive():
-                        minimax_thread.stop()
-                        minimax_thread.join(timeout=0.1)
                     running = False
                 # W obsłudze wyjścia
                     if monte_carlo_thread and monte_carlo_thread.is_alive():
@@ -263,37 +269,52 @@ def main(player_turn, algorithm):
         # Ruch AI w osobnym bloku
         if turn != player_turn and running:
             if algorithm == "minimax":
-                minimax_obj = Minimax(main_board, 2, turn, 1000)
-                y1, x1, y2, x2 = minimax_obj.get_best_move()
-                if tryMove(turn, main_board, y1, x1, y2, x2):
-                    # Handle successful move
-                    if turn == 'w':
-                        white_time += time.time() - start_time
-                    else:
-                        black_time += time.time() - start_time
-                    turn = 'w' if turn == 'b' else 'b'
-                    
-                    # Handle promotion and game state
-                    whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
-                    if whatAfter == "promotion":
-                        promotion(yForPromotion, xForPromotion, main_board, '4')  # Always queen
-                        whatAfter, _, _ = afterMove(turn, main_board, y1, x1, y2, x2)
-                    
-                    # Update game state
-                    if whatAfter == "checkmate":
-                        result = "Szach Mat!"
-                        winner = "Białe" if turn == 'b' else "Czarne"
-                        running = False
-                    elif whatAfter == "stalemate":
-                        result = "Pat"
-                        winner = "Remis"
-                        running = False
-                    elif whatAfter == "check":
-                        in_check = turn
-                    else:
-                        in_check = None
-                    
-                    start_time = time.time()
+                if not calculating:
+                    calculating = True
+                    minimax_process = Process(
+                        target=calculate_minimax,
+                        args=(main_board,depth,turn,max_time,min_time,minimax_queue),
+                        daemon=True
+                    )
+                    minimax_process.start()
+                if calculating and not minimax_queue.empty():
+                    move = minimax_queue.get(timeout=0.01)
+                    y1, x1, y2, x2 = move
+                    if tryMove(turn, main_board, y1, x1, y2, x2):
+                        # Handle successful move
+                        move_time = time.time() - start_time
+                        if turn == 'w':
+                            white_time += time.time() - start_time
+                        else:
+                            black_time += time.time() - start_time
+                        turn = 'w' if turn == 'b' else 'b'
+                        
+                        # Handle promotion and game state
+                        whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, y1, x1, y2, x2)
+                        if whatAfter == "promotion":
+                            promotion(yForPromotion, xForPromotion, main_board, '4')  # Always queen
+                            whatAfter, _, _ = afterMove(turn, main_board, y1, x1, y2, x2)
+                        
+                        # Update game state
+                        if whatAfter == "checkmate":
+                            result = "Szach Mat!"
+                            winner = "Białe" if turn == 'b' else "Czarne"
+                            running = False
+                        elif whatAfter == "stalemate":
+                            result = "Pat"
+                            winner = "Remis"
+                            running = False
+                        elif whatAfter == "check":
+                            in_check = turn
+                        else:
+                            in_check = None
+                        #liczenie liczby ruchów, ważne pod nerd_view
+                        if nerd_view:
+                            moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                            moves_queue.put(move_time)
+                        start_time = time.time()
+                        calculating = False
+                        minimax_process = None
 
             elif algorithm == "monte_carlo":
                 if not calculating:
@@ -330,7 +351,11 @@ def main(player_turn, algorithm):
                                 in_check = turn
                             else:
                                 in_check = None
-                        start_time = time.time()
+                            #liczenie liczby ruchów, ważne pod nerd_view
+                            if nerd_view:
+                                moves_number = sum(len(value) for value in main_board.get_all_moves(turn))
+                                moves_queue.put(move_time)
+                            start_time = time.time()
                 except queue.Empty:
                     pass  # Kontynuuj bez blokowania
                         
@@ -372,16 +397,14 @@ def main(player_turn, algorithm):
             nerd_view_queue.put((current_time_for_stats, evaluation, moves_number))
             root.update()
     
-    # Upewnij się, że wątek zostanie zakończony przy wyjściu
-    if minimax_thread and minimax_thread.is_alive():
-        minimax_thread.stop()
-        minimax_thread.join(timeout=0.1)
     # W obsłudze wyjścia
     if monte_carlo_thread and monte_carlo_thread.is_alive():
         monte_carlo_thread.stop()
         monte_carlo_thread.join(timeout=0.1)
 
     end_screen(screen, result, winner, white_time, black_time, SQUARE_SIZE, width, height, WHITE, BLACK)
+    try: root.destroy()
+    except: pass
     return
 
 if __name__ == "__main__":
