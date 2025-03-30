@@ -19,7 +19,7 @@
     "chess_game_launcher": "Chess Game Launcher",
     "menu_cursor_sound_path": "sounds/menu_cursor.mp3",
     "menu_cursor_sound_warning": "Warning: Could not load menu sound effect",
-    "help_pdf_path": "help.pdf",
+    "help_pdf_path": "html/help.html",
     "language_icon_path": "interface/language.png",
     "language_icon_warning": "Warning: Could not load language icon",
     "config_path": "config.json",
