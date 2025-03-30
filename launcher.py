@@ -55,7 +55,7 @@ def main():
         menu_texts.append((text_white, text_gray))
 
     # Dodanie muzyki
-    pygame.mixer.music.load("menu_background_music.mp3")
+    pygame.mixer.music.load("sounds/menu_background_music.mp3")
     pygame.mixer.music.play(start=5)
     pygame.mixer.music.set_volume(volume)
 
