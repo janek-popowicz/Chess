@@ -4,5 +4,9 @@
     "resolution": "1260x960",
     "icons": "classic",
     "highlight_enemy": false,
+<<<<<<< HEAD
+    "nerd_view": true
+=======
     "nerd_view": false
+>>>>>>> refs/remotes/origin/main
 }

@@ -37,16 +37,17 @@
         <img src="img/colorselect.png" alt="Wybór koloru" width="400px">
         <p>Znajduje się tam także przycisk pozwalający na anulowanie partii i powrót do <a href="mainscr.html">ekranu głównego</a>.</p>
         <hr>
-        <p>Następnie zobaczymy opcje wyboru algorytmu AI:</p>
-        <img src="img/algoselect.png" alt="Wybór algorytmu" width="400px">
+        <p>Następnie zobaczymy opcję wyboru arcymistrza, z którym chcemy się zmierzyć:</p>
+        <img src="img/grandmaster_select.png" alt="Wybór arcymistrza" width="400px">
+        <p>Jeżeli chcemy skorzystać z pliku z własnymi danymi posunięć arcymistrza, należy wybrać przycisk <span class="guzik">Wybierz własny plik</span></p>
+        <p>Jednak przed tym trzeba przekonwertować plik PGN na JSON korzystając z naszego <a href="pgn_loader.html">konwertera PGN na JSON</a>.</p>
+        
         <hr>
-        <p>W przypadku wyboru alorytmów 'Minimax' lub 'Monte Carlo', dostaniemy jeszcze możliwość zmiany jego ustawień:</p>
-        <img src="img/aisettings.png" alt="Wybór algorytmu" width="400px">
-        <p>Przycisk <span class="guzik">Anuluj</span> przeniesie nas z powrotem do <a href="mainscr.html">ekranu głównego</a>.</p>
+        <p><img src="img/Warning_icon.svg" alt="Uwaga!" height="15em"> Przed rozpoczęciem gry ukaże się nam także <a href="gametime.html">ekran wyboru czasu gry</a>.</p>
         <hr>
         <img src="img/friendplay.png" alt="mainscreen" width="400px">
         <br>
-        <caption>Ekran gry z AI</caption>
+        <caption>Ekran gry z arcymistrzem</caption>
         <hr>
         <p>Po prawej stronie możemy zobaczyć:
             <ul>
@@ -57,6 +58,8 @@
                 <li>Przycisk do wyjścia z obecnej gry.</li>
             </ul>
         </p>
+        <hr>
+        W przypadku braku ruchu w bazie danych gier arcymistrza korzysta on z algorytmu 'Minimax'.
         <hr>
         <p>Przydatne strony:</p>
         <a href="moving.html">Jak poruszać figurami?</a>
