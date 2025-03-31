@@ -67,5 +67,6 @@
     "turn_white":"Turn: White",
     "turn_black":"Turn: Black",
     "exit":"Exit",
-    "calculating":"Calculating"
+    "calculating":"Calculating",
+    "settings":"Settings"
 }

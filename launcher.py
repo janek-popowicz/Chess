@@ -20,6 +20,11 @@ from language import global_translations, language_selection_screen  # Add this 
 
 # Funkcja główna
 def main():
+    """Launcher gry szachowej, który wywołuje gry. 
+
+    Returns:
+        None: None
+    """
     # Inicjalizacja Pygame
     pygame.init()
     icon_logo = pygame.image.load('program_logo.png')

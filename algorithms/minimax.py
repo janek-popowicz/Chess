@@ -1,14 +1,36 @@
-import sys, copy, os, time, random
-import algorithms.evaluation as evaluation 
-import engine.board_and_fields as board_and_fields 
-import engine.engine as engine 
-from pathlib import Path
-from engine.fen_operations import *
+import copy
+import time
+import random
 import json
+from pathlib import Path
 from random import randint
 
+import algorithms.evaluation as evaluation
+import engine.engine as engine
+from engine.fen_operations import *
+
+
 class Minimax:
+    """
+    Klasa implementująca algorytm Minimax z przycinaniem alfa-beta oraz obsługą książki debiutów.
+
+    Args:
+        main_board (Board): Obiekt planszy szachowej.
+        depth (int): Maksymalna głębokość przeszukiwania. Zalecane: 2, dla najlepszych efektów. Przy 3 jest głupi, a 4 liczy za długo.
+        color (str): Kolor gracza ('w' lub 'b').
+        time_limit (float): Limit czasu na obliczenia w sekundach.
+    """
+
     def __init__(self, main_board, depth, color, time_limit=50):
+        """
+        Inicjalizuje obiekt klasy Minimax.
+
+        Args:
+            main_board (Board): Obiekt planszy szachowej.
+            depth (int): Maksymalna głębokość przeszukiwania.
+            color (str): Kolor gracza ('w' lub 'b').
+            time_limit (float): Limit czasu na obliczenia w sekundach.
+        """
         self.main_board = copy.deepcopy(main_board)
         self.depth = depth
         self.alpha = -100000
@@ -21,38 +43,50 @@ class Minimax:
         self.available_moves_from_json = []
 
     def get_opening_move(self):
+        """
+        Pobiera ruch z książki debiutów, jeśli jest dostępny.
+
+        Returns:
+            tuple or None: Ruch w formacie (y1, x1, y2, x2) lub None, jeśli ruch nie został znaleziony.
+        """
         try:
+            # Ścieżka do pliku z książką debiutów
             json_path = Path(__file__).parent / "opening.json"
             self.message += "\n=== Opening Book Search ==="
-            
+
+            # Sprawdzenie, czy plik istnieje
             if not json_path.exists():
                 self.message += "\n❌ Opening book not found"
                 return None
 
+            # Wczytanie książki debiutów
             with open(json_path, 'r', encoding='utf-8') as f:
                 opening_book = json.load(f)
                 self.message += f"\n📚 Loaded opening book with {len(opening_book)} positions"
 
+            # Generowanie klucza pozycji na podstawie FEN
             current_fen = board_to_fen_inverted(self.main_board, self.color)
             fen_parts = current_fen.split(' ')
             position_key = f"{fen_parts[0]} {fen_parts[1]}"
-            
+
             self.message += f"\n🔍 Searching for position: {position_key}"
-            
+
+            # Sprawdzenie, czy pozycja istnieje w książce debiutów
             if position_key in opening_book:
                 moves = opening_book[position_key]
                 if not moves:
                     self.message += "\n❌ No moves found in opening book"
                     return None
-                
+
+                # Wybór losowego ruchu z książki debiutów
                 self.available_moves_from_json = moves
                 move_notation = random.choice(moves)
                 self.message += f"\n✅ Found {len(moves)} moves in opening book"
                 self.message += f"\n📌 Selected move: {move_notation}"
-                
+
                 return engine.notation_to_cords(
-                    self.main_board, 
-                    move_notation, 
+                    self.main_board,
+                    move_notation,
                     self.color
                 )
 
@@ -60,40 +94,49 @@ class Minimax:
             return None
 
         except Exception as e:
+            # Obsługa błędów podczas wczytywania książki debiutów
             self.message += f"\n❌ Opening book error: {str(e)}"
             return None
 
     def get_best_move(self):
-        """Main move search function"""
+        """
+        Główna funkcja wyszukiwania najlepszego ruchu.
+
+        Returns:
+            tuple: Najlepszy ruch, wiadomość debugowa i lista ruchów z książki debiutów.
+        """
         self.start_time = time.time()
         self.message += "\n=== Move Search Started ==="
-        
-        # Try opening book first
+
+        # Próba znalezienia ruchu w książce debiutów
         self.message += "\n📖 Checking opening book..."
         book_move = self.get_opening_move()
         if book_move:
             self.message += f"\n✨ Using book move: {book_move}"
             return book_move, self.message, self.available_moves_from_json
 
+        # Rozpoczęcie wyszukiwania za pomocą Minimax
         self.message += "\n🔄 Starting minimax search..."
         moves_by_depth = {}
         best_move = None
         best_eval = -float('inf')
 
+        # Mapowanie typów figur na ich nazwy
         piece_types = {
             'p': 'Pawn', 'r': 'Rook', 'n': 'Knight',
             'b': 'Bishop', 'q': 'Queen', 'k': 'King'
         }
 
         try:
+            # Iteracyjne przeszukiwanie na różnych głębokościach
             for current_depth in range(1, self.depth + 1):
                 if self.is_time_exceeded():
                     self.message += f"\n⚠️ Time limit reached at depth {current_depth-1}"
                     break
-                    
+
                 depth_start = time.time()
                 eval_score, move = self.minimax(self.main_board, current_depth, -float('inf'), float('inf'), True)
-                
+
                 if move and not self.is_time_exceeded():
                     moves_by_depth[current_depth] = (move, eval_score)
                     y1, x1, y2, x2 = move
@@ -104,22 +147,24 @@ class Minimax:
                     self.message += f"\n   Move: {chr(97+x1)}{8-y1} → {chr(97+x2)}{8-y2}"
                     self.message += f"\n   Score: {eval_score:.2f}"
                     self.message += f"\n   Time: {time.time() - depth_start:.3f}s"
-                    
+
                     if eval_score > best_eval:
                         best_move = move
                         best_eval = eval_score
                         self.message += f"\n   ⭐ New best move!"
 
+            # Podsumowanie wyszukiwania
             total_time = time.time() - self.start_time
             self.message += f"\n=== Search Complete ==="
             self.message += f"\n🕒 Total time: {total_time:.3f}s"
             self.message += f"\n📈 Max depth reached: {len(moves_by_depth)}"
             self.message += f"\n💫 Final best move: {best_move}"
             self.message += f"\n📋 Final score: {best_eval:.2f}"
-            
+
             return best_move, self.message, self.available_moves_from_json
 
         except Exception as e:
+            # Obsługa błędów podczas wyszukiwania
             self.message += f"\n❌ Error in search: {e}"
             return None
 

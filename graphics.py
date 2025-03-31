@@ -7,12 +7,11 @@ Funkcje te obejmują rysowanie szachownicy, figur, podświetlanie możliwych ruc
 import pygame
 import json
 import sys
-import time
 import tkinter as tk
 from tkinter import filedialog
 from pathlib import Path
-import subprocess
-from language import global_translations  # Add this import
+from language import global_translations  # Import tłumaczeń
+
 CONFIG_FILE = "config.json"
 
 def load_config():
@@ -26,12 +25,13 @@ def load_config():
         with open(CONFIG_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
+        # Domyślne ustawienia w przypadku braku pliku konfiguracyjnego
         return {
             "volume": 0.5, 
             "resolution": "1260x960", 
             "icons": "classic", 
             "highlight": 0,
-            "nerd_view": False  # Add default nerd_view setting
+            "nerd_view": False  # Domyślne ustawienie trybu nerd_view
         }
 
 def draw_board(screen, SQUARE_SIZE, main_board, in_check, is_reversed=False):
@@ -1053,7 +1053,7 @@ def show_error_dialog(screen, message: str, SQUARE_SIZE: int) -> None:
     font = pygame.font.Font(None, 36)
     
     # Dialog box properties
-    DIALOG_WIDTH = min(screen.get_width() - 100, max(400, len(message) * 15))
+    DIALOG_WIDTH = min(300 - 100, max(400, len(message) * 15))
     DIALOG_HEIGHT = 200
     dialog_rect = pygame.Rect(
         (screen.get_width() - DIALOG_WIDTH) // 2,

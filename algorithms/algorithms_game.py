@@ -3,34 +3,63 @@ import time
 import threading
 import queue
 import copy
+from multiprocessing import Process, Queue as multiQueue
 
-#wygląda dziwnie ale musi działać
+# Importy modułów
 from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from graphics import *
 from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
-from algorithms.evaluation import get_evaluation  # Import evaluation function
+from algorithms.evaluation import get_evaluation
 from nerd_view import *
-from multiprocessing import Process
-from multiprocessing import Queue as multiQueue
 
 
-def calculate_minimax(board,depth,color,time_limit,min_time,result_queue):
-    global MIN_TIME
+def calculate_minimax(board, depth, color, time_limit, min_time, result_queue):
+    """
+    Funkcja obliczająca najlepszy ruch za pomocą algorytmu Minimax.
+
+    Args:
+        board (Board): Obiekt planszy szachowej.
+        depth (int): Głębokość przeszukiwania.
+        color (str): Kolor gracza ('w' lub 'b').
+        time_limit (float): Maksymalny czas na obliczenia.
+        min_time (float): Minimalny czas oczekiwania przed zwróceniem wyniku.
+        result_queue (Queue): Kolejka do przechowywania wyniku.
+
+    Returns:
+        None: Wynik jest umieszczany w kolejce `result_queue`.
+    """
     minimax_start_time = time.time()
     board_copy = copy.deepcopy(board)
     minimax_obj = Minimax(board_copy, depth, color, time_limit)
     best_move, additional_info, moves_from_list = minimax_obj.get_best_move()
     all_info = (best_move, additional_info, moves_from_list)
-    if time.time() - minimax_start_time < min_time:
-        time.sleep(min_time - (time.time() - minimax_start_time))
+
+    # Upewnij się, że obliczenia trwają co najmniej `min_time`
+    elapsed_time = time.time() - minimax_start_time
+    if elapsed_time < min_time:
+        time.sleep(min_time - elapsed_time)
+
     result_queue.put(all_info)
 
-# Dodaj nową klasę po MinimaxThread
+
 class MonteCarloThread(threading.Thread):
+    """
+    Wątek do wykonywania obliczeń za pomocą algorytmu Monte Carlo Tree Search (MCTS).
+    """
+
     def __init__(self, board, max_depth, turn, result_queue):
+        """
+        Inicjalizuje wątek Monte Carlo.
+
+        Args:
+            board (Board): Obiekt planszy szachowej.
+            max_depth (int): Maksymalna głębokość przeszukiwania.
+            turn (str): Tura gracza ('w' lub 'b').
+            result_queue (Queue): Kolejka do przechowywania wyniku.
+        """
         super().__init__()
         self.board = copy.deepcopy(board)
         self.max_depth = max_depth
@@ -39,31 +68,46 @@ class MonteCarloThread(threading.Thread):
         self._stop_event = threading.Event()
 
     def stop(self):
+        """Zatrzymuje wątek."""
         self._stop_event.set()
 
     def stopped(self):
+        """Sprawdza, czy wątek został zatrzymany."""
         return self._stop_event.is_set()
 
     def run(self):
+        """
+        Wykonuje algorytm Monte Carlo Tree Search i umieszcza wynik w kolejce `result_queue`.
+        """
         try:
             mc_obj = Mcts(self.turn)
-            # Sprawdzamy czy wątek nie został zatrzymany przed każdą symulacją
-            global MAX_TIME
             if not self.stopped():
                 move = mc_obj.pick_best_move(self.board, MAX_TIME, self.max_depth)
                 if not self.stopped():
                     self.result_queue.put(move)
         except Exception as e:
-            #print(f"Błąd w wątku Monte Carlo: {e}")
+            # Obsługa błędów
             self.result_queue.put(None)
 
 
 def update_times_display(white_time, black_time, turn, player_color, font, SQUARE_SIZE, YELLOW, GRAY, height):
     """
-    Returns tuple of time displays with player's time at bottom and grandmaster's time at top.
-    
+    Aktualizuje wyświetlanie czasu graczy.
+
+    Args:
+        white_time (float): Pozostały czas dla białego gracza.
+        black_time (float): Pozostały czas dla czarnego gracza.
+        turn (str): Aktualna tura ('w' lub 'b').
+        player_color (str): Kolor gracza ('w' lub 'b').
+        font (pygame.font.Font): Czcionka do renderowania tekstu.
+        SQUARE_SIZE (int): Rozmiar pola na planszy.
+        YELLOW (tuple): Kolor dla aktywnego gracza.
+        GRAY (tuple): Kolor dla nieaktywnego gracza.
+        height (int): Wysokość ekranu.
+
+    Returns:
+        tuple: Wyświetlane czasy dla obu graczy.
     """
-    # Determine display positions based on player color
     return (
         (font.render(f"{global_translations.get('black')}: {format_time(black_time)}", True, YELLOW if turn == 'b' else GRAY),
          (8 * SQUARE_SIZE + 10, 80)),
@@ -77,15 +121,26 @@ def update_times_display(white_time, black_time, turn, player_color, font, SQUAR
     )
 
 
-# Funkcja główna
 def main(player_turn, algorithm, game_time):
+    """
+    Główna funkcja gry szachowej z obsługą AI.
+
+    Args:
+        player_turn (str): Kolor gracza ('w' lub 'b').
+        algorithm (str): Algorytm do użycia ('minimax' lub 'monte_carlo').
+        game_time (float): Całkowity czas gry dla każdego gracza w sekundach.
+
+    Returns:
+        None
+    """
     pygame.init()
+
     # Ładowanie konfiguracji
     config = load_config()
     resolution = config["resolution"]
     width, height = map(int, resolution.split('x'))
     SQUARE_SIZE = height // 8
-    #print(width, height, SQUARE_SIZE)
+
     # Ustawienia ekranu
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Chess Game")
@@ -106,29 +161,24 @@ def main(player_turn, algorithm, game_time):
     # Ładowanie ikon figur
     icon_type = config["icons"]
     pieces_short = ["wp", "wR", "wN", "wB", "wQ", "wK", "bp", "bR", "bN", "bB", "bQ", "bK"]
-    pieces = {}
-    for piece in pieces_short:
-        pieces[piece] = pygame.transform.scale(pygame.image.load("pieces/" + icon_type + "/" + piece + ".png"), (SQUARE_SIZE-10, SQUARE_SIZE-10))
-    
+    pieces = {piece: pygame.transform.scale(pygame.image.load(f"pieces/{icon_type}/{piece}.png"), (SQUARE_SIZE - 10, SQUARE_SIZE - 10)) for piece in pieces_short}
 
-    monte_carlo_thread = 0
-    running = True
+    # Inicjalizacja zmiennych
     main_board = Board()
     turn = 'w'
     selected_piece = None
     clock = pygame.time.Clock()
-
     minimax_process = None
     monte_carlo_thread = None
-
-    is_reversed = False if player_turn == 'w' else True
+    is_reversed = player_turn != 'w'
+    running = True
 
     # Teksty interfejsu
     texts = (
         (font.render(f"{global_translations.get('turn_white')}", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
         (font.render(f"{global_translations.get('turn_black')}", True, WHITE), (8 * SQUARE_SIZE + 10, 10)),
         (font.render(f"{global_translations.get('exit')}", True, GRAY), (8 * SQUARE_SIZE + 10, height - 50)),
-        (font.render(f"{global_translations.get('confirm_undo_text')}", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),  # "Cofnij ruch"
+        (font.render(f"{global_translations.get('confirm_undo_text')}", True, GRAY), (8 * SQUARE_SIZE + 10, height - 100)),
     )
     check_text = font.render(global_translations.get("check"), True, pygame.Color("red"))
 

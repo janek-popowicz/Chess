@@ -1,37 +1,17 @@
-import engine.board_and_fields as board_and_fields
-import engine.figures as figures
-import copy
-
-# Ustawienia globalne
-domyśly_color = "white"
-
-def get_color(color):
-    """
-    Returns the given color.
-
-    Args:
-        color (str): The color to return.
-
-    Returns:
-        str: The same color passed as input.
-    """
-    return color 
-
-player_color = get_color(domyśly_color)
 
 def rotate_pst(white_pst):
     """
-    Rotates a Position-Specific Table (PST) for white pieces to generate the PST for black pieces.
+    Obraca tablicę PST (Position-Specific Table) dla białych figur, aby wygenerować PST dla czarnych figur.
 
     Args:
-        white_pst (list): A 2D list representing the PST for white pieces.
+        white_pst (list): Dwuwymiarowa lista reprezentująca PST dla białych figur.
 
     Returns:
-        list: A 2D list representing the PST for black pieces.
+        list: Dwuwymiarowa lista reprezentująca PST dla czarnych figur.
     """
     return white_pst[::-1]
 
-# PST dla białych (wartości przeskalowane – oryginalne liczby dzielone przez 100)
+# Tablice PST dla białych figur (wartości przeskalowane)
 KING_DOWN = [
     [-15.0, -20.0, -20.0, -25.0, -25.0, -20.0, -20.0, -15.0],
     [-15.0, -20.0, -20.0, -25.0, -25.0, -20.0, -20.0, -15.0],
@@ -99,7 +79,7 @@ PAWN_DOWN = [
     [  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0]
 ]
 
-# Generujemy PST dla czarnych przez obrócenie tablic białych:
+# Generowanie PST dla czarnych przez obrót tablic białych
 PAWN_UP = rotate_pst(PAWN_DOWN)
 KING_UP = rotate_pst(KING_DOWN)
 
@@ -119,13 +99,13 @@ PIECE_VALUES = {
 
 def ocena_materiału(board):
     """
-    Calculates the material value on the board.
+    Oblicza wartość materiału na planszy.
 
     Args:
-        board (object): The chess board object.
+        board (object): Obiekt planszy szachowej.
 
     Returns:
-        list: A list containing the material value for white and black [white_value, black_value].
+        list: Lista zawierająca wartość materiału dla białych i czarnych [white_value, black_value].
     """
     waga_białych = 0
     waga_czarnych = 0
@@ -149,13 +129,13 @@ def ocena_materiału(board):
 
 def bonus_squares(board):
     """
-    Calculates the positional bonus based on Position-Specific Tables (PST).
+    Oblicza bonus pozycyjny na podstawie tablic PST.
 
     Args:
-        board (object): The chess board object.
+        board (object): Obiekt planszy szachowej.
 
     Returns:
-        list: A list containing the positional bonus for white and black [white_bonus, black_bonus].
+        list: Lista zawierająca bonus pozycyjny dla białych i czarnych [white_bonus, black_bonus].
     """
     bonus_białych = 0
     bonus_czarnych = 0
@@ -838,14 +818,14 @@ def connected_rooks(board):
 
 def get_evaluation(board, current_color=None):
     """
-    Returns the evaluation of the position as a list [white_value, black_value] and detects checkmate or stalemate.
+    Zwraca ocenę pozycji jako listę [white_value, black_value] oraz wykrywa mat lub pat.
 
     Args:
-        board (object): The chess board object.
-        current_color (str, optional): The color of the player making the move ('w' or 'b'). Defaults to None.
+        board (object): Obiekt planszy szachowej.
+        current_color (str, optional): Kolor gracza wykonującego ruch ('w' lub 'b'). Defaults to None.
 
     Returns:
-        list: A list containing the evaluation for white and black [white_eval, black_eval].
+        list: Lista zawierająca ocenę dla białych i czarnych [white_eval, black_eval].
     """
     if current_color:
         # Sprawdź warunki końca gry

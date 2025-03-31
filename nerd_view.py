@@ -6,15 +6,23 @@ import matplotlib.ticker as ticker
 from datetime import datetime, timedelta
 
 class NormalStatsWindow:
+    """
+    Klasa odpowiedzialna za wyświetlanie statystyk gry w czasie rzeczywistym.
+
+    Args:
+        master (tk.Tk): Główne okno aplikacji.
+        data_queue (queue.Queue): Kolejka do odbierania danych o ewaluacji i liczbie ruchów.
+        moves_queue (queue.Queue): Kolejka do odbierania danych o czasie wykonania ruchów.
+    """
     def __init__(self, master, data_queue, moves_queue):
         self.master = master
         self.data_queue = data_queue
         self.moves_queue = moves_queue
-        self.evaluations = []
-        self.move_counts = []
-        self.timestamps = []
-        self.move_times = []
-        self.move_number = 0
+        self.evaluations = []  # Lista przechowująca wartości ewaluacji
+        self.move_counts = []  # Lista przechowująca liczbę możliwych ruchów
+        self.timestamps = []  # Lista znaczników czasu
+        self.move_times = []  # Lista czasów wykonania ruchów
+        self.move_number = 0  # Licznik ruchów
         
         # Konfiguracja okna
         self.master.title("Chess Analytics Dashboard")
@@ -43,6 +51,9 @@ class NormalStatsWindow:
         self.update_data()
 
     def update_data(self):
+        """
+        Aktualizuje dane z kolejek i odświeża wykresy.
+        """
         while not self.data_queue.empty():
             # Odbierz dane w formacie (timestamp, evaluation, move_count)
             timestamp, evaluation, move_count = self.data_queue.get()
@@ -60,6 +71,9 @@ class NormalStatsWindow:
 
 
     def update_plots(self):
+        """
+        Aktualizuje wykresy na podstawie zebranych danych.
+        """
         # Czyszczenie obu wykresów
         self.ax_eval.clear()
         self.ax_moves.clear()
@@ -127,6 +141,16 @@ class NormalStatsWindow:
 
 
 class NetworkStatsWindow:
+    """
+    Klasa odpowiedzialna za wyświetlanie statystyk sieciowych, takich jak ping i adresy IP.
+
+    Args:
+        master (tk.Tk): Główne okno aplikacji.
+        ping_queue (queue.Queue): Kolejka do odbierania danych o pingach.
+        your_ip_address (str): Adres IP użytkownika.
+        other_ip_adress (str): Adres IP przeciwnika.
+        is_server (bool): Czy użytkownik jest serwerem.
+    """
     def __init__(self, master, ping_queue, your_ip_address, other_ip_adress, is_server=False):
         self.master = master
         self.ping_queue = ping_queue
@@ -144,7 +168,9 @@ class NetworkStatsWindow:
         self.update_data()
 
     def _setup_gui(self):
-        """Konfiguruje interfejs graficzny"""
+        """
+        Konfiguruje interfejs graficzny.
+        """
         self.master.title("Network Monitor")
         self.frame = tk.Frame(self.master)
         self.frame.pack(fill=tk.BOTH, expand=True)
@@ -169,7 +195,9 @@ class NetworkStatsWindow:
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
     def _update_info_panel(self):
-        """Aktualizuje panel ze statycznymi informacjami"""
+        """
+        Aktualizuje panel ze statycznymi informacjami.
+        """
         role = "SERVER" if self.is_server else "CLIENT"
         text = (
             f"IP: {self.your_ip_address}\n"
@@ -188,7 +216,9 @@ class NetworkStatsWindow:
         )
 
     def update_data(self):
-        """Pobiera nowe dane z kolejki i aktualizuje wykres"""
+        """
+        Pobiera nowe dane z kolejki i aktualizuje wykres.
+        """
         while not self.ping_queue.empty():
             ping_time = self.ping_queue.get()
             self.ping_data.append(ping_time)
@@ -203,7 +233,9 @@ class NetworkStatsWindow:
         self.master.after(1000, self.update_data)
 
     def _redraw_plots(self):
-        """Przerysowuje wszystkie elementy wizualne"""
+        """
+        Przerysowuje wszystkie elementy wizualne.
+        """
         # Wykres pingu
         self.ax_ping.clear()
         if self.ping_data and self.timestamps:

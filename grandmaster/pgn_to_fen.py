@@ -2,58 +2,57 @@ import engine.engine as engine
 import json
 import re
 from pathlib import Path
-
-import sys
-import os
-import re
-
-#wygląda dziwnie ale musi działać
-from engine.board_and_fields import *
-from engine.engine import *
-from engine.figures import *
-from algorithms import evaluation
-from engine.fen_operations import *
-
-import re
-
-import re
-
-import tkinter as tk
-from tkinter import filedialog
 import pygame
 import time
 import math
 
+# Importy modułów silnika i grafiki
+from engine.board_and_fields import *
+from engine.engine import *
+from engine.figures import *
+from engine.fen_operations import *
+
+
 def parse_pgn(pgn_text, grandmaster_name_fragment):
+    """
+    Parsuje plik PGN, aby wyodrębnić gry i ruchy.
+
+    Args:
+        pgn_text (str): Zawartość pliku PGN jako tekst.
+        grandmaster_name_fragment (str): Fragment nazwy arcymistrza.
+
+    Returns:
+        list: Lista gier z informacjami o kolorze arcymistrza i ruchach.
+    """
     # Podział na gry na podstawie wyników (0-1, 1-0, 1/2-1/2, *)
     games = re.split(r'(?:1-0|0-1|1/2-1/2|\*)', pgn_text.replace("\n", " ").strip())
 
     extracted_games = []
     last_grandmaster_color = None
-    
+
     for game in games:
         headers = {}
         moves = []
-        
+
         # Usuń zawartość nawiasów {} (np. {[%clk 0:02:58]})
         game = re.sub(r'\{.*?\}', '', game)
-        
+
         # Pobranie nagłówków PGN
         header_lines = re.findall(r'\[(\w+) "([^"]+)"\]', game)
         for key, value in header_lines:
             headers[key] = value
-        
+
         # Pobranie nazw graczy
         white_player = headers.get("White", "")
         black_player = headers.get("Black", "")
-        
+
         # Pobranie ELO
         white_elo_str = headers.get("WhiteElo", "0")
         black_elo_str = headers.get("BlackElo", "0")
-        
+
         white_elo = int(white_elo_str) if white_elo_str.isdigit() else 0
         black_elo = int(black_elo_str) if black_elo_str.isdigit() else 0
-        
+
         # Ustalenie, kto jest arcymistrzem
         if grandmaster_name_fragment.lower() in white_player.lower():
             last_grandmaster_color = "w"
@@ -61,31 +60,39 @@ def parse_pgn(pgn_text, grandmaster_name_fragment):
             last_grandmaster_color = "b"
         elif white_player or black_player:
             # Jeśli nie znaleziono arcymistrza, ale jest drugi gracz, to on NIE jest arcymistrzem
-            if white_player: 
+            if white_player:
                 last_grandmaster_color = "b"
             elif black_player:
                 last_grandmaster_color = "w"
         elif white_elo or black_elo:
             last_grandmaster_color = "w" if white_elo > black_elo else "b"
-         
+
         # Usunięcie nagłówków
         game = re.sub(r'\[.*?\]', '', game).strip()
-        
+
         # Pobranie ruchów w oryginalnym formacie
         move_list = re.findall(r'\d+\.\s*([^\s]+)\s*([^\s]+)?', game)
         moves = [move for pair in move_list for move in pair if move]
-        
+
         extracted_games.append({
             "grandmaster": last_grandmaster_color,
             "moves": moves
         })
-    
+
     return extracted_games
+
 
 def draw_loading_screen(screen, progress, text):
     """
-    Draws an animated loading screen with a spinning circle and progress text.
-    Returns False if user wants to quit, True otherwise.
+    Rysuje ekran ładowania z animowanym kołem i tekstem postępu.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu.
+        progress (int): Procent ukończenia.
+        text (str): Tekst do wyświetlenia.
+
+    Returns:
+        bool: False, jeśli użytkownik chce zakończyć, True w przeciwnym razie.
     """
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -93,16 +100,15 @@ def draw_loading_screen(screen, progress, text):
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             return False
 
-    screen.fill((32, 32, 32))  # Dark gray background
-    
-    # Loading circle parameters
+    screen.fill((32, 32, 32))  # Ciemnoszare tło
+
+    # Parametry koła ładowania
     center = (screen.get_width() // 2, screen.get_height() // 2)
-    
     radius = 50
     width = 10
-    angle = time.time() * 5  # Rotation speed
-    
-    # Draw spinning circle
+    angle = time.time() * 5  # Prędkość obrotu
+
+    # Rysowanie obracającego się koła
     for i in range(8):
         start_angle = angle + i * math.pi / 4
         end_angle = start_angle + math.pi / 8
@@ -113,23 +119,32 @@ def draw_loading_screen(screen, progress, text):
             )
             for a in (start_angle, end_angle)
         ]
-        color = (255, 215, 0, int(255 * (8-i) / 8))  # Golden color with fade
+        color = (255, 215, 0, int(255 * (8 - i) / 8))  # Złoty kolor z efektem zanikania
         pygame.draw.line(screen, color, points[0], points[1], width)
-    
-    # Draw progress text
+
+    # Rysowanie tekstu postępu
     font = pygame.font.Font(None, 36)
     text_surface = font.render(f"{text} ({progress}%)", True, (255, 255, 255))
     text_rect = text_surface.get_rect(center=(center[0], center[1] + 100))
     screen.blit(text_surface, text_rect)
-    
+
     pygame.display.flip()
     return True
 
+
 def choose_save_option(screen):
-    """Shows an elegant dialog to choose whether to save only grandmaster moves or all moves"""
+    """
+    Wyświetla dialog wyboru sposobu zapisu ruchów.
+
+    Args:
+        screen (pygame.Surface): Powierzchnia ekranu.
+
+    Returns:
+        bool: True, jeśli użytkownik wybierze zapis ruchów obu graczy, False w przeciwnym razie.
+    """
     font = pygame.font.Font(None, 48)
     small_font = pygame.font.Font(None, 32)
-    
+
     options = [
         {
             "title": "Tylko ruchy arcymistrza",
@@ -142,25 +157,24 @@ def choose_save_option(screen):
             "value": True
         }
     ]
-    
-    selected = None  # Changed from 0 to None to differentiate between hover and selection
+
+    selected = None  # Zmienna przechowująca wybraną opcję
     button_height = 120
     button_width = 400
     padding = 20
-    
+
     while True:
         screen.fill((32, 32, 32))
-        
-        # Draw title
+
+        # Rysowanie tytułu
         title = font.render("Wybierz sposób zapisu ruchów:", True, (255, 215, 0))
         title_rect = title.get_rect(center=(screen.get_width() // 2, 150))
         screen.blit(title, title_rect)
-        
-        # Get mouse position and check which button is hovered
+
+        # Pobranie pozycji myszy i sprawdzenie, który przycisk jest najechany
         mouse_pos = pygame.mouse.get_pos()
         hovered = None
-        
-        # First pass - determine if mouse is over any button
+
         for i, option in enumerate(options):
             button_rect = pygame.Rect(
                 screen.get_width() // 2 - button_width // 2,
@@ -171,46 +185,43 @@ def choose_save_option(screen):
             if button_rect.collidepoint(mouse_pos):
                 hovered = i
                 break
-        
-        # Draw options
+
+        # Rysowanie opcji
         for i, option in enumerate(options):
             x = screen.get_width() // 2 - button_width // 2
             y = 300 + i * (button_height + padding)
             button_rect = pygame.Rect(x, y, button_width, button_height)
-            
-            # Determine button state
+
+            # Określenie stanu przycisku
             is_hovered = (i == hovered)
             is_selected = (i == selected)
-            
-            # Draw button with appropriate style
+
+            # Rysowanie przycisku w odpowiednim stylu
             if is_selected:
-                # Selected state
                 pygame.draw.rect(screen, (70, 70, 70), button_rect)
                 pygame.draw.rect(screen, (255, 215, 0), button_rect, 3)
                 text_color = (255, 215, 0)
             elif is_hovered:
-                # Hover state
                 pygame.draw.rect(screen, (50, 50, 50), button_rect)
                 pygame.draw.rect(screen, (200, 170, 0), button_rect, 2)
                 text_color = (200, 170, 0)
             else:
-                # Normal state
                 pygame.draw.rect(screen, (45, 45, 45), button_rect)
                 pygame.draw.rect(screen, (100, 100, 100), button_rect, 1)
                 text_color = (180, 180, 180)
-            
-            # Draw texts
+
+            # Rysowanie tekstów
             title_surf = font.render(option["title"], True, text_color)
             title_rect = title_surf.get_rect(midtop=(button_rect.centerx, button_rect.top + 20))
             screen.blit(title_surf, title_rect)
-            
+
             desc_surf = small_font.render(option["description"], True, text_color)
             desc_rect = desc_surf.get_rect(midtop=(button_rect.centerx, button_rect.top + 70))
             screen.blit(desc_surf, desc_rect)
-        
+
         pygame.display.flip()
-        
-        # Handle events
+
+        # Obsługa zdarzeń
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return None
@@ -224,8 +235,9 @@ def choose_save_option(screen):
                     selected = (selected + 1) % len(options) if selected is not None else 0
                 elif event.key == pygame.K_RETURN and selected is not None:
                     return options[selected]["value"]
-                
+
         pygame.time.wait(10)
+
 
 def main():
     # Initialize pygame for the dialog
