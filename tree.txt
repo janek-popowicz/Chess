@@ -1,0 +1,150 @@
+.
+├── algorithms
+│   ├── algorithms_game.py
+│   ├── evaluation.py
+│   ├── __init__.py
+│   ├── minimax.py
+│   ├── monte_carlo_tree_search.py
+│   └── opening.json
+├── config.json
+├── custom_board.fen
+├── custom_board_game
+│   ├── board_maker.py
+│   ├── __init__.py
+│   └── normal_game_custom_board.py
+├── docs
+│   └── index.md
+├── engine
+│   ├── board_and_fields.py
+│   ├── engine.py
+│   ├── fen_operations.py
+│   ├── figures.py
+│   └── __init__.py
+├── grandmaster
+│   ├── algebraic_moves_tester.py
+│   ├── downloader_temporary
+│   │   ├── downloader_grandmasters.py
+│   │   ├── downloader_openings.py
+│   │   └── merge_pgns.sh
+│   ├── games.pgn
+│   ├── grandmaster_game.py
+│   ├── __init__.py
+│   ├── json
+│   │   ├── alekhine.json
+│   │   ├── botvinnik.json
+│   │   ├── capablanca.json
+│   │   ├── carlsen.json
+│   │   ├── caruana.json
+│   │   ├── fischer.json
+│   │   ├── hikaru.json
+│   │   ├── ignacy.json
+│   │   ├── kasparov.json
+│   │   ├── mikhail.json
+│   │   ├── morphy paul.json
+│   │   ├── my_grandmaster.json
+│   │   ├── openings.json
+│   │   ├── polgar.json
+│   │   ├── super arcymistrz.json
+│   │   ├── szybki.py
+│   │   ├── viswanathan.json
+│   │   └── wynik.json
+│   ├── pgn
+│   │   ├── alekhine.pgn
+│   │   ├── botvinnik.pgn
+│   │   ├── capablanca.pgn
+│   │   ├── carlsen.pgn
+│   │   ├── caruana.pgn
+│   │   ├── fischer.pgn
+│   │   ├── hikaru.pgn
+│   │   ├── ignacy.pgn
+│   │   ├── kasparov.pgn
+│   │   ├── mikhail.pgn
+│   │   ├── morphy paul.pgn
+│   │   ├── my_grandmaster.pgn
+│   │   ├── openings.pgn
+│   │   ├── polgar.pgn
+│   │   ├── super arcymistrz.pgn
+│   │   ├── viswanathan.pgn
+│   │   └── wynik.pgn
+│   ├── pgn_to_fen.py
+│   └── portraits
+│       ├── alekhine.png
+│       ├── botvinnik.png
+│       ├── capablanca.png
+│       ├── carlsen.png
+│       ├── caruana.png
+│       ├── fischer.png
+│       ├── hikaru.png
+│       ├── kasparov.png
+│       ├── mikhail.png
+│       ├── morphy paul.png
+│       ├── polgar.png
+│       └── viswanathan.png
+├── graphics.py
+├── ignore.gitignore
+├── __init__.py
+├── interface
+│   ├── background.png
+│   ├── flags
+│   │   ├── en.png
+│   │   └── pl.png
+│   ├── language.png
+│   └── translations
+│       ├── en.json
+│       └── pl.json
+├── language.py
+├── launcher.py
+├── mkdocs.yml
+├── multiplayer
+│   ├── client.py
+│   └── server.py
+├── nerd_view.py
+├── normal_games
+│   ├── __init__.py
+│   ├── normal_game.py
+│   └── test_mode_normal_game.py
+├── old_files
+│   ├── evaluation_stare.py
+│   ├── launcher_ai.py
+│   ├── launcher_test_mode.py
+│   └── test.py
+├── pieces
+│   ├── classic
+│   │   ├── bB.png
+│   │   ├── bK.png
+│   │   ├── bN.png
+│   │   ├── bp.png
+│   │   ├── bQ.png
+│   │   ├── bR.png
+│   │   ├── wB.png
+│   │   ├── wK.png
+│   │   ├── wN.png
+│   │   ├── wp.png
+│   │   ├── wQ.png
+│   │   └── wR.png
+├── program_logo.png
+├── read.me
+├── saves
+│   ├── game_20250331_002705.pgn
+│   ├── game_20250331_003003_long.pgn
+│   └── game_20250331_003003.pgn
+├── settings.py
+├── sounds
+│   ├── error.mp3
+│   ├── menu_background_music.mp3
+│   ├── menu_cursor.mp3
+│   └── music
+│       ├── Airport Lounge.mp3
+│       ├── Awesome Call.mp3
+│       ├── Cool Vibes.mp3
+│       ├── Dispersion Relation.mp3
+│       ├── George Street Shuffle.mp3
+│       ├── Hep Cats.mp3
+│       ├── Intractable.mp3
+│       ├── Mining by Moonlight.mp3
+│       ├── NoGoodLayabout.mp3
+│       ├── Opportunity Walks.mp3
+│       ├── Shades of Spring.mp3
+│       └── Sidewalk Shade.mp3
+
+123 directories, 1448 files
