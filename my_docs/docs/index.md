@@ -1,0 +1,5 @@
+# Chess Documentation
+
+## API Reference
+
+::: .

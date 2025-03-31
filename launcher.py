@@ -3,6 +3,7 @@ import json
 import subprocess
 import sys
 import os
+import random
 
 # Dodaj katalog główny do sys.path, jeśli nie jest już w nim zawarty
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -26,6 +27,7 @@ def main():
         None: None
     """
     # Inicjalizacja Pygame
+    global volume
     pygame.init()
     icon_logo = pygame.image.load('program_logo.png')
     pygame.display.set_icon(icon_logo)
@@ -152,6 +154,23 @@ def main():
 
 
 def do_an_action(selected_option, screen):
+    global volume
+    music = "sounds/music/"+random.choice(["Airport Lounge",
+                                          "Awesome Call",
+                                          "Cool Vibes",
+                                          "Dispersion Relation",
+                                          "George Street Shuffle",
+                                          "Hep Cats",
+                                          "Intractable",
+                                          "Mining by Moonlight",
+                                          "NoGoodLayabout",
+                                          "Opportunity Walks",
+                                          "Shades of Spring",
+                                          "Sidewalk Shade"])+".mp3"
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load(music)
+    pygame.mixer.music.play()
+    pygame.mixer.music.set_volume(volume)
     if selected_option == 0: # Normalna gra
         normal_games.normal_game.main(graphics.choose_time_control_dialog(screen,120))
         return True

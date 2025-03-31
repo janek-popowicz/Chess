@@ -1,0 +1,8 @@
+site_name: Chess Documentation
+
+plugins:
+  - search
+  - mkdocstrings
+
+theme:
+  name: material  # Nowoczesny wygląd
