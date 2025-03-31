@@ -4,6 +4,7 @@ import subprocess
 import sys
 import os
 import random
+import ctypes
 
 # Dodaj katalog główny do sys.path, jeśli nie jest już w nim zawarty
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -78,6 +79,10 @@ def main():
         print(global_translations.get("menu_cursor_sound_warning"))
         menu_cursor_sound = None
     nerd_view = config["nerd_view"]
+
+    # Ukryj konsolę (tylko Windows)
+    if nerd_view and sys.platform == "win32":
+        ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
 
     # Create language icon rect outside the main loop
     lang_icon_rect = pygame.Rect(screen.get_width() - 70, screen.get_height() - 70, 50, 50)
