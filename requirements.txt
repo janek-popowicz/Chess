@@ -1,0 +1,5 @@
+pyinstaller===6.12.0
+pygame===2.6.1
+numpy===2.2.4
+clock===0.1
+matplotlib===3.10.1
