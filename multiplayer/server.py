@@ -8,9 +8,9 @@ from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from engine.fen_operations import *
-from graphics import *
+from interface.graphics import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
-from nerd_view import *
+from interface.nerd_view import *
 
 
 def start_server() -> None:
@@ -341,7 +341,7 @@ def main(game_time) -> None:
                                 conn.sendall(message.encode('utf-8'))
                                 if whatAfter == "checkmate":
                                     result = "Szach Mat!"
-                                    winner = "Białas" if turn == 'b' else "Czarnuch"
+                                    winner = "Białe" if turn == 'b' else "Czarne"
                                     running = False
                                 elif whatAfter == "stalemate":
                                     result = "Pat"
@@ -433,7 +433,7 @@ def main(game_time) -> None:
                                 whatAfter, yForPromotion, xForPromotion = afterMove(turn, main_board, selected_piece[0], selected_piece[1], row, col)
                             if whatAfter == "checkmate":
                                 result = "Szach Mat!"
-                                winner = "Białas" if turn == 'b' else "Czarnuch"
+                                winner = "Białe" if turn == 'b' else "Czarne"
                                 running = False
                             elif whatAfter == "stalemate":
                                 result = "Pat"

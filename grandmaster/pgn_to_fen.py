@@ -246,7 +246,7 @@ def main():
     pygame.display.set_caption("PGN to FEN Converter")
 
     # Show file dialog
-    from graphics import choose_pgn_file_dialog
+    from interface.graphics import choose_pgn_file_dialog
     grandmaster = choose_pgn_file_dialog(screen, 100)
     
     if not grandmaster:  # User cancelled or error occurred

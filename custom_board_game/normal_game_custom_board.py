@@ -9,9 +9,9 @@ from engine.fen_operations import *
 from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
-from graphics import *
+from interface.graphics import *
 from algorithms.evaluation import get_evaluation  # Import evaluation function
-from nerd_view import *
+from interface.nerd_view import *
 
 
 def load_custom_board(fen_file):

@@ -10,15 +10,14 @@ import ctypes
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import normal_games.normal_game
-import normal_games.test_mode_normal_game
 import custom_board_game.board_maker
 import custom_board_game.normal_game_custom_board
 import grandmaster.grandmaster_game
 import algorithms.algorithms_game
-import settings
-import graphics
+import interface.settings as settings
+import interface.graphics as graphics
 import grandmaster.pgn_to_fen
-from language import global_translations, language_selection_screen  # Add this import at the top
+from interface.language import global_translations, language_selection_screen  # Add this import at the top
 
 # Funkcja główna
 def main():

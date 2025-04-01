@@ -9,11 +9,11 @@ from multiprocessing import Process, Queue as multiQueue
 from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
-from graphics import *
+from interface.graphics import *
 from algorithms.minimax import *
 from algorithms.monte_carlo_tree_search import *
 from algorithms.evaluation import get_evaluation
-from nerd_view import *
+from interface.nerd_view import *
 
 
 def calculate_minimax(board, depth, color, time_limit, min_time, result_queue):

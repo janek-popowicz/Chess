@@ -6,7 +6,7 @@ from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from engine.fen_operations import *
-import graphics
+import interface.graphics as graphics
 
 CONFIG_FILE = "config.json"
 

@@ -11,10 +11,10 @@ from engine.board_and_fields import *
 from engine.engine import *
 from engine.figures import *
 from engine.fen_operations import *
-from graphics import *
+from interface.graphics import *
 from algorithms.evaluation import *
 from algorithms.minimax import *
-from nerd_view import *
+from interface.nerd_view import *
 
 def calculate_minimax(board: Board, color: str, result_queue: multiQueue) -> None:
     """
