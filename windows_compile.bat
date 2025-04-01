@@ -19,6 +19,7 @@ pyinstaller -F ^
   --hidden-import=matplotlib.figure.Figure ^
   --hidden-import=matplotlib.backends.backend_tkagg.FigureCanvasTkAgg ^
   --hidden-import=matplotlib.backends.backend_tkagg ^
+  --hidden-import=multiprocessing ^
   --hidden-import=matplotlib.dates ^
   --hidden-import=matplotlib.ticker ^
   --hidden-import=datetime.datetime ^

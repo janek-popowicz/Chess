@@ -5,6 +5,7 @@ import sys
 import os
 import random
 import ctypes
+import multiprocessing
 
 # Dodaj katalog główny do sys.path, jeśli nie jest już w nim zawarty
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -293,6 +294,9 @@ def open_pdf(PDF_PATH):
 
 # Start the launcher
 if __name__ == "__main__":
+    multiprocessing.freeze_support()  # 🔥 KLUCZOWE DLA PYINSTALLERA!
+    multiprocessing.set_start_method("spawn", force=True)  # 🔥 NA WINDOWSIE!
+    main()
     while True:
         main()
         break
