@@ -1,22 +1,8 @@
 Chess ♟️ – Projekt Szachowy dla Motorola Science Cup 2025 🚀
 Witamy w projekcie Chess – innowacyjnym rozwiązaniu stworzonym z myślą o Motorola Science Cup 2025. Ten projekt to zaawansowana implementacja gry w szachy w języku Python, która demonstruje nie tylko pasję do gry, ale także umiejętności inżynierskie i kreatywność.
 
-Spis Treści 📚
-Opis Projektu
 
-Struktura Projektu
 
-Wymagania Systemowe
-
-Instalacja i Uruchomienie
-
-Funkcje i Moduły
-
-Kontrybucja
-
-Licencja
-
-Kontakt
 
 Opis Projektu ✨
 Projekt Chess to zaawansowana gra szachowa, która powstała na potrzeby Motorola Science Cup 2025. Celem projektu jest:
@@ -41,3 +27,8 @@ launcher.py – skrypt startowy uruchamiający grę.
 normal_game.py i random-ai.py – przykłady trybów rozgrywki: gra normalna oraz gra z AI o losowej strategii.
 
 settings.py oraz config.json – konfiguracja ustawień gry.
+
+
+Instalacja z Githuba 
+cd 
+
