@@ -90,7 +90,7 @@ class NormalStatsWindow:
                             'r--', label="Przewaga czarnych", alpha=0.7)
             self.ax_eval.axhline(0, color='gray', linestyle=':', linewidth=1)
             self.ax_eval.set_title("Analiza pozycji w czasie rzeczywistym")
-            self.ax_eval.set_ylabel("Przewaga (w pionkach)")
+            self.ax_eval.set_ylabel("Wartość szachownicy")
             self.ax_eval.legend(loc='upper left')
             self.ax_eval.grid(True, alpha=0.3)
             
@@ -98,7 +98,7 @@ class NormalStatsWindow:
             self.ax_moves.plot(elapsed_seconds, self.move_counts, 
                              'g-', label="Dostępne ruchy", linewidth=1.5)
             self.ax_moves.set_title("Liczba możliwych ruchów")
-            self.ax_moves.set_xlabel("Czas gry (MM:SS)")
+            self.ax_moves.set_xlabel("Czas gry")
             self.ax_moves.set_ylabel("Liczba ruchów")
             self.ax_moves.legend(loc='upper left')
             self.ax_moves.grid(True, alpha=0.3)

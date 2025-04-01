@@ -834,10 +834,10 @@ def get_evaluation(board, current_color=None):
         if not legal_moves:
             if board.is_in_check(current_color):
                 # Mat - zwróć ogromną wartość z perspektywy przeciwnika
-                return [float('-inf'), float('inf')] if current_color == 'w' else [float('inf'), float('-inf')]
+                return (float('-inf'), float('inf')) if current_color == 'w' else (float('inf'), float('-inf'))
             else:
                 # Pat
-                return [0.0, 0.0]
+                return (0.0, 0.0)
 
     # Oblicz wartość materiału
     material = ocena_materiału(board)
@@ -865,7 +865,7 @@ def get_evaluation(board, current_color=None):
                  situational[0] + 
                  activity[0] + 
                  threats[0] + 
-                 mating(board)[0] * 1,3+
+                 mating(board)[0] * 1.3+
                  rooks_connected[0])
     
     # Suma wszystkich składników oceny dla czarnych
@@ -878,7 +878,7 @@ def get_evaluation(board, current_color=None):
                  situational[1] + 
                  activity[1] + 
                  threats[1] + 
-                mating(board)[1] * 1,3+
+                mating(board)[1] * 1.3+
                  rooks_connected[1])
     
-    return [white_eval, black_eval]
+    return (white_eval, black_eval)

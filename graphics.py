@@ -1050,14 +1050,15 @@ def show_error_dialog(screen, message: str, SQUARE_SIZE: int) -> None:
         message (str): Error message to display
         SQUARE_SIZE (int): Size of a board square for scaling
     """
+    pygame.init()
     font = pygame.font.Font(None, 36)
     
     # Dialog box properties
     DIALOG_WIDTH = min(300 - 100, max(400, len(message) * 15))
     DIALOG_HEIGHT = 200
     dialog_rect = pygame.Rect(
-        (screen.get_width() - DIALOG_WIDTH) // 2,
-        (screen.get_height() - DIALOG_HEIGHT) // 2,
+        (1260 - DIALOG_WIDTH) // 2,
+        (960 - DIALOG_HEIGHT) // 2,
         DIALOG_WIDTH,
         DIALOG_HEIGHT
     )
@@ -1066,7 +1067,7 @@ def show_error_dialog(screen, message: str, SQUARE_SIZE: int) -> None:
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
     button_rect = pygame.Rect(
-        (screen.get_width() - BUTTON_WIDTH) // 2,
+        (1260 - BUTTON_WIDTH) // 2,
         dialog_rect.bottom - BUTTON_HEIGHT - 20,
         BUTTON_WIDTH,
         BUTTON_HEIGHT
