@@ -80,7 +80,7 @@ def main():
     nerd_view = config["nerd_view"]
 
     # Ukryj konsolę (tylko Windows)
-    if nerd_view and sys.platform == "win32":
+    if not nerd_view and sys.platform == "win32":
         ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
 
     # Create language icon rect outside the main loop
