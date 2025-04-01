@@ -1,0 +1,8 @@
+[Event "Chess Game"]
+[Date "2025.04.01"]
+[White "Player 1"]
+[Black "Player 2"]
+[Result "Czas się skończył!"]
+
+1. e2-e4 e7-e5 2. f2-f4 e5xf4 3. g2-g4 Qd8-h4 4. Ke1-e2 Qh4xg4 5. Ng1-f3 Qg4-g6 6. Nf3-g5 Qg6xg5 7. h2-h4 Qg5-g3 8. Bf1-h3 Qg3xh4 9. Bh3xd7+ Nb8xd7 10. Rh1xh4 Ke8-e7 11. Rh4xf4 Ke7-d6 12. Rf4xf7 Kd6-e5 13. Rf7-f3 Bf8-a3 14. c2-c4 Ng8-h6 15. Rf3xa3 g7-g5 16. Qd1-a4 a7-a5 17. Qa4-b5+ c7-c5 18. Qb5-b3 b7-b5
+ 0-1
